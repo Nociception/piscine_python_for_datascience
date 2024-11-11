@@ -1,2 +1,3 @@
-ex*/tester.py
-ex*/__pycache__*
+tester.py
+__pycache__/
+env/

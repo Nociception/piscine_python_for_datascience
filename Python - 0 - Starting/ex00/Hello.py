@@ -16,16 +16,12 @@ ft_list[1] = "World!"
 
 ft_tuple = "Hello", "France!"
 
-ft_set = {'Hello', 'Paris!'} #The only way without any function
-#ft_set.remove("tutu!") ; ft_set.add("Paris!") ; ft_set = sorted(ft_set)
-#"Allowed functions : None"
+ft_set.remove("tutu!") ; ft_set.add("Paris!") ; ft_set = sorted(ft_set)
 
 ft_dict["Hello"] = "42Paris!"
 
 
 #Results
-#"Allowed functions : None"
-#(except print let's suppose)
 print(ft_list)
 print(ft_tuple)
 print(ft_set)
