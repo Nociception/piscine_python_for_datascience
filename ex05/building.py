@@ -9,13 +9,13 @@ def main() -> None:
     lower-case characters, punctuation characters,
     digits and spaces)in the text argument received from the shell,
     and prints the result.
-    
+
     If no argument is received from the shell, it is possible to
     type it on several lines.
     Each \\n typed through the Entry key is turned into a space.
     Send an EOF signal (through Ctrl+D) to end your text.
     """
-    
+
     DEBUG = 0
 
     def get_input() -> str:
@@ -27,17 +27,16 @@ def main() -> None:
         print("What is the text to count?")
         text = list()
         while True:
-            try :
+            try:
                 s = input()
                 text.append(s) if s else text.append(' ')
-            except EOFError :
+            except EOFError:
                 break
         text = ''.join(text)
         if len(text) == 0:
             print("No input provided.")
             exit(1)
         return text
-    
 
     def building_count_function(text: str) -> None:
         """
@@ -53,9 +52,9 @@ def main() -> None:
         criteria = {"upper letters": lambda c: c.isupper(),
                     "lower letters": lambda c: c.islower(),
                     "punctuation marks": lambda c: c in punctuation,
-                    "spaces" : lambda c: c.isspace(),
-                    "digits" : lambda c: c.isdigit()}
-        
+                    "spaces": lambda c: c.isspace(),
+                    "digits": lambda c: c.isdigit()}
+
         counts = {
             name: sum(1 for c in text if check(c))
             for name, check in criteria.items()}
@@ -65,9 +64,9 @@ def main() -> None:
             print(f"{count} {name}")
 
     nb_args = len(sys.argv) - 1
-    try :
+    try:
         assert nb_args < 2, ("more than one argument is provided")
-    except AssertionError as error :
+    except AssertionError as error:
         print(f"{type(error).__name__}: {error}", file=sys.stderr)
         exit(1)
 
