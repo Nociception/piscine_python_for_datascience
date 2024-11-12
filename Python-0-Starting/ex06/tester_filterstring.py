@@ -4,24 +4,28 @@ import os
 
 def tests_dict() -> dict:
     """Return only the tests_dict
-    First element of each list is the expected result"""
-
+    First element of each list is the expected result."""
     tests = {
-        "basic": ["['Hello', 'World']", "'Hello the World' 4"],
-        "none_long_enough": ["[]", "'Hello the World' 99"],
-        "invalid_length_type": ["AssertionError: the arguments are bad", 
-                                "3 'Hello the World'", 
-                                "'Hello World' 'four'"],
+        "basic": ["['Hello', 'World']", '"Hello the World" 4'],
+        "none_long_enough": ['[]', '"Hello the World" 99'],
+        "invalid_length_type": [
+            "AssertionError: the arguments are bad",
+            "3 'Hello the World'",
+            "'Hello World' 'four'"
+        ],
         "no_arguments": ["AssertionError: the arguments are bad", ""],
-        "too_many_arguments": ["AssertionError: the arguments are bad", 
-                               "'Hello World' 4 extra_arg"],
+        "too_many_arguments": [
+            "AssertionError: the arguments are bad",
+            "'Hello World' 4 extra_arg"
+        ],
         "invalid_characters": [
             "AssertionError: the arguments are bad",
             "'Hello, world!' 4",
-            "'Hello\\nworld' 4",
-        ]
+            "'Hello\\nworld' 4"
+        ],
     }
     return tests
+
 
 if __name__ == "__main__":
     sys.path.insert(0, "../../")
