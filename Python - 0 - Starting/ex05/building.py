@@ -2,6 +2,9 @@
 
 import sys
 
+#SUBJECT
+"""
+"""
 
 def main() -> None:
     """
