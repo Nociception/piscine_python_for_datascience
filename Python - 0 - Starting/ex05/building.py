@@ -2,9 +2,36 @@
 
 import sys
 
-#SUBJECT
+# Subject
 """
+Exercice 05: First standalone program python
+Turn-in directory : ex05/
+Files to turn in : building.py
+Allowed functions : sys or any other library that allows to receive the args
+
+This time you have to make a real autonomous program, with a main, which takes
+a single string argument and displays the sums of its upper-case characters,
+lower-case characters, punctuation characters, digits and spaces.
+• If None or nothing is provided, the user is prompted to provide a string.
+(the carriage return counts as a space, if you don't want to return
+one use ctrl + D)
+• If more than one argument is provided to the program,
+print an AssertionError
+
+Expected outputs:
+
+$>python building.py
+What is the text to count?
+Hello World!
+The text contains 13 characters:
+2 upper letters
+8 lower letters
+1 punctuation marks
+2 spaces
+0 digits
+$>
 """
+
 
 def main() -> None:
     """
@@ -17,6 +44,18 @@ def main() -> None:
     type it on several lines.
     Each \\n typed through the Entry key is turned into a space.
     Send an EOF signal (through Ctrl+D) to end your text.
+    Returns nothing.
+
+    $>python building.py
+    What is the text to count?
+    Hello World!
+    The text contains 13 characters:
+    2 upper letters
+    8 lower letters
+    1 punctuation marks
+    2 spaces
+    0 digits
+    $>
     """
 
     DEBUG = 0

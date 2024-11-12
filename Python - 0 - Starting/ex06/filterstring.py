@@ -3,7 +3,39 @@
 import sys
 from ft_filter import ft_filter
 
-#SUBJECT
+# Subject
+"""Exercice 06:
+Turn-in directory : ex06/
+Files to turn in : ft_filter.py, filterstring.py
+Allowed functions : sys or any other library that allows to receive the args
+
+Part 2: The program
+Create a program that accepts two arguments: a string(S), and an integer(N).
+The program should output a list of words from S
+that have a length greater than N.
+• Words are separated from each other by space characters.
+• Strings do not contain any special characters. (Punctuation or invisible)
+• The program must contain at least one
+list comprehension expression and one lambda.
+• If the number of argument is different from 2,
+or if the type of any argument is wrong,
+the program prints an AssertionError.
+
+Expected outputs:
+$> python filterstring.py 'Hello the World' 4
+['Hello', 'World']
+$>
+$> python filterstring.py 'Hello the World' 99
+[]
+$>
+$> python filterstring.py 3 'Hello the World'
+AssertionError: the arguments are bad
+$>
+$> python filterstring.py
+AssertionError: the arguments are bad
+$>
+"""
+
 
 def main():
     """Receive two argument from the CLI, in the following order:
@@ -14,7 +46,13 @@ def main():
 
     Returns the list of words from your string whose length is greater than
     or equal to minimum_length.
-    Returns [] if no word fits the condition."""
+    Returns [] if no word fits the condition.
+
+    Usage:
+    $> python filterstring.py 'Hello the World' 4
+    ['Hello', 'World']
+    $>"""
+
     DEBUG = 1
 
     only_error_text = "the arguments are bad"

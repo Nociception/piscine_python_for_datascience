@@ -3,7 +3,11 @@ from find_ft_type import all_thing_is_obj
 
 
 def main(more_test: bool = False) -> None:
-    """DOCSTRING"""
+    """Tests the all_thing_is_obj function.
+    Receives an arg (more_test).
+    Use the -more option for more tests:"
+    "python3 tester.py -more"""
+
     ft_list = ["Hello", "tata!"]
     ft_tuple = ("Hello", "toto!")
     ft_set = {"Hello", "tutu!"}
