@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     # Type here the file (with its extension) to test
     script_name = "filterstring.py"
-    
+
     script_path = f"{os.getcwd()}/{script_name}"
     debug = any(arg == "-debug" for arg in sys.argv)
     if not debug:

@@ -1,18 +1,23 @@
 import sys
 import os
 
+
 def tests_dict() -> dict:
-    """Return only the tests_dict.
-    First element of each list is the expected result."""
+    """Return only the tests_dict
+    First element of each list is the expected result"""
     tests = {
         "simple_word": ["... --- ...", "sos"],
-        "phrase_with_spaces": [".- / -... --- -.-", "a bok"],
-        "numbers": ["...-- ----. ..--- / ----. -----", "392 90"],
-        "mixed_case": [".... . .-.. .-.. --- / .-- --- .-. .-.. -..", "Hello World"],
-        "invalid_characters": ["AssertionError: the arguments are bad", "h$llo", "he##o"],
-        "too_many_arguments": ["AssertionError: the arguments are bad", "sos another_arg"]
+        "phrase_with_spaces": [".- / -... --- -.-", '"a bok"'],
+        "numbers": ["...-- ----. ..--- / ----. -----", '"392 90"'],
+        "mixed_case": [".... . .-.. .-.. --- / .-- --- .-. .-.. -..",
+                       '"Hello World"'],
+        "invalid_characters": ["AssertionError: the arguments are bad",
+                               "h$llo", "he##o"],
+        "too_many_arguments": ["AssertionError: the arguments are bad",
+                               "sos another_arg"]
     }
     return tests
+
 
 if __name__ == "__main__":
     sys.path.insert(0, "../../")
