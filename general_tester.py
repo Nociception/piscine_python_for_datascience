@@ -23,11 +23,15 @@ def general_tester(script_path: str,
         for case in cases[1:]:
             test_command = ["python3", script_path] + case.split()
             result = subprocess.run(test_command,
-                                    capture_output=True, text=True)
+                                    capture_output=True,
+                                    text=True, encoding="utf-8")
             output = result.stdout if std == "out" else result.stderr
 
             if debug:
                 print(f"case = {case} ; output = {output}")
+                print(f"Command: {test_command}")
+                print(f"stdout: {result.stdout}")
+                print(f"stderr: {result.stderr}")
 
             try:
                 assert output.strip() == expected, (

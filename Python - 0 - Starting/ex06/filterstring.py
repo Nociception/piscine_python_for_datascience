@@ -53,7 +53,7 @@ def main():
     ['Hello', 'World']
     $>"""
 
-    DEBUG = 1
+    DEBUG = 0
 
     only_error_text = "the arguments are bad"
     args = sys.argv
