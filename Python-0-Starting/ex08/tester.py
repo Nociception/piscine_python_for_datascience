@@ -25,7 +25,7 @@ from Loading import ft_tqdm
 
 
 def main() -> None:
-    """DOCSTRING"""
+    """Tests the ft_tqdm function"""
     DELAY = 0.005
 
     def ft_tqdm_VS_original_tqdm(r: range) -> None:

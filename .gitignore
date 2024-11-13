@@ -1,5 +1,6 @@
-#REMOVE THE TWO FIRST LINES FOR GITHUB
+#REMOVE THE 3 FIRST LINES FOR GITHUB
 # tester.py
 # general_tester.py
+# training_yield.py
 __pycache__/
 env/
