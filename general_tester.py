@@ -3,11 +3,35 @@ import subprocess
 
 def general_tester(script_path: str,
                    tests_dict: dict, debug: bool = False) -> None:
-    """DOCSTRING"""
+    """Receives a tests_dict: {tests_type: ['result expected',
+    'test_case1', 'test_case2', ...]}
+    
+    Checks if the progam written in the scripth_path file provides
+    the same output as expected, for each test_case.
+
+    debug on True for more details.
+
+    Returns nothing.
+
+    Usage:
+    In a python script, not in the shell.
+    if __name__ == "__main__":
+        sys.path.insert(0, "../../")
+        from general_tester import general_tester
+
+        # Type here the file (with its extension) to test
+        script_name = "filterstring.py"
+
+        script_path = f"{os.getcwd()}/{script_name}"
+        debug = any(arg == "-debug" for arg in sys.argv)
+        if not debug:
+            print("Use the -debug option for detailed tests:\n"
+                "python3 tester.py -debug\n")
+        general_tester(script_path, tests_dict(), debug)"""
+
     GREEN = "\033[32m"
     RED = "\033[31m"
     DEFAULT_COLOR = "\033[0m"
-    debug = 1 if debug else 0
 
     if debug:
         print(f"script_path = {script_path}\n"
