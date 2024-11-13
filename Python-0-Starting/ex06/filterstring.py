@@ -78,8 +78,11 @@ def main():
         assert length_minimum.isdigit(), (only_error_text + f"{DEBUG*'(4)'}")
         length_minimum = int(length_minimum)
 
-        print(list(
-            ft_filter(lambda x: len(x) >= length_minimum, text.split())))
+        # print(list(
+        #     ft_filter(lambda x: len(x) >= length_minimum, text.split())))
+        filtered_words = [word for word in ft_filter(
+            lambda x: len(x) >= length_minimum, text.split())]
+        print(filtered_words)
 
     except AssertionError as error:
         print(f"{type(error).__name__}: {error}", file=sys.stderr)
