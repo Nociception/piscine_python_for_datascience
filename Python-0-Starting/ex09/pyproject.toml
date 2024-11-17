@@ -1,0 +1,5 @@
+# Tells Python what tools use for building the package
+
+[build-system] # dependencies section
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
