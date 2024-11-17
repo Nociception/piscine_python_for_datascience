@@ -49,22 +49,32 @@ def whatis() -> None:
     $> python whatis.py 14
     I'm Even."""
 
-    nb_args = len(sys.argv) - 1
-    if nb_args == 0:
-        exit()
-    assert nb_args == 1, ("more than one argument is provided")
+    def parsing(argv: list) -> int:
+        """Checks if exactly one argument is received,
+        and if it is an integer.
+        """
 
-    try:
-        arg = int(sys.argv[1])
-    except Exception:
-        raise AssertionError("argument must be an integer")
+        nb_args = len(sys.argv) - 1
+        if nb_args == 0:
+            exit()
+        assert nb_args == 1, ("more than one argument is provided")
+
+        try :
+            arg = int(sys.argv[1])
+        except ValueError:
+            raise AssertionError("argument must be an integer")
+
+        return arg
+
+    try :
+        arg = parsing(sys.argv)
+    except AssertionError as error:
+        print(f"{type(error).__name__}: {error}", file=sys.stderr)
+        exit(1)
 
     parity = "Odd" if arg % 2 else "Even"
     print(f"I'm {parity}.")
 
 
 if __name__ == "__main__":
-    try:
-        whatis()
-    except AssertionError as error:
-        print(f"{type(error).__name__}: {error}", file=sys.stderr)
+    whatis()

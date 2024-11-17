@@ -60,9 +60,11 @@ def NULL_not_found(object: any) -> int:
 
     DEBUG = 0
     if DEBUG:
-        import inspect
-        print(f"function: {inspect.currentframe().f_code.co_name}"
-              f" ; arg: {object} ; arg_type: {type(object)}")
+        print("Debug part is commented, because of a forbidden import.\n"
+              "Feel free to uncomment it.")
+    #     import inspect
+    #     print(f"function: {inspect.currentframe().f_code.co_name}"
+    #           f" ; arg: {object} ; arg_type: {type(object)}")
 
     """
     A match case syntax does not fit here.
