@@ -112,11 +112,7 @@ def main() -> None:
         print(f"{type(error).__name__}: {error}", file=sys.stderr)
         exit(1)
 
-    text = ""
-    if nb_args == 0:
-        text = get_input()
-    elif nb_args == 1:
-        text = sys.argv[1]
+    text = sys.argv[1] if nb_args else get_input()
     if DEBUG:
         print(f"text = {text}")
 
