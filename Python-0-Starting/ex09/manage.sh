@@ -136,15 +136,20 @@ Here are some leads:
 - To build the package, run this in the ex09 directory: python3 -m build
 This command generates the distro files ./dist/ft_package-0.0.1.tar.gz and ./dist/ft_package-0.0.1-py3-none-any.whl
 These files allow the package installation (the next step).
-The build command searches for the pyproject.toml file, which 
-Two files are used to generate these distro files:
-*  setup.py:
-    
-*  pyproject.toml:
+The build command searches for the pyproject.toml file, which contains the modules to use for building the package.
+*  pyproject.toml: tells the build command which modules to use for building the package.
+Contains also the build-backend statement, which routes the build command to search for the setup.py file.
+*  setup.py: informs the build command about meta-data, the dependencies the package needs
 - To install the package, use any of these commands:
    pip install ./dist/ft_package-0.0.1.tar.gz
    pip install ./dist/ft_package-0.0.1-py3-none-any.whl
    pip install ./dist/*.whl
+A .whl file is almost ready to use : pip unzips it.
+Whereas a .tar.gz file implies that pip unzips it, and compiles the file in order to generate a .whl file.
+Pip installs the dependencies written in the install_requires section, in the setup.py file.
+Pip copies then the files into the current Python environment.
+It also includes the .dist-info file, which contains the meta-data specified in the setup.py file.
+This .dist-info file is called when the command pip show -v ft_package is called.
 - To test the package, and its function: open a Python REPL with python3 in the shell
 >>> from ft_package import count_in_list
 >>> print(count_in_list(["toto", "tata", "toto"], "toto")) # output: 2

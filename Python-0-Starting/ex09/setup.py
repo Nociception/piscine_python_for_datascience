@@ -1,5 +1,3 @@
-# file run when `python setup.py install`
-
 from setuptools import setup, find_packages
 
 if __name__ == "__main__":
