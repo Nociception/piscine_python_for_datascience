@@ -38,6 +38,13 @@ $>
 import numpy as np
 
 
+def only_int_or_float_in_list(l: list) -> bool:
+    """DOCSTRING"""
+
+    return all(isinstance(x, (int, float)) for x in l)
+    # (1) Further details about this check at the end of the file
+
+
 def give_bmi(height: list[int | float],
              weight: list[int | float]) -> list[int | float]:
     """Receives two same-sized lists of numbers (int or float):
@@ -51,26 +58,62 @@ def give_bmi(height: list[int | float],
 
     Returns a list of bmi for each couple of value height[i], weight[i]"""
 
-    try:
+    DEBUG = 0
+
+    def parsing(height: list[int | float],
+                weight: list[int | float]) -> tuple[np.array, np.array]:
+        """Receives and parses the two lists which give_bmi receives.
+        Checks if :
+        - They have the same size
+        - They contains only int or float
+        - There is no 0 in the height list (to prevent a ZeroDivisionError)
+        
+        Returns two numpy arrays generated from the two lists."""
+
         assert len(height) == len(weight), (
-            "Both of the list must contain the same number of numbers."
+            "Error: Both of the list must be the same size."
         )
-        assert all(isinstance(x, (int, float)) for x in height + weight), (
-            "Elements in both of the lists must be integers or floats."
+        assert only_int_or_float_in_list(height + weight), (
+            "Error: Elements in both of the lists must be integers or floats."
         )
-        assert all(height), ("Numbers cannot be 0 in the height_list.")
+        assert all(height), ("Error: Numbers cannot be 0 in the height list.")
 
-        height_arr = np.array(height)
-        weight_arr = np.array(weight)
-        bmi = weight_arr / (height_arr ** 2)
-        return bmi.tolist()
+        return np.array(height), np.array(weight)
 
+    try:
+        height_arr, weight_arr = parsing(height, weight)
+        if DEBUG:
+            print(f"Function: give_bmi; height={height}; weight={weight}\n"
+                  f"after parsing: height_arr={height_arr}; weight_arr={weight_arr}")
     except AssertionError as error:
         print(f"{type(error).__name__}: {error}")
 
+    bmi = weight_arr / (height_arr ** 2)
+    return bmi.tolist()
 
 def apply_limit(bmi: list[int | float], limit: int) -> list[bool]:
     """DOCSTRING"""
 
-    bmi_arr = np.array(bmi)
+    def parsing(bmi: list[int | float], limit: int) -> np.ndarray:
+        """DOCSTRING"""
+
+        assert only_int_or_float_in_list(bmi), (
+            "Error: Elements in both of the lists must be integers or floats."
+        )
+        assert isinstance(limit, int), ("Error: limit must be an integer.")
+
+        return np.array(bmi)
+
+    bmi_arr = parsing(bmi, limit)
     return (bmi_arr > limit).tolist()
+
+"""
+(1): Back to this check:
+    assert all(isinstance(x, (int, float)) for x in height + weight), (
+            "Elements in both of the lists must be integers or floats."
+    )
+    This check allows the lists to contain a mix of int and float.
+    Because of numpy arrays can contain inly one type of data, if the list
+    which is going to be turned into a numpy array contains a mix of
+    int and float, int will be converted to float.
+"""
