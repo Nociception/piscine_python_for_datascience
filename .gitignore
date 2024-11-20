@@ -2,5 +2,10 @@
 # tester.py
 # general_tester.py
 # training_yield.py
+# manage.sh
+
 __pycache__/
 env/
+dist
+build
+*.egg-info
