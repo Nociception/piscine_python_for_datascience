@@ -1,11 +1,13 @@
 from give_bmi import give_bmi, apply_limit
 import sys
 import io
+import math
+
 
 def tester() -> None:
     """Tests both of the functions give_bmi and apply_limit,
     with normal cases and error cases.
-    
+
     Returns: nothing."""
 
     DETAILS = 1
@@ -13,9 +15,9 @@ def tester() -> None:
     GREEN = "\033[32m"
     RED = "\033[31m"
     DEFAULT_COLOR = "\033[0m"
-    
+
     # Normal cases
-    def normal_cases_tester_engine(
+    def normal_cases_tester(
             height: list,
             weight: list,
             limit: int,
@@ -26,7 +28,7 @@ def tester() -> None:
         with normal cases, which are not supposed to lauch any error.
         Compares what results both of the functions provide
         with the expected results for each function.
-        
+
         Args:
             - height: a list of integer/float
             - weight: a list of integer/float
@@ -38,21 +40,30 @@ def tester() -> None:
         Returns: nothing.
         """
 
+        rel_tol = 1e-15
+
         try:
             if details:
                 print("Test values:\n"
-                      f"height={height}"
-                      f"weight={weight}"
-                      f"limit={limit}"
-                      f"expected_bmi={expected_bmi}"
-                      f"expected_limit={expected_limit}")
+                      f"height={height}\n"
+                      f"weight={weight}\n"
+                      f"limit={limit}\n"
+                      f"expected_bmi={expected_bmi}\n"
+                      f"expected_limit={expected_limit}\n")
 
             result_bmi = give_bmi(height, weight)
             if details:
                 print(f"give_bmi results: {result_bmi}")
-            assert result_bmi == expected_bmi, (
-                f"Expected {expected_bmi}, but got {result_bmi}"
+
+            assert len(result_bmi) == len(expected_bmi), (
+                f"Expected length {len(expected_bmi)}, "
+                f"but got {len(result_bmi)}"
             )
+
+            for rb, eb in zip(result_bmi, expected_bmi):
+                assert math.isclose(rb, eb, rel_tol=rel_tol), (
+                    f"Expected {eb}, but got {rb} (tolerance={rel_tol})"
+                )
 
             result_limit = apply_limit(result_bmi, limit)
             if details:
@@ -74,8 +85,9 @@ def tester() -> None:
         limit = 26
         expected_bmi = [22.507863455018317, 29.0359168241966]
         expected_limit = [False, True]
-        normal_cases_tester_engine(height, weight, limit, expected_bmi,
-                                expected_limit, DETAILS)
+        normal_cases_tester(
+            height, weight, limit, expected_bmi,
+            expected_limit, DETAILS)
 
     if True:
         print("\nTest 2: 5 elements (only float)")
@@ -88,8 +100,9 @@ def tester() -> None:
                         24.930747922437675,
                         22.22222222222222]
         expected_limit = [False, False, False, False, False]
-        normal_cases_tester_engine(height, weight, limit, expected_bmi,
-                                    expected_limit, DETAILS)
+        normal_cases_tester(
+            height, weight, limit, expected_bmi,
+            expected_limit, DETAILS)
 
     if True:
         print("\nTest 3: 7 elements (int and float mixed)")
@@ -103,8 +116,9 @@ def tester() -> None:
                         26.296566837107375,
                         24.943310657596373]
         expected_limit = [True, True, True, True, True, True, True]
-        normal_cases_tester_engine(height, weight, limit, expected_bmi,
-                                expected_limit, DETAILS)
+        normal_cases_tester(
+            height, weight, limit, expected_bmi,
+            expected_limit, DETAILS)
 
     if True:
         print("\nTest 4: Empy list")
@@ -113,10 +127,19 @@ def tester() -> None:
         limit = 25
         expected_bmi = []
         expected_limit = []
-        normal_cases_tester_engine(height, weight, limit, expected_bmi,
-                                expected_limit, DETAILS)
+        normal_cases_tester(
+            height, weight, limit, expected_bmi,
+            expected_limit, DETAILS)
 
-    # Error cases
+    # give_bmi error cases
+    asserror = "AssertionError: "
+    args_not_lists = asserror + "Both of the arguments must be lists.\n"
+    size_error_text = asserror + "Both of the list must be "\
+        "the same size.\n"
+    integer_float_error_text = asserror + "Elements in both of "\
+        "the lists must be integers or floats.\n"
+    zero_in_height_error_text = asserror + "Numbers cannot be 0 "\
+        "in the height list.\n"
 
     def capture_stdout(f: object, *args, **kwargs) -> str:
         """
@@ -134,7 +157,7 @@ def tester() -> None:
         """
 
         stdout = io.StringIO()  # creates the variable for storing an output.
-        
+
         old_stdout = sys.stdout
         # old_stdout stores the old reference to the standard output, in order
         # to be able to restore it, letting the program intact.
@@ -152,17 +175,17 @@ def tester() -> None:
         except TypeError as error:
             print(f"{RED}{type(error).__name__}: {error}{DEFAULT_COLOR}",
                   file=sys.stderr)
-        
+
         finally:  # A keyword (in a try bloc) for instructions
             # which will be run anyway without
             # any exit, return or error before.
-            
+
             sys.stdout = old_stdout  # Then the standard output is restored.
 
         return stdout.getvalue()  # Returns as a string
-        #what the function output.
+        # what the function output.
 
-    def error_cases_give_bmi_tester_engine(
+    def error_cases_give_bmi_tester(
             height: list,
             weight: list,
             expected_error_text: str,
@@ -171,7 +194,7 @@ def tester() -> None:
         which are supposed to lauch error.
         Compares what error does the give_bmi functions lauches
         with the expected error text.
-        
+
         Args:
             - height: a list of integer/float
             - weight: a list of integer/float
@@ -182,16 +205,18 @@ def tester() -> None:
 
         if details:
             print("Test values:\n"
-                    f"height={height}"
-                    f"weight={weight}"
-                    f"expected_error_text={expected_error_text}")
+                  f"height={height}\n"
+                  f"weight={weight}\n"
+                  f"expected_error_text={expected_error_text}\n")
 
         output = capture_stdout(give_bmi, height, weight)
 
         try:
             assert output == expected_error_text, (
-                f"Expected '{expected_error_text}', but got '{output}'"
+                f"Expected \n{expected_error_text}\nbut got \n{output}"
             )
+            print(f"{GREEN}Test passed.{DEFAULT_COLOR}")
+
         except AssertionError as error:
             print(f"{RED}{type(error).__name__}: {error}{DEFAULT_COLOR}",
                   file=sys.stderr)
@@ -200,63 +225,106 @@ def tester() -> None:
         print("\nTest 5: Error case: mismatched sized")
         height = [1.8, 1.7]
         weight = [70]
-        t = "AssertionError: Error: Both of the list must be the same size.\n"
-        error_cases_give_bmi_tester_engine(height, weight, t, DETAILS)
+        t = size_error_text
+        error_cases_give_bmi_tester(height, weight, t, DETAILS)
 
-
-    # Error cases
     if True:
         print("\nTest 6: Error case: Non-numeric values")
         height = [1.8, "not a number", 1.7]
         weight = [70, 75, 80]
-        t = "AssertionError: Error: Elements in both of the lists must be integers or floats.\n"
-        error_cases_give_bmi_tester_engine(height, weight, t, DETAILS)
+        t = integer_float_error_text
+        error_cases_give_bmi_tester(height, weight, t, DETAILS)
 
     if True:
         print("\nTest 7: Error case: Zero values in height")
         height = [1.8, 0, 1.7]
         weight = [70, 75, 80]
-        t = "AssertionError: Error: Numbers cannot be 0 in the height list.\n"
-        error_cases_give_bmi_tester_engine(height, weight, t, DETAILS)
+        t = zero_in_height_error_text
+        error_cases_give_bmi_tester(height, weight, t, DETAILS)
 
     if True:
-        print("\nTest 8: Error case: Empty height and weight lists")
-        height = []
-        weight = []
-        t = "AssertionError: Error: Both of the list must be the same size.\n"
-        error_cases_give_bmi_tester_engine(height, weight, t, DETAILS)
-
-    if True:
-        print("\nTest 9: Error case: Different-sized lists")
+        print("\nTest 8: Error case: Different-sized lists")
         height = [1.8, 1.7]
         weight = [70, 75, 80]
-        t = "AssertionError: Error: Both of the list must be the same size.\n"
-        error_cases_give_bmi_tester_engine(height, weight, t, DETAILS)
+        t = size_error_text
+        error_cases_give_bmi_tester(height, weight, t, DETAILS)
 
     if True:
-        print("\nTest 10: Error case: Non-list input")
+        print("\nTest 9: Error case: Non-list input")
         height = "not a list"
         weight = [70, 75, 80]
-        t = "AssertionError: Error: Elements in both of the lists must be integers or floats.\n"
-        error_cases_give_bmi_tester_engine(height, weight, t, DETAILS)
+        t = args_not_lists
+        error_cases_give_bmi_tester(height, weight, t, DETAILS)
 
     if True:
-        print("\nTest 11: Error case: Negative values in height")
-        height = [1.8, -1.7, 1.7]
-        weight = [70, 75, 80]
-        t = "AssertionError: Error: Elements in both of the lists must be integers or floats.\n"
-        error_cases_give_bmi_tester_engine(height, weight, t, DETAILS)
-
-    if True:
-        print("\nTest 12: Error case: Mixed valid and invalid inputs")
+        print("\nTest 10: Error case: Mixed valid and invalid inputs")
         height = [1.8, 1.7, [1.6, 1.5]]
         weight = [70, 75, 80]
-        t = "AssertionError: Error: Elements in both of the lists must be integers or floats.\n"
-        error_cases_give_bmi_tester_engine(height, weight, t, DETAILS)
+        t = integer_float_error_text
+        error_cases_give_bmi_tester(height, weight, t, DETAILS)
+
+    def error_cases_apply_limit_tester(
+            bmi: list[int | float],
+            limit: int,
+            expected_error_text: str,
+            details: int) -> None:
+        """Tests the apply_limit function, with error cases,
+        which are supposed to launch errors.
+        Compares what error does the apply_limit function launches
+        with the expected error text.
+
+        Args:
+            - bmi: a list of integer/float
+            - limit: an integer
+            - expected_error_text: the expected error message
+            - details: an integer for enabling or not details displaying
+
+        Returns: nothing.
+        """
+
+        if details:
+            print("Test values:\n"
+                  f"bmi={bmi}\n"
+                  f"limit={limit}\n"
+                  f"expected_error_text={expected_error_text}\n")
+
+        output = capture_stdout(apply_limit, bmi, limit)
+
+        try:
+            assert output == expected_error_text, (
+                f"Expected \n{expected_error_text}\nbut got \n{output}"
+            )
+            print(f"{GREEN}Test passed.{DEFAULT_COLOR}")
+
+        except AssertionError as error:
+            print(f"{RED}{type(error).__name__}: {error}{DEFAULT_COLOR}",
+                  file=sys.stderr)
+
+    # apply_limit error cases
+    bmi_not_list = asserror + "bmi arg must be a list.\n"
+    limit_not_integer = asserror + "limit must be an integer.\n"
+    invalid_elements_in_bmi = asserror + "Elements in both of the"\
+        " lists must be integers or floats.\n"
+
+    if True:
+        print("\nTest 11: Error case: bmi is not a list")
+        bmi = "not a list"
+        limit = 25
+        error_cases_apply_limit_tester(bmi, limit, bmi_not_list, DETAILS)
+
+    if True:
+        print("\nTest 12: Error case: limit is not an integer")
+        bmi = [22.5, 24.0, 26.0]
+        limit = "not an integer"
+        error_cases_apply_limit_tester(bmi, limit, limit_not_integer, DETAILS)
+
+    if True:
+        print("\nTest 13: Error case: bmi contains invalid elements")
+        bmi = [22.5, "invalid", 26.0]
+        limit = 25
+        error_cases_apply_limit_tester(
+            bmi, limit, invalid_elements_in_bmi, DETAILS)
 
 
-    def error_cases_apply_limit_tester_engine() -> None:
-        """DOCSTRING"""
-    
 if __name__ == "__main__":
     tester()
