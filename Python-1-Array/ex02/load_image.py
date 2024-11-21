@@ -86,3 +86,5 @@ def ft_load(path: str) -> np.ndarray:
     except AssertionError as error:
         print(f"{type(error).__name__}: {error}")
         return np.array([])
+    except Exception as error:
+        print(f"An unexpected error occurred: {error}")
