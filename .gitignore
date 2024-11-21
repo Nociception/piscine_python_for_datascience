@@ -1,8 +1,9 @@
-#REMOVE THE 3 FIRST LINES FOR GITHUB
 # tester.py
 # general_tester.py
+# general_function_tester.py
 # training_yield.py
 # manage.sh
+# landscape.jpg
 
 __pycache__/
 env/
