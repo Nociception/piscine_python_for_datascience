@@ -71,10 +71,11 @@ def general_function_tester(test_cases, debug=False, use_error_output=False):
         rel_tol = case.get("rel_tol", None)
 
         if debug:
-            print(f"\nRunning test: {name}"
-                  f"Function: {func.__name__}"
-                  f"Args: {args}, Kwargs: {kwargs}"
-                  f"Expected: {expected}"
+            print(f"\nRunning test: {name}\n"
+                  f"Function: {func.__name__}\n"
+                  f"Args: {args}\n"
+                  f"Kwargs: {kwargs}\n"
+                  f"Expected: {expected}\n"
                   f"Relative Tolerance: {rel_tol}")
 
         result, stdout, stderr, error = capture_function_output(

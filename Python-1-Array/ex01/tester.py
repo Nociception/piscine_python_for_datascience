@@ -1,94 +1,167 @@
+import sys
 from array2D import slice_me
 
-def test_slice_me():
-    """
-    Tests the `slice_me` function with a variety of input scenarios.
 
-    The function evaluates the correctness of `slice_me` using:
-    - Standard inputs provided in the exercise instructions.
-    - Edge cases such as empty slices and out-of-bound slicing.
-    - Error cases where invalid inputs are provided to ensure that
-      the function raises appropriate errors.
+def test_cases():
+    """Return a list of test cases for slice_me."""
 
-    Scenarios tested include:
-    - Valid slicing of a 2D list with integer and float values.
-    - Handling of non-list inputs for `family`.
-    - Checking for rows of unequal lengths.
-    - Validating the presence of invalid element types in the 2D list.
-    - Verifying behavior with invalid `start` or `end` values.
-    - Edge cases where slicing results in empty or identical outputs.
+    asserror = "AssertionError: "
+    error_not_list = asserror + "family is not a list."
+    error_not_2d = asserror + "family list is not a 2D array."
+    error_not_all_lists = asserror + "family must contain only lists."
+    error_rows_length = asserror + "the rows are not the same length."
+    error_invalid_types = asserror + "invalid type found among"\
+        " item. Only the following types"\
+        " are allowed: int, float, complex, bool"
+    error_invalid_indexes = asserror + "Start or end"\
+        " (or both) is not an integer."
 
-    Expected output:
-    - Correctly sliced lists for valid inputs.
-    - Errors caught and printed for invalid inputs.
+    cases = [
+        # Normal cases
+        {
+            "name": "Test 1: Subject case (standard slicing)",
+            "function": slice_me,
+            "args": ([[1.80, 78.4],
+                      [2.15, 102.7],
+                      [2.10, 98.5],
+                      [1.88, 75.2]],
+                     0,
+                     2),
+            "kwargs": {},
+            "expected": [[1.8, 78.4], [2.15, 102.7]],
+        },
+        {
+            "name": "Test 2: Subject case (negative slicing)",
+            "function": slice_me,
+            "args": ([[1.80, 78.4],
+                      [2.15, 102.7],
+                      [2.10, 98.5],
+                      [1.88, 75.2]],
+                     1,
+                     -2),
+            "kwargs": {},
+            "expected": [[2.15, 102.7]],
+        },
+        {
+            "name": "Test 3: Single row slicing",
+            "function": slice_me,
+            "args": ([[1.80, 78.4],
+                      [2.15, 102.7],
+                      [2.10, 98.5],
+                      [1.88, 75.2]],
+                     0,
+                     1),
+            "kwargs": {},
+            "expected": [[1.8, 78.4]],
+        },
+        {
+            "name": "Test 4: Empty slicing",
+            "function": slice_me,
+            "args": ([[1.80, 78.4],
+                      [2.15, 102.7],
+                      [2.10, 98.5],
+                      [1.88, 75.2]],
+                     1,
+                     1),
+            "kwargs": {},
+            "expected": [],
+        },
+        {
+            "name": "Test 5: Slicing beyond bounds",
+            "function": slice_me,
+            "args": ([[1.80, 78.4],
+                      [2.15, 102.7],
+                      [2.10, 98.5],
+                      [1.88, 75.2]],
+                     100,
+                     200),
+            "kwargs": {},
+            "expected": [],
+        },
+        {
+            "name": "Test 6: Full array slicing",
+            "function": slice_me,
+            "args": ([[1.80, 78.4],
+                      [2.15, 102.7],
+                      [2.10, 98.5],
+                      [1.88, 75.2]],
+                     0,
+                     4),
+            "kwargs": {},
+            "expected": [[1.8, 78.4],
+                         [2.15, 102.7],
+                         [2.10, 98.5],
+                         [1.88, 75.2]],
+        },
+        # Error cases
+        {
+            "name": "Test 7: Error - family is not a list",
+            "function": slice_me,
+            "args": ("not a list", 0, 2),
+            "kwargs": {},
+            "expected": error_not_list,
+        },
+        {
+            "name": "Test 8: Error - family contains non-list elements",
+            "function": slice_me,
+            "args": ([[1.80, 78.4], (2.15, 102.7)], 0, 2),
+            "kwargs": {},
+            "expected": error_not_all_lists,
+        },
+        {
+            "name": "Test 9: Error - rows have unequal lengths",
+            "function": slice_me,
+            "args": ([[1.80, 78.4], [2.15]], 0, 2),
+            "kwargs": {},
+            "expected": error_rows_length,
+        },
+        {
+            "name": "Test 10: Error - invalid types in family elements",
+            "function": slice_me,
+            "args": ([[1.80, "not valid"], [2.15, 102.7]], 0, 2),
+            "kwargs": {},
+            "expected": error_invalid_types,
+        },
+        {
+            "name": "Test 11: Error - start index is not an integer",
+            "function": slice_me,
+            "args": ([[1.80, 78.4], [2.15, 102.7]], "start", 2),
+            "kwargs": {},
+            "expected": error_invalid_indexes,
+        },
+        {
+            "name": "Test 12: Error - end index is not an integer",
+            "function": slice_me,
+            "args": ([[1.80, 78.4], [2.15, 102.7]], 0, "end"),
+            "kwargs": {},
+            "expected": error_invalid_indexes,
+        },
+        # error_not_2d = asserror + "family must contain at least one row."
+        {
+            "name": "Test 13: Error - end index is not an integer",
+            "function": slice_me,
+            "args": ([[1.80, 78.4, 2.15, 102.7]], 0, 2),
+            "kwargs": {},
+            "expected": error_not_2d,
+        }
+    ]
 
-    Examples:
-        >>> test_slice_me()
-        My shape is : (4, 2)
-        My new shape is : (2, 2)
-        [[1.8, 78.4], [2.15, 102.7]]
-        My shape is : (4, 2)
-        My new shape is : (1, 2)
-        [[2.15, 102.7]]
-        ...
-        (Output from all other test cases)
-    """
-    
-    # Test 1 : Cas standard donné par le sujet
-    family = [[1.80, 78.4], [2.15, 102.7], [2.10, 98.5], [1.88, 75.2]]
-    print(slice_me(family, 0, 2))  # [[1.8, 78.4], [2.15, 102.7]]
-    print(slice_me(family, 1, -2))  # [[2.15, 102.7]]
+    return cases
 
-    # Test 2 : Cas limite avec une seule ligne conservée
-    family = [[1.80, 78.4], [2.15, 102.7], [2.10, 98.5], [1.88, 75.2]]
-    print(slice_me(family, 0, 1))  # [[1.8, 78.4]]
-
-    # Test 3 : Slicing avec un index négatif
-    print(slice_me(family, -2, None))  # [[2.1, 98.5], [1.88, 75.2]]
-
-    # Test 4 : Cas d'erreur - famille n'est pas une liste
-    try:
-        slice_me("not a list", 0, 2)
-    except SystemExit as e:
-        print(f"Caught expected error: {e}")
-
-    # Test 5 : Cas d'erreur - les éléments ne sont pas des listes
-    try:
-        slice_me([[1.80, 78.4], (2.15, 102.7)], 0, 2)
-    except SystemExit as e:
-        print(f"Caught expected error: {e}")
-
-    # Test 6 : Cas d'erreur - Les lignes ont des longueurs différentes
-    try:
-        slice_me([[1.80, 78.4], [2.15]], 0, 2)
-    except SystemExit as e:
-        print(f"Caught expected error: {e}")
-
-    # Test 7 : Cas d'erreur - Des types non valides dans les sous-listes
-    try:
-        slice_me([[1.80, "not valid"], [2.15, 102.7]], 0, 2)
-    except SystemExit as e:
-        print(f"Caught expected error: {e}")
-
-    # Test 8 : Cas d'erreur - Indices de slicing ne sont pas des entiers
-    try:
-        slice_me(family, "start", 2)
-    except SystemExit as e:
-        print(f"Caught expected error: {e}")
-
-    try:
-        slice_me(family, 0, "end")
-    except SystemExit as e:
-        print(f"Caught expected error: {e}")
-
-    # Test 9 : Cas limite avec slicing vide
-    print(slice_me(family, 1, 1))  # []
-
-    # Test 10 : Cas limite - slicing au-delà des bornes
-    print(slice_me(family, 100, 200))  # []
-
-    # Test 11 : Cas limite - slicing sur tout le tableau
-    print(slice_me(family, 0, len(family)))  # Identique à `family`
 
 if __name__ == "__main__":
-    test_slice_me()
+    sys.path.insert(0, "../../")
+    from general_function_tester import general_function_tester
+
+    debug = any(arg == "-debug" for arg in sys.argv)
+    use_error_output = any(arg == "-use-error-output" for arg in sys.argv)
+
+    if not debug:
+        print("Use the -debug option for more details in the tests:\n"
+              "python3 tester.py -debug\n")
+        print("Use the -use-error-output option to"
+              " validate errors with stderr:\n"
+              "python3 tester.py -use-error-output\n")
+
+    test_cases_list = test_cases()
+    general_function_tester(test_cases_list, debug, use_error_output)

@@ -96,27 +96,25 @@ def slice_me(family: list, start: int, end: int) -> list:
             AssertionError: If any of the validation checks fail.
         """
 
-        assert isinstance(family, list), ("Error: family is not a list.")
-        assert len(family) >= 2, ("Error: family list is not a 2D array.")
+        assert isinstance(family, list), ("family is not a list.")
+        assert len(family) >= 2, ("family list is not a 2D array.")
         assert all(isinstance(row, list) for row in family), (
-                "Error: the family list does not contain only lists."
+                "family must contain only lists."
             )
         assert all(len(family[0]) == len(row) for row in family), (
-            "Error: the rows are not the same length."
+            "the rows are not the same length."
         )
 
         VALID_TYPES = (int, float, complex, bool)
         assert all(
             all(isinstance(elt, VALID_TYPES) for elt in row) for row in family
         ), (
-            "Error: invalid type found among item. Only the following types"
-            " are allowed: "
-            f"{', '.join(t.__name__ for t in VALID_TYPES)}."
+            "invalid type found among item. Only the following types"
+            " are allowed: int, float, complex, bool"
         )
 
         assert isinstance(start, int) and isinstance(end, int), (
-            f"Error: Start ({start}) or end  ({end})"
-            "family (or both) is not an integer."
+            "Start or end (or both) is not an integer."
         )
 
         return np.array(family)
