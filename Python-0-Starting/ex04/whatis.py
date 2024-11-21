@@ -36,7 +36,7 @@ $>
 import sys
 
 
-def whatis() -> None:
+def main() -> None:
     """Receives args from the CLI : python3 whatis.py arg1 arg2 arg...
     No arg does nothing, and gives back the prompt.
     More than one arg raises an AssertionError.
@@ -77,4 +77,4 @@ def whatis() -> None:
 
 
 if __name__ == "__main__":
-    whatis()
+    main()

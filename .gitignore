@@ -5,6 +5,7 @@
 # manage.sh
 # landscape.jpg
 # animal.jpg
+# expected_*.jpg
 
 __pycache__/
 env/
