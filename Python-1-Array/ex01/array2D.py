@@ -1,5 +1,4 @@
 # Subject
-
 """
 Exercice 01: 2D array
 Turn-in directory : ex01/

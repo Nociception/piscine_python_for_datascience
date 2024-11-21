@@ -59,14 +59,14 @@ def whatis() -> None:
             exit()
         assert nb_args == 1, ("more than one argument is provided")
 
-        try :
+        try:
             arg = int(sys.argv[1])
         except ValueError:
             raise AssertionError("argument must be an integer")
 
         return arg
 
-    try :
+    try:
         arg = parsing(sys.argv)
     except AssertionError as error:
         print(f"{type(error).__name__}: {error}", file=sys.stderr)

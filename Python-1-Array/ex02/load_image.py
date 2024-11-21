@@ -1,5 +1,4 @@
 # Subject
-
 """
 Exercice 02: load my image
 Turn-in directory : ex02/

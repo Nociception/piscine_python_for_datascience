@@ -5,7 +5,7 @@ def general_tester(script_path: str,
                    tests_dict: dict, debug: bool = False) -> None:
     """Receives a tests_dict: {tests_type: ['result expected',
     'test_case1', 'test_case2', ...]}
-    
+
     Checks if the progam written in the scripth_path file provides
     the same output as expected, for each test_case.
 
