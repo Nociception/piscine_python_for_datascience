@@ -47,7 +47,8 @@ def ft_load(path: str) -> np.ndarray:
         with Image.open(path) as img:
             img = img.convert("RGB")
             pixels = np.array(img)
-            print(f"The shape of image is: {pixels.shape}")
+            # print(f"The shape of the image is: {pixels.shape}")
+            # deactivated for this exercise
             return pixels
 
     except AssertionError as error:

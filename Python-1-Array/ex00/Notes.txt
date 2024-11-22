@@ -1,0 +1,49 @@
+# Ex00:
+
+## bmi = weight_arr / (height_arr ** 2)
+weight_arr and height_arr are numpy arrays.
+height_arr ** 2 gives a numpy array with every values squared.
+This works for any matrix with numbers, with any shape.
+In the exercise, arrays are shape (1).
+In the following example, arrays are shape (2, 2)
+array([[2, 3],
+       [0, 5]])
+>>> a.shape
+(2, 2)
+>>> s = a ** 2
+>>> s
+array([[ 4,  9],
+       [ 0, 25]])
+
+As weight_arr and height_arr are the same shape, weight_arr / (height_arr ** 2)
+gives an array (same shape), with for each element, the result
+of the division between each element at the same position in both
+of the arrays.
+>>> a = np.array([[10, 20], [30, 40]])
+>>> a
+array([[10, 20],
+       [30, 40]])
+>>> b = np.array([[5, 4], [3, 5]])
+>>> b
+array([[5, 4],
+       [3, 5]])
+>>> a/b
+array([[ 2.,  5.],
+       [10.,  8.]])
+
+
+## return (bmi_arr > limit).tolist()
+bmi_arr shape (1)
+limit an int
+Example:
+>>> a
+array([5, 8, 6, 9, 8, 4, 6])
+>>> a.shape
+(7,)
+>>> b = a>5
+>>> b
+array([False,  True,  True,  True,  True, False,  True])
+>>> b.shape
+(7,)
+
+

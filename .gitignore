@@ -6,7 +6,8 @@
 # landscape.jpg
 # animal.jpg
 # expected_*.jpg
-
+# Notes.txt
+# life_expectancy_years.csv
 __pycache__/
 env/
 dist

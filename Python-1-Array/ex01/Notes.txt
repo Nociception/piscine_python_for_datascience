@@ -1,0 +1,59 @@
+# Ex01:
+
+## VALID_TYPES = (int, float, complex, bool)
+        assert all(
+            all(isinstance(elt, VALID_TYPES) for elt in row) for row in family
+        ), (
+            "invalid type found among item. Only the following types"
+            " are allowed: int, float, complex, bool"
+        )
+Let's focus on this part :
+all(isinstance(elt, VALID_TYPES))
+Whaterever elt is, it's interesting to note that it's possible
+to put a tuple as a second argument into the isinstance function,
+in order to check multiple allowed types.
+
+
+## sliced_family = family_array[start:end]
+Let's study some examples:
+>>> a = np.array([[1.8, 78.4], [2.15, 102.7], [2.1, 98.5], [1.88, 75.2]])
+>>> a
+array([[  1.8 ,  78.4 ],
+       [  2.15, 102.7 ],
+       [  2.1 ,  98.5 ],
+       [  1.88,  75.2 ]])
+>>> a.shape
+(4, 2)
+>>> a[0:2]
+array([[  1.8 ,  78.4 ],
+       [  2.15, 102.7 ]])
+>>> a[:2]  # same as the previous one
+array([[  1.8 ,  78.4 ],
+       [  2.15, 102.7 ]])
+>>> a[0:2,]  # better way, to understand
+array([[  1.8 ,  78.4 ],
+       [  2.15, 102.7 ]])
+In fact, the 0:2 is the slicing for the first dimension : the lines.
+Let's explore the other ones:
+>>> a = np.array([[1.8, 78.4, 54], [2.15, 102.7, 32], [2.1, 98.5, 100], [1.88, 75.2, 87]])
+>>> a
+array([[  1.8 ,  78.4 ,  54.  ],
+       [  2.15, 102.7 ,  32.  ],
+       [  2.1 ,  98.5 , 100.  ],
+       [  1.88,  75.2 ,  87.  ]])
+>>> a.shape
+(4, 3)
+>>> a[:, 0:2]
+array([[  1.8 ,  78.4 ],
+       [  2.15, 102.7 ],
+       [  2.1 ,  98.5 ],
+       [  1.88,  75.2 ]])
+That time, the first field is : (which means everything)
+And the second field is for the second dimension : the columns.
+>>> a[0:2, 0:2]
+array([[  1.8 ,  78.4 ],
+       [  2.15, 102.7 ]])
+>>> a[0:2, 1:3]
+array([[ 78.4,  54. ],
+       [102.7,  32. ]])
+

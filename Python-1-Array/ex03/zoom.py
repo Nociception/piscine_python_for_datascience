@@ -65,7 +65,7 @@ def zoom(img_path: str,
         None
     """
 
-    def parsing(img_path, x, y, width, height, img_array):
+    def parsing(img_array, x, y, width, height):
         """
         Validates the input parameters and
         adjusts the zoom dimensions if necessary.
@@ -86,8 +86,6 @@ def zoom(img_path: str,
             or exceed the image bounds.
         """
 
-        assert isinstance(img_path, str), (
-            "Image path must be a string.")
         assert isinstance(x, int) and isinstance(y, int), (
             "x and y must be integers.")
         assert isinstance(width, int) and isinstance(height, int), (
@@ -111,12 +109,11 @@ def zoom(img_path: str,
     try:
         img_array = ft_load(img_path)
 
-        adjusted_width, adjusted_height = parsing(img_path,
+        adjusted_width, adjusted_height = parsing(img_array,
                                                   x,
                                                   y,
                                                   width,
-                                                  height,
-                                                  img_array)
+                                                  height)
 
         print(f"The shape of the image is: {img_array.shape}")
         print(img_array)

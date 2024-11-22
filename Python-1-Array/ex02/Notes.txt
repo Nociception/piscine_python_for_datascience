@@ -1,0 +1,5 @@
+#Ex02
+
+## assert path.lower().endswith(VALID_FORMATS)
+Interesting to note that, as with isinstance, endswith works also
+with an iterable of strings.
