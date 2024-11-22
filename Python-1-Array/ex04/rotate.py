@@ -56,8 +56,8 @@ def manual_transpose(matrix):
                               dtype=matrix.dtype)
         # prepares a zero matrix with inverted shapes from the original matrix
 
-        for i in range(matrix.shape[0]):
-            for j in range(matrix.shap[1]):
+        for i in range(matrix.shape[0]):  # lines
+            for j in range(matrix.shap[1]):  # columns
                 transposed[j][i] = matrix[i][j]
         return transposed
 
