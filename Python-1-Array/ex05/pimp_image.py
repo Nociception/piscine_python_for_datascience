@@ -74,10 +74,12 @@ def ft_invert(array: np.ndarray) -> np.ndarray:
 
     max_value = 255
     inverted = max_value - array
-    # This last creates a numpy_array,
-    # same array's (the function's arg) shape,
-    # where all elements are 255 - current_element.
-    # Magic, and quite useful and quick (to read and run).
+    """
+    This last creates a numpy_array,
+    same array's (the function's arg) shape,
+    where all elements are 255 - current_element.
+    Magic, and quite useful and quick (to read and run).
+    """
 
     return inverted
 

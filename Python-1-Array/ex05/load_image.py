@@ -31,9 +31,6 @@ def ft_load(path: str) -> np.ndarray:
 
         try:
             with open(path, 'rb'):
-                # 'b' for binary, usual for image files
-                # Avoids problems during any character conversion
-                # No conversion with this option.
                 pass
         except FileNotFoundError:
             raise AssertionError(f"File not found at path '{path}'.")
