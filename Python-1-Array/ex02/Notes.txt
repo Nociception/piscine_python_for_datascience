@@ -3,3 +3,11 @@
 ## assert path.lower().endswith(VALID_FORMATS)
 Interesting to note that, as with isinstance, endswith works also
 with an iterable of strings.
+
+##with Image.open(path) as img:
+    img = img.convert("RGB")
+    pixels = np.array(img)
+    print(f"The shape of image is: {pixels.shape}")
+So It's possible to give the numpy array() function
+a PIL.Image.Image object, in order to get the pixels' values.
+Good to know.

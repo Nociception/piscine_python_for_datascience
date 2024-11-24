@@ -51,6 +51,8 @@ def ft_load(path: str) -> np.ndarray:
         the file format is unsupported, or the file cannot be opened.
     """
 
+    DETAILS = 0
+
     def parsing(path: str) -> None:
         """Checks if the provided path points to a valid static image file."""
 
@@ -78,9 +80,21 @@ def ft_load(path: str) -> np.ndarray:
     try:
         parsing(path)
         with Image.open(path) as img:
+
+            if DETAILS:
+                print("type(img) openned with Image.open: "
+                      f"{type(img)}")
+                print(img)
+
             img = img.convert("RGB")
+            if DETAILS:
+                print("type(img) after RGB conversion: "
+                      f"{type(img)}")
+                print(img)
+    
             pixels = np.array(img)
             print(f"The shape of image is: {pixels.shape}")
+
             return pixels
 
     except AssertionError as error:
