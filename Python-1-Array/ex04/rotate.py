@@ -39,7 +39,7 @@ from load_image import ft_load
 import matplotlib.pyplot as plt
 
 
-def manual_transpose(matrix):
+def manual_transpose(matrix: np.ndarray) -> np.ndarray:
     """
     Manually transposes a 2D or 3D NumPy array.
 
@@ -50,7 +50,7 @@ def manual_transpose(matrix):
         np.ndarray: Transposed array.
     """
 
-    if len(matrix.shape) == 2:
+    if len(matrix.shape) == 2:  # grayscale
         transposed = np.zeros((matrix.shape[1],
                                matrix.shape[0]),
                               dtype=matrix.dtype)
@@ -61,7 +61,7 @@ def manual_transpose(matrix):
                 transposed[j][i] = matrix[i][j]
         return transposed
 
-    elif len(matrix.shape) == 3:
+    elif len(matrix.shape) == 3:  # colors
         transposed = np.zeros((matrix.shape[1],
                                matrix.shape[0],
                                matrix.shape[2]),
@@ -74,7 +74,11 @@ def manual_transpose(matrix):
         return transposed
 
 
-def rotate(img_path: str, x: int, y: int, size: int, grayscale: bool = True):
+def rotate(img_path: str,
+           x: int,
+           y: int,
+           size: int,
+           grayscale: bool = True) -> None:
     """
     Loads an image, extracts a square region, transposes it manually,
     and optionally converts it to grayscale.
@@ -90,7 +94,7 @@ def rotate(img_path: str, x: int, y: int, size: int, grayscale: bool = True):
         None
     """
 
-    def parsing(img_path, x, y, size, img_array):
+    def parsing(img_path, x, y, size, img_array) -> int:
         """
         Validates input parameters and adjusts size if necessary.
 
@@ -146,7 +150,7 @@ def rotate(img_path: str, x: int, y: int, size: int, grayscale: bool = True):
         print(f"New shape after Transpose: {transposed.shape}")
         print(transposed)
 
-        plt.imshow(transposed.squeeze(),
+        plt.imshow(transposed,
                    cmap="gray" if grayscale else None,
                    interpolation="nearest")
         plt.title("Transposed Image")
