@@ -4,7 +4,7 @@ from load_image import ft_load
 from pimp_image import ft_invert, ft_red, ft_green, ft_blue, ft_grey
 
 
-def display_image(image, title):
+def display_image(image, title) -> None:
     """
     Displays an image with a title.
 
@@ -28,7 +28,7 @@ def display_image(image, title):
     plt.show()
 
 
-def tester():
+def tester() -> None:
     """
     Tests all the filter functions and displays the results.
     """
@@ -49,7 +49,7 @@ def tester():
 
     for name, filtered_image in filters.items():
         print(f"Displaying: {name}")
-        display_image(filtered_image, title=name)
+        display_image(filtered_image, name)
 
 
 if __name__ == "__main__":

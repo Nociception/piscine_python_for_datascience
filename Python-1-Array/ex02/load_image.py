@@ -91,7 +91,7 @@ def ft_load(path: str) -> np.ndarray:
                 print("type(img) after RGB conversion: "
                       f"{type(img)}")
                 print(img)
-    
+
             pixels = np.array(img)
             print(f"The shape of image is: {pixels.shape}")
 
