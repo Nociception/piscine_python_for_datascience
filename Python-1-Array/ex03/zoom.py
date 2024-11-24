@@ -48,7 +48,7 @@ def zoom(img_path: str,
          y: int,
          width: int,
          height: int,
-         grayscale: bool = True):
+         grayscale: bool = True) -> None:
     """
     Loads an image, zooms into a defined region,
     and optionally converts it to grayscale.
@@ -120,22 +120,22 @@ def zoom(img_path: str,
 
         if grayscale:
             img_array = np.mean(img_array, axis=2, dtype=int, keepdims=True)
+            # np.means returns (in this case) a same dimensions numpy array,
+            # but changes the shape (on 3rd dimension ; see below about
+            # keepdims).
             # dtype=int converts means into integers
-            # keepdims=True does not change the matrix shape
+            # keepdims=True does not change the matrix shape.
+            # Without keepdims, np.mean shifts the matrix dims from 3 to 2.
 
         zoomed = img_array[y:y + adjusted_height, x:x + adjusted_width]
         print(f"New shape after slicing: {zoomed.shape}")
         print(zoomed)
 
-        plt.imshow(zoomed.squeeze(),
+        plt.imshow(zoomed,
                    cmap="gray" if grayscale else None,
                    interpolation="nearest")
         # This matplotlib does not show the image, but prepares it,
-        # with many parameters
-        # zoomed.squeeze() deletes dimension size 1.
-        # If there is no such a dimension, no effect.
-        # For exemple, with no grayscale : no effect.
-        # But with grayscale : the dimension shift from 3 to 2.
+        # with many parameters.
         # cmap="gray" uses the gray color for the image rendering
         # Without this parameters, the RGB system is used.
         # interpolation="nearest" leads to the least image alteration
