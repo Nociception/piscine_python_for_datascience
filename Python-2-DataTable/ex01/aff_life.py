@@ -44,8 +44,8 @@ def plot_life_expectancy(data: pd.DataFrame, country: str) -> None:
         combined wth a boolean.
         Uncomment the following instruction in order to see this line :
         """
-        print(country_data)
-        print(country_data.shape)
+        # print(country_data)
+        # print(country_data.shape)
 
         """
         Out of the exercise's subject :
