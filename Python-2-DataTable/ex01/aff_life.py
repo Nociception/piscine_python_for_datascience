@@ -252,9 +252,9 @@ def main() -> None:
 
             plt.figure(figsize=(10, 6))
             plt.plot(years, values, label=country, color='blue', linewidth=2)
-            plt.title(f"Life expectancy in {country} over time", fontsize=14)
+            plt.title(f"{country} Life expectancy Projections", fontsize=14)
             plt.xlabel("Year", fontsize=12)
-            plt.xlabel("Life expectancy (years)", fontsize=12)
+            plt.ylabel("Life expectancy", fontsize=12)
             plt.grid(True)
             plt.legend(loc="upper left", fontsize=10)
             plt.show()
