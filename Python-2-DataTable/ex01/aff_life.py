@@ -30,6 +30,7 @@ is not restrictive.
 
 import matplotlib.pyplot as plt
 from load_csv import load
+import numpy as np
 
 
 def main() -> None:
@@ -205,7 +206,33 @@ def main() -> None:
         plt.show()
 
     if not NOTES:
-        try:
+
+        def parsing_reindex(data, country) -> np.ndarray:
+            """
+            Validates and preprocesses the DataFrame for life expectancy data.
+
+            This function ensures that the input DataFrame
+            contains the necessary 'country' column and verifies
+            that the specified country exists in the dataset.
+            It then sets the 'country' column as the index
+            for easier data manipulation.
+
+            Args:
+                data (pd.DataFrame):
+                    The input DataFrame containing life expectancy data.
+                country (str):
+                The name of the country to validate and extract data for.
+
+            Returns:
+                pd.DataFrame:
+                The updated DataFrame with 'country' set as the index.
+
+            Raises:
+                AssertionError:
+                If the 'country' column is missing from the DataFrame,
+                or if the specified country is not in the dataset index.
+            """
+
             assert 'country' in data.columns, (
                 "'country' is not a column of the dataframe."
             )
@@ -214,6 +241,11 @@ def main() -> None:
             assert country in data.index, (
                 f"{country} not in the dataframe."
             )
+
+            return data
+
+        try:
+            data = parsing_reindex(data, country)
             country_data = data.loc[country]
             years = country_data.index.astype(int)
             values = country_data.values.astype(float)
