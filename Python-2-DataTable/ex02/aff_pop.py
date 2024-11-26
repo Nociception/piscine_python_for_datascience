@@ -4,21 +4,181 @@ Exercice 02: compare my country
 Turn-in directory : ex02/
 Files to turn in : load_csv.py, aff_pop.py
 Allowed functions : matplotlib, seaborn or any lib for Data Visualization
-Create a program that calls the load function from the first exercise, loads the file
-population_total.csv, and displays the country information of your campus versus other
-country of your choice. Your graph must have a title, a legend for each axis and a
-legend for each graph.
-You must display the years from 1800 to 2050.
-For example, for the 42 campuses in France we will have this result
 
+Create a program that calls the load function from the first exercise,
+loads the file population_total.csv,
+and displays the country information of your campus versus other
+country of your choice.
+Your graph must have a title,
+a legend for each axis and a legend for each graph.
+You must display the years from 1800 to 2050.
+
+For example, for the 42 campuses in France we will have this result:
 See the expected.jpg file to compare with my result.
 """
 
 from load_csv import load
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter, MultipleLocator
 
 
 def main() -> None:
-    """DOCSTRING"""
+    """
+    Compare the population of two countries over the years.
+
+    Args:
+        data (pd.DataFrame): The dataset containing population data.
+        country1 (str): The name of the first country to compare.
+        country2 (str): The name of the second country to compare.
+
+    Returns:
+        None
+    """
+
+    DEBUG = 0
+    NOTES = 0
+    PRINT_NOTES = 0
+
+    DATASET_PATH = "population_total.csv"
+    data = load(DATASET_PATH)
+
+    START = 1800
+    END = 2050
+
+    COUNTRIES = ["France",
+                 "Belgium",
+                #  "Japan",
+                #  "type_another_existing_country",
+                #  "non_existing_country",
+    ]
+    COLORS = ["green",
+              "blue",
+              "red",
+              "orange",
+              "yellow"]
+
+    def parsing_reindex(data) -> np.ndarray:
+        """
+        Validates the input dataset, reindexes it by the 'country' column, 
+        and ensures the specified countries and years are present.
+
+        Args:
+            data (pd.DataFrame): The dataset to process.
+
+        Returns:
+            pd.DataFrame: The reindexed dataset with 'country' as the index.
+
+        Raises:
+            AssertionError: If any of the following conditions are not met:
+                - The 'country' column is missing.
+                - The `START` year is not a column in the dataset.
+                - The `END` year is not a column in the dataset.
+                - Any of the countries in `COUNTRIES`
+                are not present in the dataset.
+
+        Notes:
+            - The dataset is modified in place due to `inplace=True` 
+            in the `set_index` method.
+        """
+
+        assert 'country' in data.columns, (
+            "'country' is not a column of the dataframe."
+        )
+        data.set_index('country', inplace=True)
+
+        assert str(START) in data.columns, (
+            f"{START} is not in the dataframe."
+        )
+        assert str(END) in data.columns, (
+            f"{END} is not in the dataframe."
+        )
+        
+        missing_countries = [country for country in COUNTRIES
+                             if country not in data.index]
+        assert not missing_countries, (
+                f"These countries are missing in the dataset:\n"
+                f"{', '.join(missing_countries)}"
+        )
+        
+        return data
+
+    def parsing_value(value: str) -> int:
+        """DOCSTRING"""
+
+        int_value = -1
+
+        try:
+            assert (isinstance(value, str)
+                    and len(value)), (
+                        "Missing or invalid value."
+            )
+            
+            factors = {'k': 1e3,
+                       'M': 1e6,
+                       'B': 1e9}
+            if value.endswith((tuple(factors))):
+                int_value = int(float(value[:-1]) * factors[value[-1]])
+            else:
+                int_value = int(value)
+
+            return int_value
+
+        except AssertionError as error:
+            print(f"{type(error).__name__}: {error}")
+            return -1
+        except Exception as error:
+            print(f"An unexpected error occurred: {error}")
+            return -1
+
+
+    def human_readable_formatter(x, _):
+        """DOCSTRING"""
+
+        if x >= 1_000_000_000:
+            return f"{int(x / 1_000_000_000)}B"
+        elif x >= 1_000_000:
+            return f"{int(x / 1_000_000)}M"
+        elif x >= 1_000:
+            return f"{int(x / 1_000)}k"
+        else:
+            return str(int(x))
+
+    try:
+        assert len(COLORS) >= len(COUNTRIES), (
+            "More countries than colors."
+        )
+
+        data = parsing_reindex(data)
+
+        plt.figure(figsize=(12,8))
+
+        for icolor, country in enumerate(COUNTRIES):
+            country_data = data.loc[country].dropna().apply(parsing_value)
+            years = country_data.index.astype(int)
+            values = country_data.values.astype(float)
+
+            plt.plot(years, values, label=country, color=COLORS[icolor])
+
+        plt.title("Population Projections", fontsize=16)
+        plt.xlabel("Year", fontsize=14)
+        plt.ylabel("Population", fontsize=14)
+        plt.legend(loc="lower right", fontsize=12)
+
+
+        plt.gca().yaxis.set_major_formatter(FuncFormatter(human_readable_formatter))
+
+        plt.gca().yaxis.set_major_locator(MultipleLocator(20_000_000))
+
+
+        plt.show()
+
+
+    except AssertionError as error:
+        print(f"{type(error).__name__}: {error}")
+    except Exception as error:
+        print(f"An unexpected error occurred: {error}")
 
 
 if __name__ == "__main__":
