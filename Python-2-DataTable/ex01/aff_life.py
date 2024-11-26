@@ -255,7 +255,6 @@ def main() -> None:
             plt.title(f"{country} Life expectancy Projections", fontsize=14)
             plt.xlabel("Year", fontsize=12)
             plt.ylabel("Life expectancy", fontsize=12)
-            plt.grid(True)
             plt.legend(loc="upper left", fontsize=10)
             plt.show()
 
