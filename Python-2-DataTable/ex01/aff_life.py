@@ -123,13 +123,11 @@ def main() -> None:
             # Provides the same list as above.
             print("'country' in data.columns.values:\n"
                   f"{'country' in data.columns.values}")  # True
-
         """
         So let's check that now:
-        try:
-            assert 'country' in data.columns, (
-                "'country' is not a column of the dataframe."
-            )
+        assert 'country' in data.columns, (
+            "'country' is not a column of the dataframe."
+        )
         This check in the try bloc is still in the notes, and not
         written as running code here.
         This check is really done in the "code part" (not the Notes part).
@@ -147,14 +145,12 @@ def main() -> None:
         Don't worry, it is possible to, if necessary,
         get back the default indexes with:
         data.reset_index(inplace=True)
-
         """
         data.set_index('country', inplace=True)
         if PRINT_NOTES:
             print("\nNotes (2)")
             print(f"data:\n{data}")
             print(f"data.columns:\n{data.columns}")
-
         """
         We observe that this index changing removed the 'country' column.
         There only are years.
@@ -163,12 +159,16 @@ def main() -> None:
         a column.
         But something quite near is now possible!
         data.loc[country]
+        Before using that it is better to check if this country is in the df:
+        assert country in data.index, (
+                f"{country} not in the dataframe."
+            )
+        The check is not real here, but will be in the "code" part.
         """
         if PRINT_NOTES:
             print("\nNotes (3)")
             print(f"data.loc[country]:\n{data.loc[country]}")
             print(f"type(data.loc[country]):\n{type(data.loc[country])}")
-
         """
         data.loc[country] provides a Series
         (as a df is a collection of Series),
@@ -176,6 +176,7 @@ def main() -> None:
         Let's now store these precious data in a variable.
         """
         country_data = data.loc[country]
+
         """
         Now that we have the data for only the country we want to target,
         Two last packed steps for preparing the pyplot.
@@ -210,16 +211,20 @@ def main() -> None:
             )
             data.set_index('country', inplace=True)
 
+            assert country in data.index, (
+                f"{country} not in the dataframe."
+            )
             country_data = data.loc[country]
             years = country_data.index.astype(int)
             values = country_data.values.astype(float)
 
             plt.figure(figsize=(10, 6))
-            plt.plot(years, values, label=country)
-            plt.title(f"{country} Life expectancy Projections")
-            plt.xlabel("Year")
-            plt.ylabel("Life expectancy")
+            plt.plot(years, values, label=country, color='blue', linewidth=2)
+            plt.title(f"Life expectancy in {country} over time", fontsize=14)
+            plt.xlabel("Year", fontsize=12)
+            plt.xlabel("Life expectancy (years)", fontsize=12)
             plt.grid(True)
+            plt.legend(loc="upper left", fontsize=10)
             plt.show()
 
         except AssertionError as error:
