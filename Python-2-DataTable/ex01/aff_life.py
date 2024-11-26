@@ -28,11 +28,11 @@ You can display the Dataset in any format you like, the given format
 is not restrictive.
 """
 
-import pandas as pd
 import matplotlib.pyplot as plt
+from load_csv import load
 
 
-def plot_life_expectancy(data: pd.DataFrame, country: str) -> None:
+def main() -> None:
     """
     Plots the life expectancy of a specific country over the years.
 
@@ -48,9 +48,13 @@ def plot_life_expectancy(data: pd.DataFrame, country: str) -> None:
     NOTES = 0
     PRINT_NOTES = 0
 
+    DATASET_PATH = "life_expectancy_years.csv"
+    data = load(DATASET_PATH)
+    country = "France"
+
     if DEBUG:
         print("\n### DEBUG ###\n"
-              "function: plot_life_expectancy\n"
+              "function: main from aff_life.py\n"
               "data:\n"
               f"{data}"
               f"\ncountry: {country}"
