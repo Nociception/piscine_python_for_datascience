@@ -1,17 +1,31 @@
 # Subject
 """
-Exercice 01: draw my country
-Turn-in directory : ex01/
-Files to turn in : load_csv.py, aff_life.py
-Allowed functions : matplotlib, seaborn or any lib for Data Visualization
+Exercice 00: Load my Dataset
+Turn-in directory : ex00/
+Files to turn in : load_csv.py
+Allowed functions : pandas or any lib for data set manipulation
 
-Create a program that calls the load function from
-the previous exercise, loads the file life_expectancy_years.csv,
-and displays the country information of your campus.
-Your graph must have a title and a legend for each axis.
+Make a function that takes a path as argument,
+writes the dimensions of the data set and returns it.
+You have to handle the error cases and return None if the path is bad,
+bad format...
 
-For example, for the 42 campuses in France we will have this result:
-see the expected_projections.jpg in the git hub repo.
+def load(path: str) -> Dataset: (You have to adapt the type
+of return according to your library)
+#your code here
+
+Your script tester:
+from load_csv import load
+print(load("life_expectancy_years.csv"))
+$> python tester.py
+Loading dataset of dimensions (195, 302)
+country 1800 1801 1802 1803 ... 2096 2097 2098 2099 2100
+Afghanistan 28.2 28.2 28.2 28.2 ... 76.2 76.4 76.5 76.6 76.8
+...
+$>
+
+You can display the Dataset in any format you like, the given format
+is not restrictive.
 """
 
 import pandas as pd
@@ -29,58 +43,182 @@ def plot_life_expectancy(data: pd.DataFrame, country: str) -> None:
     Returns:
         None
     """
-    try:
-        if country not in data['country'].values:
-            raise ValueError(f"The country '{country}' is not in the dataset.")
 
-        country_data = data[data['country'] == country]
+    DEBUG = 0
+    NOTES = 0
+    PRINT_NOTES = 0
+
+    if DEBUG:
+        print("\n### DEBUG ###\n"
+              "function: plot_life_expectancy\n"
+              "data:\n"
+              f"{data}"
+              f"\ncountry: {country}"
+              "\n### DEBUG END###\n")
+
+    if data is None:
+        print("Error: data is None")
+        exit(1)
+
+    if NOTES:
         """
-        As the df contains a line for each country,
-        and a column for each year (from 1800 to 2100),
-        this instruction gives a new one-line df
-        (as each line are unique, one for each country).
-        country_data is Series (what you get when you slice a pandas' df)
-        So get one specific line only requires simple slicing syntax,
-        combined wth a boolean.
-        Uncomment the following instruction in order to see this line :
+        The df is organized as such:
+        First column: 'country'
+        the following ones are the years '1800', '1801', ..., '2100'
+        First line: the header
+        the following ones are the countries
+        'Afghanistan', 'Angola', ..., 'Zimbabwe'
+
+        A good way to visualize a df (example from Pandas' doc):
+        df = pd.DataFrame(
+            {
+                "Name": [
+                    "Braund, Mr. Owen Harris",
+                    "Allen, Mr. William Henry",
+                    "Bonnell, Miss. Elizabeth",
+                ],
+                "Age": [22, 35, 58],
+                "Sex": ["male", "male", "female"],
+            }
+        )
+        df
+                            Name  Age     Sex
+        0   Braund, Mr. Owen Harris   22    male
+        1  Allen, Mr. William Henry   35    male
+        2  Bonnell, Miss. Elizabeth   58  female
+
+        A dictionnary with columns as keys, and a list of values as values.
+        From the Pandas' doc :
+        "If you are familiar with Python dictionaries,
+        the selection of a single column is very similar
+        to the selection of dictionary values based on the key."
+
+
+        Now that we have this in mind, let's focus on what we want,
+        and how to get it.
+        As we want to target a specific country's (here: France) values,
+        here are the steps (checking ones, and "getting" ones):
+
+        1st:
+        Check if the column 'country' exists in the df.
+        Several ways (switch the if condition with 0 or 1 if necessary):
         """
-        # print(country_data)
-        # print(country_data.shape)
+        if PRINT_NOTES:
+            print("\nNotes (1)")
+            print(f"'country' in data:\n{'country' in data}")
+            # True ; As expected: data can be handled as a dictionnary.
+
+            print(f"data.columns:\n{data.columns}")
+            # Provides a list of each columns.
+            print(f"'country' in data.columns:\n{'country' in data.columns}")
+            # True
+            # My favorite way ; explicit (with the attribute columns,
+            # and that as long as the following way).
+
+            print(f"data.columns.values: {data.columns.values}")
+            # Provides the same list as above.
+            print("'country' in data.columns.values:\n"
+                  f"{'country' in data.columns.values}")  # True
 
         """
-        Out of the exercise's subject :
-        Let's now consider that we want all countries' data
-        for one specific year.
-        Previsualize what the result will look like:
-        194 lines (one for each country + one for the header)
-        2 columns : country, and the specific year you target.
-        Therefore, you need a sub dataframe (also called subset).
-        Therefore, the syntax won't be the same.
-        Uncomment the two following instructions to see the syntax
-        and its result.
+        So let's check that now:
+        try:
+            assert 'country' in data.columns, (
+                "'country' is not a column of the dataframe."
+            )
+        This check in the try bloc is still in the notes, and not
+        written as running code here.
+        This check is really done in the "code part" (not the Notes part).
+
+        2nd:
+        Getting the line for a specific country.
+        Here, "France" is stored in the function's parameter `country`.
+        I confess I want to use that kind of syntax:
+        data[country]
+        But this leads to an error, as the "keys" are "country" and the years.
+        So no "France".
+
+        We first change the indexes with:
+        data.set_index('country', inplace=True)
+        Don't worry, it is possible to, if necessary,
+        get back the default indexes with:
+        data.reset_index(inplace=True)
+
         """
-        # another_slice = data[['country', '1960']]
-        # print(another_slice)
+        data.set_index('country', inplace=True)
+        if PRINT_NOTES:
+            print("\nNotes (2)")
+            print(f"data:\n{data}")
+            print(f"data.columns:\n{data.columns}")
 
-        years = country_data.columns[1:].astype(int)
         """
-        
+        We observe that this index changing removed the 'country' column.
+        There only are years.
+
+        Then, data[country] is still not possible : "France" is not
+        a column.
+        But something quite near is now possible!
+        data.loc[country]
         """
-        # print(country_data.columns)
+        if PRINT_NOTES:
+            print("\nNotes (3)")
+            print(f"data.loc[country]:\n{data.loc[country]}")
+            print(f"type(data.loc[country]):\n{type(data.loc[country])}")
 
-        values = country_data.iloc[0, 1:].astype(float)
+        """
+        data.loc[country] provides a Series
+        (as a df is a collection of Series),
+        where indexes are the years, and values are the life expectancies.
+        Let's now store these precious data in a variable.
+        """
+        country_data = data.loc[country]
+        """
+        Now that we have the data for only the country we want to target,
+        Two last packed steps for preparing the pyplot.
+        3rd:
+        """
+        years = country_data.index.astype(int)
+        values = country_data.values.astype(float)
+        if PRINT_NOTES:
+            print("\nNotes (4)")
+            print(f"country_data:\n{country_data}")
+        """
+        Indexes and values casted to the right type.
+        It does not change the display of country_data, but it is
+        necessary for the pyplot.
 
-
-        print("----------------------------------------------")
+        4th:
+        And now, the pyplot:
+        """
         plt.figure(figsize=(10, 6))
-        plt.plot(years, values, label=country)
-        plt.title(f"{country} Life expectancy Projections")
-        plt.xlabel("Year")
-        plt.ylabel("Life expectancy")
+        plt.plot(years, values, label=country, color='blue', linewidth=2)
+        plt.title(f"Life expectancy in {country} over time", fontsize=14)
+        plt.xlabel("Year", fontsize=12)
+        plt.xlabel("Life expectancy (years)", fontsize=12)
         plt.grid(True)
+        plt.legend(loc="upper left", fontsize=10)
         plt.show()
 
-    except ValueError as e:
-        print(f"ValueError: {e}")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+    if not NOTES:
+        try:
+            assert 'country' in data.columns, (
+                "'country' is not a column of the dataframe."
+            )
+            data.set_index('country', inplace=True)
+
+            country_data = data.loc[country]
+            years = country_data.index.astype(int)
+            values = country_data.values.astype(float)
+
+            plt.figure(figsize=(10, 6))
+            plt.plot(years, values, label=country)
+            plt.title(f"{country} Life expectancy Projections")
+            plt.xlabel("Year")
+            plt.ylabel("Life expectancy")
+            plt.grid(True)
+            plt.show()
+
+        except AssertionError as error:
+            print(f"{type(error).__name__}: {error}")
+        except Exception as error:
+            print(f"An unexpected error occurred: {error}")

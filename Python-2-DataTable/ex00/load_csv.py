@@ -34,7 +34,8 @@ from pandas import DataFrame
 
 def load(path: str) -> DataFrame | None:
     """
-    Loads a CSV file, prints its dimensions, and returns its content as a DataFrame.
+    Loads a CSV file, prints its dimensions,
+    and returns its content as a DataFrame.
 
     Args:
         path (str): The file path to the CSV.
@@ -46,13 +47,13 @@ def load(path: str) -> DataFrame | None:
     try:
         if not path.endswith(".csv"):
             raise ValueError("The file must be a CSV.")
-        
+
         data = pd.read_csv(path)
 
         print(f"Loading dataset of dimensions {data.shape}")
 
         return data
-    
+
     except FileNotFoundError:
         print(f"Error: File not found at path '{path}'.")
     except ValueError as ve:
