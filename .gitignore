@@ -8,6 +8,9 @@
 # expected_*.jpg
 # Notes.txt
 # life_expectancy_years.csv
+# population_total.csv
+# income_per_person_gdppercapita_ppp_inflation_adjusted.csv
+
 __pycache__/
 env/
 dist
