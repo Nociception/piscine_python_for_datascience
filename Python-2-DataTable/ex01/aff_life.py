@@ -205,60 +205,60 @@ def main() -> None:
         plt.legend(loc="upper left", fontsize=10)
         plt.show()
 
-    if not NOTES:
+        return None
 
-        def parsing_reindex(data, country) -> np.ndarray:
-            """
-            Validates and preprocesses the DataFrame for life expectancy data.
+    def parsing_reindex(data, country) -> np.ndarray:
+        """
+        Validates and preprocesses the DataFrame for life expectancy data.
 
-            This function ensures that the input DataFrame
-            contains the necessary 'country' column and verifies
-            that the specified country exists in the dataset.
-            It then sets the 'country' column as the index
-            for easier data manipulation.
+        This function ensures that the input DataFrame
+        contains the necessary 'country' column and verifies
+        that the specified country exists in the dataset.
+        It then sets the 'country' column as the index
+        for easier data manipulation.
 
-            Args:
-                data (pd.DataFrame):
-                    The input DataFrame containing life expectancy data.
-                country (str):
-                The name of the country to validate and extract data for.
+        Args:
+            data (pd.DataFrame):
+                The input DataFrame containing life expectancy data.
+            country (str):
+            The name of the country to validate and extract data for.
 
-            Returns:
-                pd.DataFrame:
-                The updated DataFrame with 'country' set as the index.
+        Returns:
+            pd.DataFrame:
+            The updated DataFrame with 'country' set as the index.
 
-            Raises:
-                AssertionError:
-                If the 'country' column is missing from the DataFrame,
-                or if the specified country is not in the dataset index.
-            """
+        Raises:
+            AssertionError:
+            If the 'country' column is missing from the DataFrame,
+            or if the specified country is not in the dataset index.
+        """
 
-            assert 'country' in data.columns, (
-                "'country' is not a column of the dataframe."
-            )
-            data.set_index('country', inplace=True)
+        assert 'country' in data.columns, (
+            "'country' is not a column of the dataframe."
+        )
+        data.set_index('country', inplace=True)
 
-            assert country in data.index, (
-                f"{country} not in the dataframe."
-            )
+        assert country in data.index, (
+            f"{country} not in the dataframe."
+        )
 
-            return data
+        return data
 
-        try:
-            data = parsing_reindex(data, country)
-            country_data = data.loc[country]
-            years = country_data.index.astype(int)
-            values = country_data.values.astype(float)
+    try:
+        data = parsing_reindex(data, country)
+        country_data = data.loc[country]
+        years = country_data.index.astype(int)
+        values = country_data.values.astype(float)
 
-            plt.figure(figsize=(10, 6))
-            plt.plot(years, values, label=country, color='blue', linewidth=2)
-            plt.title(f"{country} Life expectancy Projections", fontsize=14)
-            plt.xlabel("Year", fontsize=12)
-            plt.ylabel("Life expectancy", fontsize=12)
-            plt.legend(loc="upper left", fontsize=10)
-            plt.show()
+        plt.figure(figsize=(10, 6))
+        plt.plot(years, values, label=country, color='blue', linewidth=2)
+        plt.title(f"{country} Life expectancy Projections", fontsize=14)
+        plt.xlabel("Year", fontsize=12)
+        plt.ylabel("Life expectancy", fontsize=12)
+        plt.legend(loc="upper left", fontsize=10)
+        plt.show()
 
-        except AssertionError as error:
-            print(f"{type(error).__name__}: {error}")
-        except Exception as error:
-            print(f"An unexpected error occurred: {error}")
+    except AssertionError as error:
+        print(f"{type(error).__name__}: {error}")
+    except Exception as error:
+        print(f"An unexpected error occurred: {error}")
