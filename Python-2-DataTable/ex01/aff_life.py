@@ -65,6 +65,8 @@ def main() -> None:
         print("Error: data is None")
         exit(1)
 
+    # TO SKIP THESE NOTES, CLICK ON THE LITTLE ARROW
+    # JUST AFTER THE LINE NUMBER (ON VSCODE), ON THE if NOTES: line just below
     if NOTES:
         """
         The df is organized as such:
