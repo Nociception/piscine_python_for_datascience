@@ -37,6 +37,7 @@ def main() -> None:
     """
 
     DEBUG = 0
+    PRINT_NOTES = 1
 
     DATASET_PATH = "population_total.csv"
     data = load(DATASET_PATH)
@@ -96,7 +97,6 @@ def main() -> None:
         assert 'country' in data.columns, (
             "'country' is not a column of the dataframe."
         )
-
         data.set_index('country', inplace=True)
 
         assert str(START) in data.columns, (
@@ -202,31 +202,100 @@ def main() -> None:
         else:
             return str(int(x))
 
+    
+    if not all([DEBUG, PRINT_NOTES]):
+        print("For this part NOTES part, "
+                "it is advised to enable DEBUG, and PRINT_NOTES.\n")
+
     try:
         assert len(COLORS) >= len(COUNTRIES), ("More countries than colors.")
 
+        """
+        This df is quite similar,
+        compared to the previous exercise df:
+        Columns: 'country', and then years from 1800 to 2100.
+        Default index: each line are indexed from 0 to 196.
+        Lines: one for each country.
+        We want to plot data from two (or several, but not all)
+        countries.
+
+        So first usual step: data = parsing_reindex_df(data)
+        Several checks, and also: reindexing with country.
+        """
         data = parsing_reindex_df(data)
+        if PRINT_NOTES:
+            print(f"data:\n{data}")
+        """
+        In case of some values are missing, we use the dropna method,
+        to remove them.
 
+        We also can see that (most of) the values contain letters
+        (k, M, B, which of course means thousand, million, and billion).
+        So we need to parse them with the apply method before any plot,
+        and then convert them to integers.
+        """
         plt.figure(figsize=(12, 8))
-
         for icolor, country in enumerate(COUNTRIES):
             country_data = data.loc[country].dropna().apply(parsing_value)
             years = country_data.index.astype(int)
             values = country_data.values.astype(float)
             plt.plot(years, values, label=country, color=COLORS[icolor])
-
+        """
+        We add some details required by the subject.
+        """
         plt.title("Population Projections", fontsize=16)
         plt.xlabel("Year", fontsize=14)
         plt.ylabel("Population", fontsize=14)
         plt.legend(loc="lower right", fontsize=12)
-        plt.gca().yaxis.set_major_formatter(human_readable_formatter)
+
+        # As plt.show() "consumes" everything set before with plt,
+        # remind to switch on or off this one.
+        # Everything after won't work as expected if this stays enabled.
+        if 0:
+            print("\nA first plt.show(), not good enough.")
+            plt.show()
+        """
+        Last detail: the y axis legend, written in scientific notation.
+        To convert that to M (millions), here are the steps:
+        plt.gca().yaxis.set_major_formatter(FuncFormatter(human_readable_formatter))
         plt.gca().yaxis.set_major_locator(MultipleLocator(20_000_000))
+
+        About the first line:
+        gca stands fro get current axis.
+        set_major_formatter is useful for modifying
+            how the values are displayed on this axis.
+        human_readable_formatter is a function I wrote,
+            in order to get the effect expected.
+        """
+        plt.gca().yaxis.set_major_formatter(human_readable_formatter)
+        # As plt.show() "consumes" everything set before with plt,
+        # remind to switch on or off this one.
+        # Everything after won't work as expected if this stays enabled.
+        if 0:
+            print("\nA first plt.show(), not good enough.")
+            plt.show()
+        """
+        But the first line is not enough for formating exactly
+        as the subject requires.
+        We want the y axis legend with slices of 20M.
+        Here are some explanations about the second line:
+        plt.gca().yaxis.set_major_locator(MultipleLocator(20_000_000))
+        set_major_locator to set the intervals between each value
+            displayed on the y axis.
+            Requires a parameter type matplotlib.ticker.Locator
+        MultipleLocator(20_000_000) is such a parameter
+            20_000_000 is then the range of the intervals.
+        """
+        plt.gca().yaxis.set_major_locator(MultipleLocator(20_000_000))
+
         plt.show()
 
     except AssertionError as error:
         print(f"{type(error).__name__}: {error}")
     except Exception as error:
         print(f"An unexpected error occurred: {error}")
+    finally:
+        return None
 
 
 if __name__ == "__main__":
