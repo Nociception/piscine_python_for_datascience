@@ -39,7 +39,6 @@ def main() -> None:
     DEBUG = 0
 
     DATASET_PATH = "population_total.csv"
-    data = load(DATASET_PATH)
 
     START = 1800
     END = 2050
@@ -55,17 +54,6 @@ def main() -> None:
               "red",
               "orange",
               "yellow"]
-
-    if DEBUG:
-        print("\n### DEBUG ###\n"
-              "function: main from aff_pop.py\n"
-              "data:\n"
-              f"{data}"
-              f"\nSTART: {START} ; END: {END}"
-              f"\nCOUNTRIES:\n{COUNTRIES};  len(COUNTRIES): {len(COUNTRIES)}"
-              f"\nCOLORS:\n{COLORS}; len(COLORS): {len(COLORS)}"
-              "Reminder : len(COLORS) must be >= len(COUNTRIES)."
-              "\n### DEBUG END###\n")
 
     def parsing_reindex_df(data) -> np.ndarray:
         """
@@ -204,6 +192,19 @@ def main() -> None:
 
     try:
         assert len(COLORS) >= len(COUNTRIES), ("More countries than colors.")
+
+        data = load(DATASET_PATH)
+
+        if DEBUG:
+            print("\n### DEBUG ###\n"
+                "function: main from aff_pop.py\n"
+                "data:\n"
+                f"{data}"
+                f"\nSTART: {START} ; END: {END}"
+                f"\nCOUNTRIES:\n{COUNTRIES};  len(COUNTRIES): {len(COUNTRIES)}"
+                f"\nCOLORS:\n{COLORS}; len(COLORS): {len(COLORS)}"
+                "Reminder : len(COLORS) must be >= len(COUNTRIES)."
+                "\n### DEBUG END###\n")
 
         data = parsing_reindex_df(data)
 
