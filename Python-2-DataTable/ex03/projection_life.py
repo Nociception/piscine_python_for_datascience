@@ -16,6 +16,8 @@ a legend for each axis and a legend for each graph.
 You must display the year 1900.
 
 See the expected.jpg file in the github repo.
+
+Do you see a correlation between life span and gross domestic product?
 """
 
 import pandas as pd
@@ -75,6 +77,7 @@ def main() -> None:
             print(f"\nYEAR: {YEAR}"
                   "\n### DEBUG END###\n")
 
+        # Checking
         year_col = str(YEAR)
         assert year_col in data_y.columns, (
             f"The year {YEAR} is not available in {data_y_path}."
@@ -83,6 +86,7 @@ def main() -> None:
             f"The year {YEAR} is not available in {data_x_path}."
         )
 
+        # Extraction
         life_expectancy_year = data_y[['country', year_col]].rename(
             columns={year_col: 'life_expectancy'}
         )
@@ -97,13 +101,13 @@ def main() -> None:
             print("gdp_year.head():"
                   f"\n{gdp_year.head()}\n")
 
+        # extracted data merging
         merged_data = pd.merge(life_expectancy_year, gdp_year, on='country')
         if DEBUG:
             print("merged_data.head():"
                   f"\n{merged_data.head()}\n")
 
         merged_data = merged_data.dropna()
-
         merged_data['life_expectancy'] = merged_data[
             'life_expectancy'].astype(float)
         merged_data['gdp'] = merged_data['gdp'].astype(float)
@@ -111,19 +115,24 @@ def main() -> None:
             print("merged_data.head():"
                   f"\n{merged_data.head()}\n")
 
+        # matplotlib figure settings
         plt.figure(figsize=(10, 6))
         plt.scatter(
             x=merged_data['gdp'],
             y=merged_data['life_expectancy'],
+            label="Countries (population-weighted)"
         )
         plt.xscale('log')
-        plt.title(f"{YEAR}")
-        plt.xlabel("Gross domestic product")
-        plt.ylabel("Life Expectancy")
+        plt.title(f"Life Expectancy vs GDP per country in {YEAR}")
+        plt.xlabel("Gross Domestic Product (USD, log scale)")
+        plt.ylabel("Life Expectancy (years)")
+        plt.gcf().canvas.manager.set_window_title(f"Life Expectancy vs GDP ({YEAR})")
 
         ticks = [300, 1000, 10000]
         labels = ['300', '1k', '10k']
         plt.xticks(ticks, labels)
+
+        plt.legend(loc="best")
 
         plt.show()
 

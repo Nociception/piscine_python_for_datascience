@@ -22,6 +22,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import mplcursors
 from load_csv import load
+from scipy.stats import linregress
+import numpy as np
 
 
 def main() -> None:
@@ -55,11 +57,12 @@ def main() -> None:
     """
 
     BONUS = 1
-    DEBUG = 1
+    DEBUG = 0
 
     data_y_path = "life_expectancy_years.csv"
     data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
-    data_point_size_path = "population_total.csv"
+    if BONUS:
+        data_point_size_path = "population_total.csv"
     YEAR = 1900
 
     try:
@@ -84,6 +87,7 @@ def main() -> None:
             print(f"\nYEAR: {YEAR}"
                   "\n### DEBUG END###\n")
 
+        # Checking year_col presence in each df
         year_col = str(YEAR)
         assert year_col in data_y.columns, (
             f"The year {YEAR} is not available in {data_y_path}."
@@ -96,23 +100,29 @@ def main() -> None:
                 f"The year {YEAR} is not available in {data_point_size_path}."
             )
 
-        """
-        life_expectancy_year = data_y[['country', year_col]]
-        is the way to extract some specific columns from a df.
-        """
+        # Subsets extraction
         life_expectancy_year = data_y[['country', year_col]].rename(
             columns={year_col: 'life_expectancy'}
         )
         if DEBUG:
             print("life_expectancy_year.head():"
                   f"\n{life_expectancy_year.head()}\n")
+            print(f"life_expectancy_year.shape: {life_expectancy_year.shape}")
+        """
+        life_expectancy_year = data_y[['country', year_col]]
+        is the way to extract some specific columns from a df.
+        rename accepts several fields like index, columns, etc...
+        These are values which can contain a dictionnary :
+        keys are the column's names to replace
+        values are their  substitute
+        """
 
         gdp_year = data_x[['country', year_col]].rename(
             columns={year_col: 'gdp'}
         )
         if DEBUG:
-            print("gdp_year.head():"
-                  f"\n{gdp_year.head()}\n")
+            print(f"gdp_year.head():\n{gdp_year.head()}\n")
+            print(f"gdp_year.shape:\n{gdp_year.shape}\n")
 
         if BONUS:
             def parsing_value(value: str) -> int:
@@ -170,46 +180,187 @@ def main() -> None:
 
             pop_year = data_point_size[['country', year_col]].rename(
                 columns={year_col: 'population'})
+            if DEBUG:
+                print(f"pop_year.head():\n{pop_year.head()}"
+                      "pop_year['population'].head():\n"
+                      f"{pop_year['population'].head()}")
             pop_year['population'] = pop_year['population'].apply(
                 parsing_value)
             if DEBUG:
-                print("pop_year.head():"
-                      f"\n{pop_year.head()}\n")
+                print(f"pop_year.head():\n{pop_year.head()}\n")
+                print(f"pop_year.shape:\n{pop_year.shape}\n")
 
+        # Subsets merge
         merged_data = pd.merge(life_expectancy_year, gdp_year, on='country')
         if BONUS:
             merged_data = pd.merge(merged_data, pop_year, on='country')
         if DEBUG:
-            print("merged_data.head():"
-                  f"\n{merged_data.head()}\n")
+            print(f"merged_data.head():\n{merged_data.head()}\n")
+            print(f"merged_data.shape: {merged_data.shape}")
 
+        # merged_data tailoring
         merged_data = merged_data.dropna()
-
+        if DEBUG:
+            print(f"merged_data.head():\n{merged_data.head()}\n")
+            print(f"merged_data.shape: {merged_data.shape}")
         merged_data['life_expectancy'] = merged_data[
             'life_expectancy'].astype(float)
         merged_data['gdp'] = merged_data['gdp'].astype(float)
         if BONUS:
             merged_data['population'] = merged_data['population'].astype(float)
         if DEBUG:
-            print("merged_data.head():"
-                  f"\n{merged_data.head()}\n")
+            print(f"merged_data.head():\n{merged_data.head()}\n")
+       
+        # matplotlib settings start from here
+        fig, ax = plt.subplots(figsize=(10,6))
+        """
+        plt.subplots() returns two objects :
+        - a Figure object, which contains everything, like a canvas;
+        it contains among other things Axes objects.
+        It's possible to save a figure with: fig.savefig("savefile.png")
+        - an Axes object, where the charts will be drawn.
+        As we here have only one chart, we will use everytime this
+        variable. As it is a quite usual case, that is probably why
+        these variables fix and ax are not created, and the implicit
+        automation is used.
+        As I prefer explicit objects, I will then use them.
+        They become even more useful when more than one Axes objects
+        is included in a single Figure object; for example:
+            fig, axes = plt.subplots(2, 2, figsize=(10, 8))  # Grille 2x2
+            axes[0, 0].plot(x, y)  # first subplot (top left)
+            axes[0, 1].scatter(x, y)  # second subplot (top right)
+            axes[1, 0].bar(x, y)  # third subplot (bottom left)
+            axes[1, 1].hist(y)  # fourth subplot (bottom right)
+        """
 
-        plt.figure(figsize=(10, 6))
-        scatter = plt.scatter(
+        scatter = ax.scatter(
             x=merged_data['gdp'],
             y=merged_data['life_expectancy'],
-            s=merged_data['population']/1e6 if BONUS else None  # point size
+            s=merged_data['population']/1e6 if BONUS else None,  # point's size
+            alpha=0.7,  # point's transparancy
+            label="Countries (population-weighted)"
         )
-        plt.xscale('log')
-        plt.title(f"{YEAR}")
-        plt.xlabel("Gross domestic product")
-        plt.ylabel("Life Expectancy")
+        """
+        matplotlib scatter allows to realize what the exercise requests.
+        Beyond that requirement, here are some hints about the scatter
+        usage, and why to use it:
+        A df has two numeric columns, without any link.
+        No line order.
+        Then a scatter plot allows to :
+        - see a potential correlation between the two columns
+        - outliers detection
+        - add (if relevant) a third data on the dots
+        """
+
+        if BONUS:
+            # Linear regression settings
+
+            slope, intercept, r_value, p_value, std_err = linregress(
+                np.log10(merged_data['gdp']), merged_data['life_expectancy']
+            )
+            """
+            linregress is used here to obtain information about the
+            linear regression between GDP and life expectancy.
+            Here:
+            x = np.log10(merged_data['gdp'])
+            y = merged_data['life_expectancy']
+            n = shape[1] (186: nb of countries with data in 1900)
+            linregress returns three key values among others: 
+            - slope: the slope of the regression line.
+            slope = Cov(x,y)/Var(x)
+            Cov stands for covariance:
+            Cov(x,y) = (1/n) * sum[i=1 to n]((x_i-mean(x)) * (y_i-mean(y)))
+            
+            Var for variance:
+            Var(x) = (1/n) * sum[i=1 to n]((x_i-mean(x))**2)
+            - intercept: the y-intercept of this line.
+            This can be represented as: slope * x + intercept (ax+b).
+            intercept = mean(y) - slope * mean(x)
+            - r_value: the Pearson correlation coefficient
+            between the two variables (GDP and life_expectancy).
+            - 1: perfect positive correlation.
+            - -1: perfect negative correlation.
+            - 0: no correlation.
+            r_value = cov(x,y)/sqrt(var(x)*var(y))
+
+            No explanation is provided here for p_value and std_err,
+            although they must be included for the unpacking of
+            the returned linregress tuple.
+
+            About the linear regression mathematical tool:
+            The idea is to find the linear formula ax+b for a line
+            as close as possible of every points.
+            """
+
+            gdp_sorted = np.sort(merged_data['gdp'])
+            predicted_life_expectancy = (
+                slope * np.log10(gdp_sorted) + intercept
+            )
+            """
+            print(type(predicted_life_expectancy))  # <class 'numpy.ndarray'>
+            Now that slope and intercept are calculated,
+            it is possible to use them as a model:
+            applying them with the formula
+            slope * np.log10(gdp_sorted) + intercept
+            it provides an array of life expectancies predicted
+            by the model.
+            As it will plot, we need the array sorted
+            (whereas initially, order did not matter).
+            """
+
+            ax.plot(
+                gdp_sorted,
+                predicted_life_expectancy,
+                color="red",
+                linestyle="--",
+                label="Regression Line (log-linear)"
+            )
+
+            # Correlation displaying
+            ax.text(
+                0.5, -0.2,
+                f"Correlation: {r_value:.2f}",
+                fontsize=12,
+                color="red",
+                ha='center',
+                transform=plt.gca().transAxes,
+                bbox=dict(
+                    facecolor='white',
+                    edgecolor='red',
+                    alpha=0.8,
+                    linestyle='--'
+                )
+            )
+
+            fig.subplots_adjust(bottom=0.25)
+
+
+        ax.set_xscale('log')
+
+
+        title = f"Life Expectancy vs GDP per country in {YEAR}"
+        ax.set_title(title)
+        fig.canvas.manager.set_window_title(title)
+
+        ax.set_xlabel("Gross Domestic Product (USD, log scale)")
+        ax.set_ylabel("Life Expectancy (years)")
 
         ticks = [300, 1000, 10000]
         labels = ['300', '1k', '10k']
-        plt.xticks(ticks, labels)
+        ax.set_xticks(ticks, labels)
 
         if BONUS:
+
+            def put_kmb_suffix(val: int) -> str:
+                """DOCSTRING"""
+                if val > 1e9:
+                    return f"{(val/1e9):.2f}B"
+                if val > 1e6:
+                    return f"{(val/1e6):.2f}M"
+                if val > 1e3:
+                    return f"{(val/1e3):.2f}k"
+                return str(val)
+
             cursor = mplcursors.cursor(scatter, hover=True)
             """
             What is sel ?
@@ -256,15 +407,28 @@ def main() -> None:
                     (font, size, and background).
                 """
 
-                country = merged_data.iloc[sel.index]["country"]
+                row = merged_data.iloc[sel.index]
+                country = row["country"]
+                life_expectancy = row["life_expectancy"]
+                population = row["population"]
+                gdp = row["gdp"]
+
                 sel.annotation.set(
-                    text=country, fontsize=10, fontweight="bold")
+                    text=(
+                        f"{country}\n"
+                        f"Life Expectancy: {life_expectancy} years\n"
+                        f"GDP per capita: {gdp}\n"
+                        f"Population: {put_kmb_suffix(population)}"
+                    ),
+                    fontsize=10, fontweight="bold")
                 sel.annotation.get_bbox_patch().set(alpha=0.6, color="white")
             """
             cursor.connect("add", on_add)
             Without the decorator above the on_add function,
             this line would be used.
             """
+
+        ax.legend(loc="best")
 
         plt.show()
 
