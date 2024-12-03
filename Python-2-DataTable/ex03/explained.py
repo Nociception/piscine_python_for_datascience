@@ -1,3 +1,19 @@
+"""
+Many MULTILINE STRINGS in this file.
+Once you read one (or not), remind to FOLD it in order to avoid
+flood during your reading.
+For instance, try with this one (featur available on VSCode):
+click on the little down arrow between the line number 1,
+and the three " " " to fold this multiline string.
+Hope you have somehting similar, dear vim users <3
+
+You can also fold DOCSTRING, little if (debug related),
+and little functions, theoretically well named.
+
+As this file is explained, many text written can flood
+and make your reading experience painful.
+"""
+
 # Subject
 """
 Exercice 03: draw my year
@@ -56,8 +72,28 @@ def main() -> None:
         - Catches and prints unexpected errors.
     """
 
-    BONUS = 1
+    BONUS = 1  #switch it between 0 or 1 to enable the bonus part.
+    
     DEBUG = 0
+    DEBUG_BEACON = 1
+    """
+    Concerns all the debug print, for knowing what variable content
+    at many code critical steps.
+    All debug print are conditionned as such:
+    if DEBUG and DEBUG_BEACON:
+        print(...)
+
+    DEBUG: switch it between 0 or 1 to enable debug prints.
+    Initially set to 0.
+    This variable is set here and nowhere else.
+    0: no debug print will be display at all.
+    1: allows debug prints to be display ; adjusted with DEBUG_BEACON
+
+    DEBUG_BEACON:switch it between 0 or 1 to adjust debug prints.
+    This variable can be set again before every debug print.
+    Initially, they all are set on 1.
+    Set 0 or 1 anywhere, according to which debug prints you would like to see.
+    """
 
     data_y_path = "life_expectancy_years.csv"
     data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
@@ -71,7 +107,7 @@ def main() -> None:
         if BONUS:
             data_point_size = load(data_point_size_path)
 
-        if DEBUG:
+        if DEBUG and DEBUG_BEACON:
             print("\n### DEBUG ###\n"
                   "function: main from projection_life.py\n"
                   f"data_y_path: {data_y_path}\n"
@@ -87,7 +123,7 @@ def main() -> None:
             print(f"\nYEAR: {YEAR}"
                   "\n### DEBUG END###\n")
 
-        # Checking year_col presence in each df
+        # ===== Checking year_col presence in each df =====
         year_col = str(YEAR)
         assert year_col in data_y.columns, (
             f"The year {YEAR} is not available in {data_y_path}."
@@ -100,11 +136,12 @@ def main() -> None:
                 f"The year {YEAR} is not available in {data_point_size_path}."
             )
 
-        # Subsets extraction
+        # ===== Subsets extraction =====
         life_expectancy_year = data_y[['country', year_col]].rename(
             columns={year_col: 'life_expectancy'}
         )
-        if DEBUG:
+        DEBUG_BEACON = 1
+        if DEBUG and DEBUG_BEACON:
             print("life_expectancy_year.head():"
                   f"\n{life_expectancy_year.head()}\n")
             print(f"life_expectancy_year.shape: {life_expectancy_year.shape}")
@@ -120,7 +157,8 @@ def main() -> None:
         gdp_year = data_x[['country', year_col]].rename(
             columns={year_col: 'gdp'}
         )
-        if DEBUG:
+        DEBUG_BEACON = 1
+        if DEBUG and DEBUG_BEACON:
             print(f"gdp_year.head():\n{gdp_year.head()}\n")
             print(f"gdp_year.shape:\n{gdp_year.shape}\n")
 
@@ -180,27 +218,31 @@ def main() -> None:
 
             pop_year = data_point_size[['country', year_col]].rename(
                 columns={year_col: 'population'})
-            if DEBUG:
+            DEBUG_BEACON = 1
+            if DEBUG and DEBUG_BEACON:
                 print(f"pop_year.head():\n{pop_year.head()}"
                       "pop_year['population'].head():\n"
                       f"{pop_year['population'].head()}")
             pop_year['population'] = pop_year['population'].apply(
                 parsing_value)
-            if DEBUG:
+            DEBUG_BEACON = 1
+            if DEBUG and DEBUG_BEACON:
                 print(f"pop_year.head():\n{pop_year.head()}\n")
                 print(f"pop_year.shape:\n{pop_year.shape}\n")
 
-        # Subsets merge
+        # ===== Subsets merge =====
         merged_data = pd.merge(life_expectancy_year, gdp_year, on='country')
         if BONUS:
             merged_data = pd.merge(merged_data, pop_year, on='country')
-        if DEBUG:
+        DEBUG_BEACON = 1
+        if DEBUG and DEBUG_BEACON:
             print(f"merged_data.head():\n{merged_data.head()}\n")
             print(f"merged_data.shape: {merged_data.shape}")
 
-        # merged_data tailoring
+        # ===== merged_data tailoring =====
         merged_data = merged_data.dropna()
-        if DEBUG:
+        DEBUG_BEACON = 1
+        if DEBUG and DEBUG_BEACON:
             print(f"merged_data.head():\n{merged_data.head()}\n")
             print(f"merged_data.shape: {merged_data.shape}")
         merged_data['life_expectancy'] = merged_data[
@@ -208,10 +250,11 @@ def main() -> None:
         merged_data['gdp'] = merged_data['gdp'].astype(float)
         if BONUS:
             merged_data['population'] = merged_data['population'].astype(float)
-        if DEBUG:
+        DEBUG_BEACON = 1
+        if DEBUG and DEBUG_BEACON:
             print(f"merged_data.head():\n{merged_data.head()}\n")
        
-        # matplotlib settings start from here
+        # ===== matplotlib settings start from here =====
         fig, ax = plt.subplots(figsize=(10,6))
         """
         plt.subplots() returns two objects :
@@ -241,6 +284,11 @@ def main() -> None:
             label="Countries (population-weighted)"
         )
         """
+        print(f"type(scatter): {type(scatter)}")
+            type(scatter): <class 'matplotlib.collections.PathCollection'>
+        Does two things here:
+        - Creates the scatter object (type showed just above).
+        - Adds it to the ax object.
         matplotlib scatter allows to realize what the exercise requests.
         Beyond that requirement, here are some hints about the scatter
         usage, and why to use it:
@@ -253,8 +301,7 @@ def main() -> None:
         """
 
         if BONUS:
-            # Linear regression settings
-
+            # ===== Linear regression settings =====
             slope, intercept, r_value, p_value, std_err = linregress(
                 np.log10(merged_data['gdp']), merged_data['life_expectancy']
             )
@@ -316,7 +363,7 @@ def main() -> None:
                 label="Regression Line (log-linear)"
             )
 
-            # Correlation displaying
+            # ===== Correlation displaying =====
             ax.text(
                 0.5, -0.2,
                 f"Correlation: {r_value:.2f}",
@@ -333,51 +380,41 @@ def main() -> None:
             )
 
             fig.subplots_adjust(bottom=0.25)
+            """To make the correlation displaying visible."""
 
-
-        ax.set_xscale('log')
-
-
+        # ===== Chart and window title settings =====
         title = f"Life Expectancy vs GDP per country in {YEAR}"
         ax.set_title(title)
         fig.canvas.manager.set_window_title(title)
 
+        ax.set_xscale('log')
         ax.set_xlabel("Gross Domestic Product (USD, log scale)")
-        ax.set_ylabel("Life Expectancy (years)")
-
         ticks = [300, 1000, 10000]
         labels = ['300', '1k', '10k']
         ax.set_xticks(ticks, labels)
 
-        if BONUS:
+        ax.set_ylabel("Life Expectancy (years)")
 
+        ax.legend(loc="best")
+
+        # ===== Info tooltip cursor =====
+        if BONUS:
             def put_kmb_suffix(val: int) -> str:
-                """DOCSTRING"""
-                if val > 1e9:
-                    return f"{(val/1e9):.2f}B"
-                if val > 1e6:
-                    return f"{(val/1e6):.2f}M"
-                if val > 1e3:
-                    return f"{(val/1e3):.2f}k"
+                """
+                Formats a large number with 'k', 'M', or 'B' suffixes.
+                """
+                for threshold, suffix in [(1e9, 'B'), (1e6, 'M'), (1e3, 'k')]:
+                    if val > threshold:
+                        return f"{val / threshold:.2f}{suffix}"
                 return str(val)
 
             cursor = mplcursors.cursor(scatter, hover=True)
             """
-            What is sel ?
-            mplcursors sends a Selection object (as defined in the library)
-            to the event manager function just below.
-
-            When the event add is launched
-            (by hovering a point with the mouse):
-            mplcursors gets the elements about the selected/hovered point,
-            and stores them into the Selection object, referred as sel.
-
-            sel.index :
-                Allows to retrieve the data from the df.
-            sel.annotation :
-                Automatically created by matplotlib for each point.
-                Can be modified, as the on_add function does.
+            print(type(cursor))  # <class 'mplcursors._mplcursors.Cursor'>
+            Creates an object linked to the scatter variable.
+            Further details just belows.
             """
+
             @cursor.connect("add")
             def on_add(sel):
                 """
@@ -425,10 +462,41 @@ def main() -> None:
             """
             cursor.connect("add", on_add)
             Without the decorator above the on_add function,
-            this line would be used.
+            this line would be used : exactly the same effet.
+
+            What is sel ?
+            mplcursors sends a Selection object (as defined in the library)
+            to the event manager function just below.
+
+            When the event add is launched
+            (by hovering a point with the mouse):
+            mplcursors gets the elements about the selected/hovered point,
+            and stores them into the Selection object, referred as sel.
+
+            sel.index :
+                Allows to retrieve the data from the df.
+            sel.annotation :
+                Automatically created by matplotlib for each point.
+                Can be modified, as the on_add function does.
             """
 
-        ax.legend(loc="best")
+        # ===== Final rendering =====
+        DEBUG_BEACON = 1
+        if DEBUG and DEBUG_BEACON:
+            print("### fig and ax content summary ###")
+            print(f"Size: {fig.get_size_inches()} inches")
+            print(f"Number of axes: {len(fig.axes)}")
+
+            print("\nAxes summary:")
+            print(f"Title: {ax.get_title()}")
+            print(f"X-label: {ax.get_xlabel()}")
+            print(f"Y-label: {ax.get_ylabel()}")
+            print(f"Number of children in Axes: {len(ax.get_children())}")
+
+            print("\nChildren of Axes:")
+            for child in ax.get_children():
+                print(f"  - {type(child).__name__}: {child}")
+            print("### END fig and ax content summary ###")
 
         plt.show()
 
