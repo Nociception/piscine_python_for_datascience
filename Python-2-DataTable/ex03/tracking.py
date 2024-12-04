@@ -16,11 +16,17 @@ def parsing_value(value):
         return np.nan
 
 
-def precalculate_data(years, data_y, data_x, data_point_size):
-    precomputed = {}
+def merge_df_all_years(years: range,
+                      data_y: pd.DataFrame,
+                      data_x: pd.DataFrame,
+                      data_point_size: pd.DataFrame) -> dict:
+    """DOCSTRING"""
+
+    merged_df_all_years = dict()
     for year in years:
         year_col = str(year)
 
+        # ===== Subsets extraction =====
         life_expectancy_year = data_y[['country', year_col]].rename(
             columns={year_col: 'life_expectancy'}
         )
@@ -30,12 +36,13 @@ def precalculate_data(years, data_y, data_x, data_point_size):
         gdp_year['gdp'] = gdp_year['gdp'].apply(parsing_value)
         pop_year['population'] = pop_year['population'].apply(parsing_value)
 
+        # ===== Subsets merge =====
         merged_data = pd.merge(life_expectancy_year, gdp_year, on='country')
         merged_data = pd.merge(merged_data, pop_year, on='country')
         merged_data = merged_data.dropna()
-        precomputed[year] = merged_data
+        merged_df_all_years[year] = merged_data
 
-    return precomputed
+    return merged_df_all_years
 
 
 def update(val, ax, slider, precomputed_data, cursor_container, tracked_country):
@@ -113,17 +120,21 @@ def add_tracker(text, tracked_country, ax, precomputed_data, cursor_container, s
     update(slider.val, ax, slider, precomputed_data, cursor_container, tracked_country[0])
 
 
-def main():
-    data_y_path = "life_expectancy_years.csv"
-    data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
-    data_point_size_path = "population_total.csv"
+def main() -> None:
 
-    data_y = pd.read_csv(data_y_path)
-    data_x = pd.read_csv(data_x_path)
-    data_point_size = pd.read_csv(data_point_size_path)
+    if 1:
+        data_y_path = "life_expectancy_years.csv"
+        data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
+        data_point_size_path = "population_total.csv"
 
-    years = range(1900, 2051)
-    precomputed_data = precalculate_data(years, data_y, data_x, data_point_size)
+        data_y = pd.read_csv(data_y_path)
+        data_x = pd.read_csv(data_x_path)
+        data_point_size = pd.read_csv(data_point_size_path)
+
+        years = range(1900, 2051)
+
+        merged_df_all_years = merge_df_all_years(
+            years, data_y, data_x, data_point_size)
 
     fig, ax = plt.subplots(figsize=(10, 6))
     fig.subplots_adjust(bottom=0.35)
@@ -139,11 +150,11 @@ def main():
     ax_box = plt.axes([0.2, 0.22, 0.4, 0.05])
     text_box = TextBox(ax_box, "Track Country")
 
-    text_box.on_submit(lambda text: add_tracker(text, tracked_country, ax, precomputed_data, cursor_container, year_slider))
+    text_box.on_submit(lambda text: add_tracker(text, tracked_country, ax, merged_df_all_years, cursor_container, year_slider))
 
-    year_slider.on_changed(lambda val: update(val, ax, year_slider, precomputed_data, cursor_container, tracked_country[0]))
+    year_slider.on_changed(lambda val: update(val, ax, year_slider, merged_df_all_years, cursor_container, tracked_country[0]))
 
-    update(initial_year, ax, year_slider, precomputed_data, cursor_container, tracked_country[0])
+    update(initial_year, ax, year_slider, merged_df_all_years, cursor_container, tracked_country[0])
     plt.show()
 
 
