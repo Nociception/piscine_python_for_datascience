@@ -6,7 +6,7 @@ from scipy.stats import linregress
 import mplcursors
 
 
-def parsing_value(value):
+def parsing_value(value) -> float:  # understood
     factors = {'k': 1e3, 'M': 1e6, 'B': 1e9}
     try:
         if isinstance(value, str) and value[-1] in factors:
@@ -16,7 +16,7 @@ def parsing_value(value):
         return np.nan
 
 
-def merge_df_all_years(years: range,
+def merge_df_all_years(years: range,  # understood
                       data_y: pd.DataFrame,
                       data_x: pd.DataFrame,
                       data_point_size: pd.DataFrame) -> dict:
@@ -45,30 +45,52 @@ def merge_df_all_years(years: range,
     return merged_df_all_years
 
 
-def update(val, ax, slider, precomputed_data, cursor_container, tracked_country):
+def update(val,  # TARGET
+           ax,
+           slider,
+           precomputed_data,
+           cursor_container,
+           tracked_country):
+
     year = int(slider.val)
     data = precomputed_data[year]
 
-    ax.cla()
+    ax.cla()  # clears ax
 
     scatter = ax.scatter(
-        data['gdp'], data['life_expectancy'],
-        s=data['population'] / 1e6, alpha=0.7, label="Countries (population-weighted)"
+        data['gdp'],
+        data['life_expectancy'],
+        s=data['population'] / 1e6,
+        alpha=0.7,
+        label="Countries (population-weighted)"
     )
 
-    slope, intercept, _, _, _ = linregress(np.log10(data['gdp']), data['life_expectancy'])
+    slope, intercept, _, _, _ = linregress(
+        np.log10(data['gdp']),
+        data['life_expectancy'])
     gdp_sorted = np.sort(data['gdp'])
-    regression_line = slope * np.log10(gdp_sorted) + intercept
+    predicted_life_expectancy = slope * np.log10(gdp_sorted) + intercept
 
-    ax.plot(gdp_sorted, regression_line, color='red', linestyle='--', label="Regression Line (log-linear)")
+    ax.plot(
+        gdp_sorted,
+        predicted_life_expectancy,
+        color='red',
+        linestyle='--',
+        label="Regression Line (log-linear)")
 
     if tracked_country:
-        highlighted = data[data['country'].str.contains(tracked_country, case=False, na=False)]
+        highlighted = data[data['country'].str.contains(
+            tracked_country,
+            case=False,
+            na=False)]
         if not highlighted.empty:
             ax.scatter(
-                highlighted['gdp'], highlighted['life_expectancy'],
-                s=highlighted['population'] / 1e6, color='orange',
-                label=f"Tracked: {tracked_country}", edgecolor='black'
+                highlighted['gdp'],
+                highlighted['life_expectancy'],
+                s=highlighted['population'] / 1e6,
+                color='orange',
+                label=f"Tracked: {tracked_country}",
+                edgecolor='black'
             )
 
     ax.set_title(f"Life Expectancy vs GDP in {year}")
@@ -111,10 +133,13 @@ def update(val, ax, slider, precomputed_data, cursor_container, tracked_country)
     plt.draw()
 
 
-def add_tracker(text, tracked_country, ax, precomputed_data, cursor_container, slider):
-    if tracked_country[0]:
-        print(f"Cannot track more than one country! Currently tracking: {tracked_country[0]}")
-        return
+def add_tracker(text,
+                tracked_country,
+                ax,
+                precomputed_data,
+                cursor_container,
+                slider):
+
     tracked_country[0] = text.strip()
     print(f"Tracking: {tracked_country[0]}")
     update(slider.val, ax, slider, precomputed_data, cursor_container, tracked_country[0])
@@ -122,39 +147,73 @@ def add_tracker(text, tracked_country, ax, precomputed_data, cursor_container, s
 
 def main() -> None:
 
-    if 1:
-        data_y_path = "life_expectancy_years.csv"
-        data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
-        data_point_size_path = "population_total.csv"
+    data_y_path = "life_expectancy_years.csv"
+    data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
+    data_point_size_path = "population_total.csv"
 
-        data_y = pd.read_csv(data_y_path)
-        data_x = pd.read_csv(data_x_path)
-        data_point_size = pd.read_csv(data_point_size_path)
+    data_y = pd.read_csv(data_y_path)
+    data_x = pd.read_csv(data_x_path)
+    data_point_size = pd.read_csv(data_point_size_path)
 
-        years = range(1900, 2051)
+    INITIAL_YEAR = 1900
+    FINAL_YEAR = 2050
+    years = range(INITIAL_YEAR, FINAL_YEAR + 1)
 
-        merged_df_all_years = merge_df_all_years(
-            years, data_y, data_x, data_point_size)
+    merged_df_all_years = merge_df_all_years(
+        years, data_y, data_x, data_point_size)
 
     fig, ax = plt.subplots(figsize=(10, 6))
     fig.subplots_adjust(bottom=0.35)
 
-    initial_year = 1900
-    scatter = None
     cursor_container = []
     tracked_country = [None]
 
-    ax_slider = plt.axes([0.2, 0.1, 0.6, 0.03])
-    year_slider = Slider(ax_slider, "Year", 1900, 2050, valinit=1900, valstep=1, color="blue")
+    ax_slider = plt.axes([0.2, 0.18, 0.6, 0.03])
+    year_slider = Slider(
+        ax_slider,
+        "Year",
+        INITIAL_YEAR,
+        FINAL_YEAR,
+        valinit=INITIAL_YEAR,
+        valstep=1,
+        color="blue")
 
-    ax_box = plt.axes([0.2, 0.22, 0.4, 0.05])
-    text_box = TextBox(ax_box, "Track Country")
+    ax_box_tracker = plt.axes([0.33, 0.1, 0.4, 0.05])
+    text_box_tracker = TextBox(ax_box_tracker, "Track Country")
+    text_box_tracker.on_submit(
+        lambda text: add_tracker(
+            text,
+            tracked_country,
+            ax,
+            merged_df_all_years,
+            cursor_container,
+            year_slider)
+    )
 
-    text_box.on_submit(lambda text: add_tracker(text, tracked_country, ax, merged_df_all_years, cursor_container, year_slider))
+    
 
-    year_slider.on_changed(lambda val: update(val, ax, year_slider, merged_df_all_years, cursor_container, tracked_country[0]))
+    year_slider.on_changed(
+        lambda val: update(
+            val,
+            ax,
+            year_slider,
+            merged_df_all_years,
+            cursor_container,
+            tracked_country[0]
+        )
+    )
 
-    update(initial_year, ax, year_slider, merged_df_all_years, cursor_container, tracked_country[0])
+    update(
+        INITIAL_YEAR,
+        ax,
+        year_slider,
+        merged_df_all_years,
+        cursor_container,
+        tracked_country[0])
+    
+
+    
+    
     plt.show()
 
 

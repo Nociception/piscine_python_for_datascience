@@ -2,13 +2,22 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, TextBox
 
 
+# fig, axes = plt.subplot_mosaic(
+#     [
+#         ["log", "log", "lin", "lin"],
+#         ["corr_log", "corr_log", "corr_", "E"]
+#     ],
+#     figsize=(10, 6)
+# )
+
 fig, axes = plt.subplot_mosaic(
     [
-        ["log", "log", "lin", "lin"],
-        ["corr_log", "corr_log", "corr_", "E"]
+        ["A", "A", "B", "B"],
+        ["C", "C", "D", "E"]
     ],
     figsize=(10, 6)
 )
+
 
 fig.subplots_adjust(top=0.9, bottom=0.15, left=0.1, right=0.95, hspace=0.4, wspace=0.4)
 
