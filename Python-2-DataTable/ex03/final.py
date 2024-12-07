@@ -6,7 +6,50 @@ from scipy.stats import linregress
 import mplcursors
 
 
-def parsing_value(value) -> float:
+class LinReg:
+    def __init__(self,
+                 predicted: np.ndarray,
+                 corr: float):
+        self.predicted = predicted
+        self.corr = corr
+
+
+class Year:
+    def __init__(self,
+                 year:int,
+                 data:pd.DataFrame):
+        self.year = year
+        self.data = data
+        self.lin_reg_log: LinReg = None
+        self.lin_reg_lin: LinReg = None
+
+
+    def calculate_linregr(self, log: bool) -> LinReg:
+        """DOCSTRING"""
+
+        slope, intercept, corr, _, _ = linregress(
+            np.log10(self.data['gdp']) if log else self.data['gdp'],
+            self.data['life_expectancy']
+        )
+
+        gdp_sorted = np.sort(self.data['gdp'])
+
+        # === Predicted life expectancy
+        if log:
+            predicted = slope * np.log10(gdp_sorted) + intercept
+        else:
+            predicted = slope * gdp_sorted + intercept
+
+        return LinReg(predicted, corr)
+
+
+    def linear_regressions(self) -> None:
+        """DOCSTRING"""
+        self.lin_reg_log = self.calculate_linregr(True)
+        self.lin_reg_lin = self.calculate_linregr(False)
+
+
+def cust_suffixed_string_to_float(value) -> float:
     factors = {'k': 1e3, 'M': 1e6, 'B': 1e9}
     try:
         if isinstance(value, str) and value[-1] in factors:
@@ -16,57 +59,21 @@ def parsing_value(value) -> float:
         return np.nan
 
 
-class LinReg:
-    def __init__(self,
-                 predicted: np.ndarray,
-                 corr: float):
-        self.predicted = predicted
-        self.corr = corr
-
-class Year:
-    def __init__(self,
-                 year:int,
-                 data:pd.DataFrame):
-        """DOCSTRING"""
-        self.year = year
-        self.data = data
-        self.lin_reg_log: LinReg = None
-        self.lin_reg_lin: LinReg = None
-
-
-    def calculate_linregr(self, log: bool) -> LinReg:
-        """DOCSTRING"""
-        slope, intercept, corr, _, _ = linregress(
-            np.log10(self.data['gdp']) if log else self.data['gdp'],
-            self.data['life_expectancy']
-        )
-        gdp_sorted = np.sort(self.data['gdp'])
-        predicted_life_expectancy = slope * np.log10(gdp_sorted) + intercept
-
-        # if not log:
-        #     print(f"slope: {slope}; intercept: {intercept}; corr: {corr}")
-
-        return LinReg(predicted_life_expectancy, corr)
-
-
-    def linear_regressions(self) -> None:
-        """DOCSTRING"""
-        self.lin_reg_log = self.calculate_linregr(True)
-        self.lin_reg_lin = self.calculate_linregr(False)
-
-
-def precompute_data(years: range,
-                    data_y: pd.DataFrame,
-                    data_x: pd.DataFrame,
-                    data_point_size: pd.DataFrame) -> dict[str:Year]:
+def precompute_data(
+    years: range,
+    data_y: pd.DataFrame,
+    data_x: pd.DataFrame,
+    data_point_size: pd.DataFrame
+    ) -> tuple[
+        dict[int, 'Year'],
+        np.ndarray[np.float64],
+        np.ndarray[np.float64]
+        ]:
     """DOCSTRING"""
 
     precomputed_data = dict()
     corr_log = list()
     corr_lin = list()
-
-
-
     for year in years:
         year_col = str(year)
 
@@ -77,30 +84,40 @@ def precompute_data(years: range,
         gdp_year = data_x[['country', year_col]].rename(columns={year_col: 'gdp'})
         pop_year = data_point_size[['country', year_col]].rename(columns={year_col: 'population'})
 
-        gdp_year['gdp'] = gdp_year['gdp'].apply(parsing_value)
-        pop_year['population'] = pop_year['population'].apply(parsing_value)
+        # === Parsing from string to computable data (float)
+        gdp_year['gdp'] = gdp_year['gdp'].apply(
+            cust_suffixed_string_to_float
+        )
+        pop_year['population'] = pop_year['population'].apply(
+            cust_suffixed_string_to_float
+        )
 
         # ===== Subsets merge =====
         merged_data = pd.merge(life_expectancy_year, gdp_year, on='country')
         merged_data = pd.merge(merged_data, pop_year, on='country')
         merged_data = merged_data.dropna()
 
+        # === Year object creation and linear regression computation ===
         year_object = Year(year, merged_data)
         year_object.linear_regressions()
 
+        # === Data storage in the res variables ===
         precomputed_data[year] = year_object
         corr_log.append(year_object.lin_reg_log.corr)
         corr_lin.append(year_object.lin_reg_lin.corr)
 
-    return precomputed_data, np.array(corr_log), corr_lin
+    corr_log = np.array(corr_log)
+    corr_lin = np.array(corr_lin)
+    return precomputed_data, corr_log, corr_lin
 
 
-def plot(year_data,
-         ax,
-         is_log_scale,
-         tracked_country,
-         cursor_container,
-         ax_name):
+def plot(year_data: Year,
+         ax: plt.Axes,
+         is_log_scale: bool,
+         tracked_country: list,
+         cursor_container: dict,
+         ax_name: str,
+         color: str):
     """
     Plot the scatterplot and regression line for a given axis.
     Args:
@@ -111,8 +128,10 @@ def plot(year_data,
         cursor_container (dict): Dictionary to store active cursors per axis.
         ax_name (str): Name of the axis for managing cursors.
     """
+
     data = year_data.data
 
+    # === Scatter part ===
     scatter = ax.scatter(
         data['gdp'],
         data['life_expectancy'],
@@ -121,13 +140,17 @@ def plot(year_data,
         label="Countries (population-weighted)"
     )
 
-    regression = year_data.lin_reg_log if is_log_scale else year_data.lin_reg_lin
+    # === Regression line part===
+    regression = (year_data.lin_reg_log
+                  if is_log_scale
+                  else year_data.lin_reg_lin)
     ax.plot(
         np.sort(data['gdp']),
         regression.predicted,
-        color='red',
+        color=color,
         linestyle='--',
-        label=f"Regression Line ({'log-linear' if is_log_scale else 'linear'}) - Corr: {regression.corr:.2f}"
+        label=f"Regression Line ({'log-linear' if is_log_scale else 'linear'})"
+              f" - Corr: {regression.corr:.2f}"
     )
 
     if tracked_country:
@@ -146,10 +169,10 @@ def plot(year_data,
         ax.set_xscale('log')
         ax.set_title(f"Life Expectancy vs Inflation-adjusted GDP per capita at purchasing power parity (PPP) in {year_data.year}")
         ax.set_xlabel(
-            "Gross Domestic Product (USD, log scale)",
+            "Gross Domestic Product per capita at PPP (USD, log scale)",
             labelpad=-5)
     else:
-        ax.set_xlabel("Gross Domestic Product (USD)")
+        ax.set_xlabel("Gross Domestic Product per capita at PPP (USD)")
     ax.set_ylabel("Life Expectancy (years)")
     
     ax.legend(loc="best")
@@ -160,7 +183,7 @@ def plot(year_data,
         "LOG" if is_log_scale else "LINEAR",
         transform=ax.transAxes,
         fontsize=100,
-        color="gray",
+        color=color,
         alpha=0.08,
         ha="center", va="center",
         weight="bold",
@@ -198,9 +221,11 @@ def plot(year_data,
     cursor_container[ax_name] = cursor
 
 
-
-
-def update(val, axes, slider, precomputed_data, cursor_container, tracked_country):
+def update(slider_val: int,
+           axes: dict,
+           precomputed_data: dict,
+           cursor_container: dict,
+           tracked_country: list) -> None:
     """
     Update all axes when the slider value changes.
     Args:
@@ -211,8 +236,8 @@ def update(val, axes, slider, precomputed_data, cursor_container, tracked_countr
         cursor_container (dict): Dictionary of active cursors per axis.
         tracked_country (str): Country to track if specified.
     """
-    year = int(slider.val)
-    year_data = precomputed_data[year]
+
+    year_data = precomputed_data[slider_val]
 
     axes["log"].cla()
     axes["lin"].cla()
@@ -223,7 +248,8 @@ def update(val, axes, slider, precomputed_data, cursor_container, tracked_countr
         is_log_scale=True,
         tracked_country=tracked_country,
         cursor_container=cursor_container,
-        ax_name="log"
+        ax_name="log",
+        color="red"
     )
 
     plot(
@@ -232,11 +258,11 @@ def update(val, axes, slider, precomputed_data, cursor_container, tracked_countr
         is_log_scale=False,
         tracked_country=tracked_country,
         cursor_container=cursor_container,
-        ax_name="lin"
+        ax_name="lin",
+        color="green"
     )
 
     plt.draw()
-
 
 
 def add_tracker(text,
@@ -247,15 +273,49 @@ def add_tracker(text,
                 slider):
 
     tracked_country[0] = text.strip()
-    print(f"Tracking: {tracked_country[0]}")
-    update(slider.val, ax, slider, precomputed_data, cursor_container, tracked_country[0])
+    update(slider.val,
+           ax,
+           precomputed_data,
+           cursor_container,
+           tracked_country[0]
+    )
 
 
+def corr_graph_settings(ax, years, corr, label, color) -> None: 
+    """DOCSTRING"""
+    
+    ax.plot(
+        np.array(years),
+        corr,
+        label=f"{label} correlation",
+        color=color
+    )
+
+    ax.set_xlabel("Year", labelpad=0)
+    ax.set_xlim(years.start, years.stop - 1)
+    ax.set_ylabel("Correlation Coefficient")
+    ax.set_ylim(0, 1)
+
+    ax.text(
+        0.5,
+        0.5,
+        label.upper(),
+        transform=ax.transAxes,
+        fontsize=30,
+        color=color,
+        alpha=0.08,
+        ha="center", va="center",
+        weight="bold",
+    )
+
+    ax.legend()
 
 
-def add_curve_interactivity(axes, correlation_axes):
+def add_curve_interactivity(axes: dict, correlation_axes: list) -> None:
     """
-    Add interactivity to the correlation curves, showing the closest point on hover.
+    Adds interactivity to the correlation curves,
+    showing the closest point on hover.
+    
     Args:
         axes (dict): Dictionary of axes.
         correlation_axes (list): List of axes names to target for interactivity.
@@ -263,7 +323,7 @@ def add_curve_interactivity(axes, correlation_axes):
     for name in correlation_axes:
         if name in axes:
             ax = axes[name]
-            for line in ax.get_lines():  
+            for line in ax.get_lines():
                 cursor = mplcursors.cursor(
                     line, hover=True  
                 )
@@ -276,11 +336,16 @@ def add_curve_interactivity(axes, correlation_axes):
                         fontsize=10,
                         fontweight="bold"
                     )
-                    sel.annotation.get_bbox_patch().set(alpha=0.8, color="white")
+                    sel.annotation.get_bbox_patch().set(
+                        alpha=0.8,
+                        color="white"
+                    )
+
 
 def main() -> None:
-
+    """DOCSTRING"""
     
+    # === Data computing ===
     data_y_path = "life_expectancy_years.csv"
     data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
     data_point_size_path = "population_total.csv"
@@ -300,10 +365,8 @@ def main() -> None:
         data_point_size
     )
 
-    cursor_container = {"log": None, "lin": None}
-
-    tracked_country = [None]
-
+    # === Matplotlib ===
+    # ===== General Settings =====
     fig, axes = plt.subplot_mosaic(
         [
             ["log", "log", "log", "corr_log"],
@@ -320,6 +383,8 @@ def main() -> None:
         wspace=0.2
     )
 
+    # ===== Slider =====
+    cursor_container = {"log": None, "lin": None}
     ax_slider = plt.axes([0.05, 0.01, 0.6, 0.03])
     year_slider = Slider(
         ax_slider,
@@ -329,20 +394,20 @@ def main() -> None:
         valinit=INITIAL_YEAR,
         valstep=1,
         color="blue")
-
+    
     year_slider.on_changed(
-        lambda val: update(
-            val,
+        lambda slider_val: update(
+            slider_val,
             axes,
-            year_slider,
             precomputed_data,
             cursor_container,
             tracked_country[0]
         )
     )
 
-
-    ax_box_tracker = plt.axes([0.75, 0.01, 0.2, 0.05])
+    # === Country tracker ===
+    tracked_country = [None]
+    ax_box_tracker = plt.axes([0.75, 0.005, 0.2, 0.05])
     text_box_tracker = TextBox(ax_box_tracker, "Track Country")
     text_box_tracker.on_submit(
         lambda text: add_tracker(
@@ -351,88 +416,26 @@ def main() -> None:
             axes,
             precomputed_data,
             cursor_container,
-            year_slider)
+            year_slider
+        )
     )
 
+    # === Right-side correlation graphs ===
+    corr_graph_settings(axes["corr_log"], years, corr_log, "log", "red")
+    corr_graph_settings(axes["corr_lin"], years, corr_lin, "lin", "green")
 
-    axes["corr_log"].plot(
-        np.array(years),
-        corr_log,
-        label="Log-Linear Correlation",
-        color="blue"
-    )
-    axes["corr_log"].set_xlabel("Year")
-    axes["corr_log"].set_ylabel("Correlation Coefficient")
-    axes["corr_log"].set_xlim(INITIAL_YEAR, FINAL_YEAR)
-    axes["corr_log"].set_ylim(min(corr_log) - 0.1, max(corr_log) + 0.1)
-    axes["corr_log"].text(
-        0.5,
-        0.5,
-        "LOG",
-        transform=axes["corr_log"].transAxes,
-        fontsize=30,
-        color="gray",
-        alpha=0.08,
-        ha="center", va="center",
-        weight="bold",
-    )
-    axes["corr_log"].legend()
-
-    axes["corr_lin"].plot(
-        np.array(years),
-        corr_lin,
-        label="Linear Correlation",
-        color="green"
-    )
-    axes["corr_lin"].set_xlabel("Year")
-    axes["corr_lin"].set_ylabel("Correlation Coefficient")
-    axes["corr_lin"].set_xlim(INITIAL_YEAR, FINAL_YEAR)
-    axes["corr_lin"].set_ylim(min(corr_lin) - 0.1, max(corr_lin) + 0.1)
-    axes["corr_lin"].text(
-        0.5,
-        0.5,
-        "LIN",
-        transform=axes["corr_lin"].transAxes,
-        fontsize=30,
-        color="gray",
-        alpha=0.08,
-        ha="center", va="center",
-        weight="bold",
-    )
-    axes["corr_lin"].legend()
-
-
-    """
-        ax.text(
-        0.5,
-        0.5,
-        "LOG" if is_log_scale else "LINEAR",
-        transform=ax.transAxes,
-        fontsize=100,
-        color="gray",
-        alpha=0.08,
-        ha="center", va="center",
-        weight="bold",
-    )
-    """
-
-
+    # === First update call (in order to make everything work at start) ===
     update(
         INITIAL_YEAR,
         axes,
-        year_slider,
         precomputed_data,
         cursor_container,
         tracked_country[0])
-    
-
-    
 
     add_curve_interactivity(
         axes,
         correlation_axes=["corr_log", "corr_lin"]
     )
-
     
     plt.show()
 
