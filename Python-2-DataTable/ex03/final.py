@@ -401,7 +401,7 @@ def main() -> None:
         wspace=0.2
     )
 
-    # ===== Slider =====
+    # === Slider ===
     ax_slider = plt.axes([0.05, 0.01, 0.6, 0.03])
     year_slider = Slider(
         ax_slider,
@@ -413,7 +413,7 @@ def main() -> None:
         color="blue"
     )
     year_slider.on_changed(
-        lambda slider_val: (
+        lambda slider_val:
             update(
                 slider_val,
                 axes,
@@ -421,12 +421,6 @@ def main() -> None:
                 cursor_container,
                 tracked_country[0]
             ),
-            add_curve_interactivity(
-                axes,
-                ["corr_log", "corr_lin"],
-                correlation_cursor_container
-            )
-        )
     )
 
     # === TextBox for country tracking ===
