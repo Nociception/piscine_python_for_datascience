@@ -190,7 +190,11 @@ def plot(year_data: Year,
     )
 
     if ax_name in cursor_container and cursor_container[ax_name]:
-        cursor_container[ax_name].remove()
+        try:
+            cursor_container[ax_name].remove()
+            cursor_container[ax_name] = None
+        except Exception as e:
+            print(f"Warning: Failed to remove cursor on {ax_name}: {e}")
 
     cursor = mplcursors.cursor(scatter, hover=True)
 
@@ -203,6 +207,7 @@ def plot(year_data: Year,
                 return f"{val / threshold:.2f}{suffix}"
         return str(val)
 
+    # Connect cursor to annotation logic
     @cursor.connect("add")
     def on_add(sel):
         idx = sel.index
@@ -218,6 +223,7 @@ def plot(year_data: Year,
         )
         sel.annotation.get_bbox_patch().set(alpha=0.6, color="white")
 
+    # Mise à jour du conteneur
     cursor_container[ax_name] = cursor
 
 
@@ -311,22 +317,29 @@ def corr_graph_settings(ax, years, corr, label, color) -> None:
     ax.legend()
 
 
-def add_curve_interactivity(axes: dict, correlation_axes: list) -> None:
+def add_curve_interactivity(axes: dict, correlation_axes: list, cursor_container: dict) -> None:
     """
     Adds interactivity to the correlation curves,
     showing the closest point on hover.
-    
+
     Args:
         axes (dict): Dictionary of axes.
         correlation_axes (list): List of axes names to target for interactivity.
+        cursor_container (dict): Dictionary to store active cursors for correlation graphs.
     """
     for name in correlation_axes:
         if name in axes:
             ax = axes[name]
+
+            if name in cursor_container and cursor_container[name]:
+                try:
+                    cursor_container[name].remove()
+                    cursor_container[name] = None
+                except Exception as e:
+                    print(f"Warning: Failed to remove cursor on {name}: {e}")
+
             for line in ax.get_lines():
-                cursor = mplcursors.cursor(
-                    line, hover=True  
-                )
+                cursor = mplcursors.cursor(line, hover=True)
 
                 @cursor.connect("add")
                 def on_add(sel):
@@ -336,23 +349,24 @@ def add_curve_interactivity(axes: dict, correlation_axes: list) -> None:
                         fontsize=10,
                         fontweight="bold"
                     )
-                    sel.annotation.get_bbox_patch().set(
-                        alpha=0.8,
-                        color="white"
-                    )
+                    sel.annotation.get_bbox_patch().set(alpha=0.8, color="white")
+
+                cursor_container[name] = cursor
 
 
 def main() -> None:
-    """DOCSTRING"""
+    """Main function to run the interactive visualization."""
     
     # === Data computing ===
     data_y_path = "life_expectancy_years.csv"
     data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
     data_point_size_path = "population_total.csv"
+    # extra_data_1_path = "Gini_index.csv"
 
     data_y = pd.read_csv(data_y_path)
     data_x = pd.read_csv(data_x_path)
     data_point_size = pd.read_csv(data_point_size_path)
+    # extra_data_1 = pd.read_csv(extra_data_1_path)
 
     INITIAL_YEAR = 1900
     FINAL_YEAR = 2050
@@ -362,11 +376,15 @@ def main() -> None:
         years,
         data_y,
         data_x,
-        data_point_size
+        data_point_size,
+        # extra_data_1
     )
 
-    # === Matplotlib ===
-    # ===== General Settings =====
+    cursor_container = {"log": None, "lin": None}
+    correlation_cursor_container = {"corr_log": None, "corr_lin": None}
+    tracked_country = [None]
+
+    # === Figure and Axes setup ===
     fig, axes = plt.subplot_mosaic(
         [
             ["log", "log", "log", "corr_log"],
@@ -384,7 +402,6 @@ def main() -> None:
     )
 
     # ===== Slider =====
-    cursor_container = {"log": None, "lin": None}
     ax_slider = plt.axes([0.05, 0.01, 0.6, 0.03])
     year_slider = Slider(
         ax_slider,
@@ -393,30 +410,43 @@ def main() -> None:
         FINAL_YEAR,
         valinit=INITIAL_YEAR,
         valstep=1,
-        color="blue")
-    
+        color="blue"
+    )
     year_slider.on_changed(
-        lambda slider_val: update(
-            slider_val,
-            axes,
-            precomputed_data,
-            cursor_container,
-            tracked_country[0]
+        lambda slider_val: (
+            update(
+                slider_val,
+                axes,
+                precomputed_data,
+                cursor_container,
+                tracked_country[0]
+            ),
+            add_curve_interactivity(
+                axes,
+                ["corr_log", "corr_lin"],
+                correlation_cursor_container
+            )
         )
     )
 
-    # === Country tracker ===
-    tracked_country = [None]
+    # === TextBox for country tracking ===
     ax_box_tracker = plt.axes([0.75, 0.005, 0.2, 0.05])
     text_box_tracker = TextBox(ax_box_tracker, "Track Country")
     text_box_tracker.on_submit(
-        lambda text: add_tracker(
-            text,
-            tracked_country,
-            axes,
-            precomputed_data,
-            cursor_container,
-            year_slider
+        lambda text: (
+            add_tracker(
+                text,
+                tracked_country,
+                axes,
+                precomputed_data,
+                cursor_container,
+                year_slider
+            ),
+            add_curve_interactivity(
+                axes,
+                ["corr_log", "corr_lin"],
+                correlation_cursor_container
+            )
         )
     )
 
@@ -430,13 +460,15 @@ def main() -> None:
         axes,
         precomputed_data,
         cursor_container,
-        tracked_country[0])
+        tracked_country[0]
+    )
 
     add_curve_interactivity(
         axes,
-        correlation_axes=["corr_log", "corr_lin"]
+        ["corr_log", "corr_lin"],
+        correlation_cursor_container
     )
-    
+
     plt.show()
 
 
