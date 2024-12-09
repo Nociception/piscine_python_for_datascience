@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, TextBox
 from scipy.stats import linregress
 import mplcursors
+from fuzzywuzzy import process
 
 
 class LinReg:
@@ -59,17 +60,63 @@ def cust_suffixed_string_to_float(value) -> float:
         return np.nan
 
 
+def clean_gini_data(gini_data: pd.DataFrame, data_y: pd.DataFrame) -> pd.DataFrame:
+    # Suppression des colonnes inutiles
+    gini_data = gini_data.drop(
+        columns=[
+            "Country Code",
+            "Indicator Name",
+            "Indicator Code",
+            "Unnamed: 68"
+        ],
+        errors="ignore"
+    )
+
+    gini_data = gini_data.rename(columns={"Country Name": "country"})
+
+    data_y_countries = data_y["country"].unique()
+
+    # Trouver les correspondances les plus proches
+    def match_country_name(country):
+        match, score = process.extractOne(country, data_y_countries)
+        return match if score >= 80 else None
+
+    gini_data["country"] = gini_data["country"].apply(match_country_name)
+
+    # Supprime les lignes où aucune correspondance n'a été trouvée
+    gini_data = gini_data.dropna(subset=["country"])
+
+    gini_data = gini_data.drop_duplicates(subset=["country"], keep="first")
+
+    gini_data = gini_data.sort_values(by="country").reset_index(drop=True)
+
+    
+    return gini_data
+
+
 def precompute_data(
     years: range,
     data_y: pd.DataFrame,
     data_x: pd.DataFrame,
-    data_point_size: pd.DataFrame
+    data_point_size: pd.DataFrame,
+    gini_data: pd.DataFrame
     ) -> tuple[
-        dict[int, 'Year'],
-        np.ndarray[np.float64],
-        np.ndarray[np.float64]
+            dict[int, 'Year'],
+            np.ndarray[np.float64],
+            np.ndarray[np.float64]
         ]:
     """DOCSTRING"""
+
+    gini_data_cleaned = clean_gini_data(gini_data, data_y)
+
+    data_y = data_y.sort_values(by="country").reset_index(drop=True)
+    data_point_size = data_point_size.sort_values(by="country").reset_index(drop=True)
+
+
+    # print(f"\ngini_data_cleaned.head(50):\n{gini_data_cleaned.head(50)}")
+    # print(f"\ndata_y.head(50):\n{data_y.head(50)}")
+
+
 
     precomputed_data = dict()
     corr_log = list()
@@ -83,6 +130,9 @@ def precompute_data(
         )
         gdp_year = data_x[['country', year_col]].rename(columns={year_col: 'gdp'})
         pop_year = data_point_size[['country', year_col]].rename(columns={year_col: 'population'})
+        if year >= 1960 and year <= 2023:
+            gini_year = gini_data_cleaned[['country', year_col]].rename(columns={year_col: 'gini'})
+
 
         # === Parsing from string to computable data (float)
         gdp_year['gdp'] = gdp_year['gdp'].apply(
@@ -91,20 +141,35 @@ def precompute_data(
         pop_year['population'] = pop_year['population'].apply(
             cust_suffixed_string_to_float
         )
+        if year >= 1960 and year <= 2023:
+            gini_year['gini'] = gini_year['gini'].apply(
+                cust_suffixed_string_to_float
+            )
+
+
 
         # ===== Subsets merge =====
         merged_data = pd.merge(life_expectancy_year, gdp_year, on='country')
         merged_data = pd.merge(merged_data, pop_year, on='country')
         merged_data = merged_data.dropna()
 
-        # === Year object creation and linear regression computation ===
+
+
+        if year >= 1960 and year <= 2023:
+            merged_data = pd.merge(merged_data, gini_year, on='country')
+
         year_object = Year(year, merged_data)
+        # === Year object creation and linear regression computation ===
         year_object.linear_regressions()
+        # if year == 2010:
+        #     print(f"\nmerged_data {year}:\n{merged_data}")
 
         # === Data storage in the res variables ===
         precomputed_data[year] = year_object
         corr_log.append(year_object.lin_reg_log.corr)
         corr_lin.append(year_object.lin_reg_lin.corr)
+
+        
 
     corr_log = np.array(corr_log)
     corr_lin = np.array(corr_lin)
@@ -218,6 +283,7 @@ def plot(year_data: Year,
                 f"Life Expectancy: {row['life_expectancy']:.1f} years\n"
                 f"GDP: {put_kmb_suffix(row['gdp'])}\n"
                 f"Population: {put_kmb_suffix(row['population'])}"
+                f"Gini Index: {row['gini']}"
             ),
             fontsize=10, fontweight="bold"
         )
@@ -361,12 +427,16 @@ def main() -> None:
     data_y_path = "life_expectancy_years.csv"
     data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
     data_point_size_path = "population_total.csv"
-    # extra_data_1_path = "Gini_index.csv"
+    extra_data_1_path = "Gini_index.csv"
 
     data_y = pd.read_csv(data_y_path)
     data_x = pd.read_csv(data_x_path)
     data_point_size = pd.read_csv(data_point_size_path)
-    # extra_data_1 = pd.read_csv(extra_data_1_path)
+    extra_data_1 = pd.read_csv(extra_data_1_path)
+
+    # Nettoyage des données de Gini
+
+
 
     INITIAL_YEAR = 1900
     FINAL_YEAR = 2050
@@ -377,8 +447,10 @@ def main() -> None:
         data_y,
         data_x,
         data_point_size,
-        # extra_data_1
+        extra_data_1
     )
+
+
 
     cursor_container = {"log": None, "lin": None}
     correlation_cursor_container = {"corr_log": None, "corr_lin": None}
