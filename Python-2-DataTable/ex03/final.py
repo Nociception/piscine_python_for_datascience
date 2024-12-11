@@ -2,11 +2,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import matplotlib.colors as mcolors
 from matplotlib.widgets import Slider, TextBox
+from matplotlib.colors import Normalize, LinearSegmentedColormap
 from scipy.stats import linregress
 import mplcursors
 from fuzzywuzzy import process
+
 
 
 class LinReg:
@@ -158,9 +159,9 @@ def precompute_data(
         year_object = Year(year, merged_data)
         year_object.linear_regressions()
 
-        if year in [1950, 2000, 2010, 2040]:
-            print(f"\nmerged_data {year}:\n{merged_data}")
-            year_object.show()
+        # if year in [1950, 2000, 2010, 2040]:
+        #     print(f"\nmerged_data {year}:\n{merged_data}")
+        #     year_object.show()
 
         # === Data storage in the res variables ===
         precomputed_data[year] = year_object
@@ -170,7 +171,6 @@ def precompute_data(
     corr_log = np.array(corr_log)
     corr_lin = np.array(corr_lin)
     return precomputed_data, corr_log, corr_lin
-
 
 def plot(year_data: Year,
          ax: plt.Axes,
@@ -192,11 +192,26 @@ def plot(year_data: Year,
 
     data = year_data.data
 
+    colors = ["green", "yellow", "orange", "red", "purple"]
+    cmap = LinearSegmentedColormap.from_list("custom_gini", colors, N=100)
+
+    if 'gini' in data.columns:
+        gini_values = data['gini']
+        norm = Normalize(vmin=0, vmax=100)
+        colors = [
+            cmap(norm(g)) if not np.isnan(g) else (0.5, 0.5, 0.5, 1.0)
+            for g in gini_values
+        ]
+    else:
+        colors = ['blue'] * len(data)
+
+
     # === Scatter part ===
     scatter = ax.scatter(
         data['gdp'],
         data['life_expectancy'],
         s=data['population'] / 1e6,
+        c=colors,
         alpha=0.7,
         label="Countries (population-weighted)"
     )
@@ -268,7 +283,6 @@ def plot(year_data: Year,
                 return f"{val / threshold:.2f}{suffix}"
         return str(val)
 
-    # Connect cursor to annotation logic
     @cursor.connect("add")
     def on_add(sel):
         idx = sel.index
@@ -279,15 +293,13 @@ def plot(year_data: Year,
                 f"Life Expectancy: {row['life_expectancy']:.1f} years\n"
                 f"GDP: {put_kmb_suffix(row['gdp'])}\n"
                 f"Population: {put_kmb_suffix(row['population'])}\n"
-                f"Gini Index: {row['gini'] if 'gini' in row else ''}"
+                f"Gini Index: {row['gini'] if 'gini' in row else 'N/A'}"
             ),
             fontsize=10, fontweight="bold"
         )
         sel.annotation.get_bbox_patch().set(alpha=0.6, color="white")
 
-    # Mise à jour du conteneur
     cursor_container[ax_name] = cursor
-
 
 def update(slider_val: int,
            axes: dict,
