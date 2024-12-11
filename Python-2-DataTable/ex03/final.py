@@ -172,6 +172,31 @@ def precompute_data(
     corr_lin = np.array(corr_lin)
     return precomputed_data, corr_log, corr_lin
 
+
+def get_points_colors(data: pd.DataFrame) -> list[str]:
+    """DOCSTRING (extra_data_x)"""
+
+    if 'gini' in data.columns:
+        colors = ["green", "yellow", "orange", "red", "purple"]
+        gray = (0.5, 0.5, 0.5, 1.0)
+        cmap = LinearSegmentedColormap.from_list("custom_gini", colors, N=100)
+        gini_values = data['gini']
+        norm = Normalize(vmin=0, vmax=100)
+        colors = [
+            cmap(norm(g)) if not np.isnan(g) else gray
+            for g in gini_values
+        ]
+    else:
+        colors = ['blue'] * len(data)
+
+    return colors
+
+
+def plot_scatter() -> None:
+    """DOCSTRING"""
+    
+
+
 def plot(year_data: Year,
          ax: plt.Axes,
          is_log_scale: bool,
@@ -191,30 +216,28 @@ def plot(year_data: Year,
     """
 
     data = year_data.data
-
-    colors = ["green", "yellow", "orange", "red", "purple"]
-    cmap = LinearSegmentedColormap.from_list("custom_gini", colors, N=100)
-
-    if 'gini' in data.columns:
-        gini_values = data['gini']
-        norm = Normalize(vmin=0, vmax=100)
-        colors = [
-            cmap(norm(g)) if not np.isnan(g) else (0.5, 0.5, 0.5, 1.0)
-            for g in gini_values
-        ]
-    else:
-        colors = ['blue'] * len(data)
-
+    points_colors = get_points_colors(data)
 
     # === Scatter part ===
     scatter = ax.scatter(
         data['gdp'],
         data['life_expectancy'],
         s=data['population'] / 1e6,
-        c=colors,
+        c=points_colors,
         alpha=0.7,
         label="Countries (population-weighted)"
     )
+    if tracked_country:
+        highlighted = data[data['country'].str.contains(tracked_country, case=False, na=False)]
+        if not highlighted.empty:
+            ax.scatter(
+                highlighted['gdp'],
+                highlighted['life_expectancy'],
+                s=highlighted['population'] / 1e6,
+                color='cyan',
+                label=f"Tracked: {tracked_country}",
+                edgecolor='black'
+            )
 
     # === Regression line part===
     regression = (year_data.lin_reg_log
@@ -228,18 +251,6 @@ def plot(year_data: Year,
         label=f"Regression Line ({'log-linear' if is_log_scale else 'linear'})"
               f" - Corr: {regression.corr:.2f}"
     )
-
-    if tracked_country:
-        highlighted = data[data['country'].str.contains(tracked_country, case=False, na=False)]
-        if not highlighted.empty:
-            ax.scatter(
-                highlighted['gdp'],
-                highlighted['life_expectancy'],
-                s=highlighted['population'] / 1e6,
-                color='orange',
-                label=f"Tracked: {tracked_country}",
-                edgecolor='black'
-            )
 
     if is_log_scale:
         ax.set_xscale('log')
@@ -287,15 +298,23 @@ def plot(year_data: Year,
     def on_add(sel):
         idx = sel.index
         row = data.iloc[idx]
+
+        gini_text = 'N/A'
+        if 'gini' in row:
+            gini_value = row['gini']
+            if gini_value == gini_value:
+                gini_text = gini_value
+
         sel.annotation.set(
             text=(
                 f"{row['country']}\n"
                 f"Life Expectancy: {row['life_expectancy']:.1f} years\n"
                 f"GDP: {put_kmb_suffix(row['gdp'])}\n"
                 f"Population: {put_kmb_suffix(row['population'])}\n"
-                f"Gini Index: {row['gini'] if 'gini' in row else 'N/A'}"
+                f"Gini Index: {gini_text}"
             ),
-            fontsize=10, fontweight="bold"
+            fontsize=10,
+            fontweight="bold"
         )
         sel.annotation.get_bbox_patch().set(alpha=0.6, color="white")
 
