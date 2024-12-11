@@ -223,6 +223,29 @@ def plot_scatter(
     return scatter
 
 
+def plot_regressline(
+        data: pd.DataFrame,
+        is_log_scale: bool,
+        ax: plt.Axes,
+        color: str,
+        year_data: Year
+        ) -> None:
+    """DOCSTRING"""
+
+    # === Regression line part===
+    regression = (year_data.lin_reg_log
+                  if is_log_scale
+                  else year_data.lin_reg_lin)
+    ax.plot(
+        np.sort(data['gdp']),
+        regression.predicted,
+        color=color,
+        linestyle='--',
+        label=f"Regression Line ({'log-linear' if is_log_scale else 'linear'})"
+              f" - Corr: {regression.corr:.2f}"
+    )
+
+
 def plot(year_data: Year,
          ax: plt.Axes,
          is_log_scale: bool,
@@ -245,19 +268,7 @@ def plot(year_data: Year,
     points_color = get_points_color(data)
 
     scatter = plot_scatter(ax, data, points_color, tracked_country)
-
-    # === Regression line part===
-    regression = (year_data.lin_reg_log
-                  if is_log_scale
-                  else year_data.lin_reg_lin)
-    ax.plot(
-        np.sort(data['gdp']),
-        regression.predicted,
-        color=color,
-        linestyle='--',
-        label=f"Regression Line ({'log-linear' if is_log_scale else 'linear'})"
-              f" - Corr: {regression.corr:.2f}"
-    )
+    plot_regressline(data, is_log_scale, ax, color, year_data)
 
     if is_log_scale:
         ax.set_xscale('log')
