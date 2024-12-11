@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.collections as mplcollec
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.widgets import Slider, TextBox
@@ -173,7 +174,7 @@ def precompute_data(
     return precomputed_data, corr_log, corr_lin
 
 
-def get_points_colors(data: pd.DataFrame) -> list[str]:
+def get_points_color(data: pd.DataFrame) -> list[str]:
     """DOCSTRING (extra_data_x)"""
 
     if 'gini' in data.columns:
@@ -192,15 +193,40 @@ def get_points_colors(data: pd.DataFrame) -> list[str]:
     return colors
 
 
-def plot_scatter() -> None:
+def plot_scatter(
+        ax: plt.Axes,
+        data: pd.DataFrame,
+        points_color: list[str],
+        tracked_country: list[str]
+        ) -> mplcollec.PathCollection:
     """DOCSTRING"""
-    
+
+    scatter = ax.scatter(
+        data['gdp'],
+        data['life_expectancy'],
+        s=data['population'] / 1e6,
+        c=points_color,
+        alpha=0.7,
+        label="Countries (population-weighted)"
+    )
+    if tracked_country:
+        highlighted = data[data['country'].str.contains(tracked_country, case=False, na=False)]
+        if not highlighted.empty:
+            ax.scatter(
+                highlighted['gdp'],
+                highlighted['life_expectancy'],
+                s=highlighted['population'] / 1e6,
+                color='cyan',
+                label=f"Tracked: {tracked_country}",
+                edgecolor='black'
+            )
+    return scatter
 
 
 def plot(year_data: Year,
          ax: plt.Axes,
          is_log_scale: bool,
-         tracked_country: list,
+         tracked_country: list[str],
          cursor_container: dict,
          ax_name: str,
          color: str) -> None:
@@ -216,28 +242,9 @@ def plot(year_data: Year,
     """
 
     data = year_data.data
-    points_colors = get_points_colors(data)
+    points_color = get_points_color(data)
 
-    # === Scatter part ===
-    scatter = ax.scatter(
-        data['gdp'],
-        data['life_expectancy'],
-        s=data['population'] / 1e6,
-        c=points_colors,
-        alpha=0.7,
-        label="Countries (population-weighted)"
-    )
-    if tracked_country:
-        highlighted = data[data['country'].str.contains(tracked_country, case=False, na=False)]
-        if not highlighted.empty:
-            ax.scatter(
-                highlighted['gdp'],
-                highlighted['life_expectancy'],
-                s=highlighted['population'] / 1e6,
-                color='cyan',
-                label=f"Tracked: {tracked_country}",
-                edgecolor='black'
-            )
+    scatter = plot_scatter(ax, data, points_color, tracked_country)
 
     # === Regression line part===
     regression = (year_data.lin_reg_log
