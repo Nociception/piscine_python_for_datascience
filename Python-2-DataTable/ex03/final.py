@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.collections as mplcollec
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
+from matplotlib.cm import ScalarMappable
 from matplotlib.widgets import Slider, TextBox
 from matplotlib.colors import Normalize, LinearSegmentedColormap
 from scipy.stats import linregress
@@ -246,13 +246,45 @@ def plot_regressline(
     )
 
 
+def set_graph_meta_data(
+    year_data: Year,
+    is_log_scale: bool,
+    ax: plt.Axes,
+    color: str,
+    ) -> None:
+    """Configure les métadonnées du graphique et gère la colorbar."""
+
+    if is_log_scale:
+        ax.set_xscale('log')
+        ax.set_title(f"Life Expectancy vs Inflation-adjusted GDP per capita at purchasing power parity (PPP) in {year_data.year}")
+        ax.set_xlabel("Gross Domestic Product per capita at PPP (USD, log scale)", labelpad=-5)
+    else:
+        ax.set_xlabel("Gross Domestic Product per capita at PPP (USD)")
+    ax.set_ylabel("Life Expectancy (years)")
+
+    ax.legend(loc="best")
+
+    ax.text(
+        0.5,
+        0.5,
+        "LOG" if is_log_scale else "LINEAR",
+        transform=ax.transAxes,
+        fontsize=100,
+        color=color,
+        alpha=0.08,
+        ha="center", va="center",
+        weight="bold",
+    )
+
+
 def plot(year_data: Year,
          ax: plt.Axes,
          is_log_scale: bool,
          tracked_country: list[str],
          cursor_container: dict,
          ax_name: str,
-         color: str) -> None:
+         color: str,
+         ) -> None:
     """
     Plot the scatterplot and regression line for a given axis.
     Args:
@@ -266,32 +298,14 @@ def plot(year_data: Year,
 
     data = year_data.data
     points_color = get_points_color(data)
-
     scatter = plot_scatter(ax, data, points_color, tracked_country)
     plot_regressline(data, is_log_scale, ax, color, year_data)
 
-    if is_log_scale:
-        ax.set_xscale('log')
-        ax.set_title(f"Life Expectancy vs Inflation-adjusted GDP per capita at purchasing power parity (PPP) in {year_data.year}")
-        ax.set_xlabel(
-            "Gross Domestic Product per capita at PPP (USD, log scale)",
-            labelpad=-5)
-    else:
-        ax.set_xlabel("Gross Domestic Product per capita at PPP (USD)")
-    ax.set_ylabel("Life Expectancy (years)")
-    
-    ax.legend(loc="best")
-
-    ax.text(
-        0.5,
-        0.5,
-        "LOG" if is_log_scale else "LINEAR",
-        transform=ax.transAxes,
-        fontsize=100,
+    set_graph_meta_data(
+        year_data,
+        is_log_scale=is_log_scale,
+        ax=ax,
         color=color,
-        alpha=0.08,
-        ha="center", va="center",
-        weight="bold",
     )
 
     if ax_name in cursor_container and cursor_container[ax_name]:
@@ -338,11 +352,13 @@ def plot(year_data: Year,
 
     cursor_container[ax_name] = cursor
 
+
 def update(slider_val: int,
            axes: dict,
            precomputed_data: dict,
            cursor_container: dict,
-           tracked_country: list) -> None:
+           tracked_country: list,
+           cbar) -> None:
     """
     Update all axes when the slider value changes.
     Args:
@@ -366,7 +382,7 @@ def update(slider_val: int,
         tracked_country=tracked_country,
         cursor_container=cursor_container,
         ax_name="log",
-        color="red"
+        color="red",
     )
 
     plot(
@@ -376,8 +392,15 @@ def update(slider_val: int,
         tracked_country=tracked_country,
         cursor_container=cursor_container,
         ax_name="lin",
-        color="green"
+        color="green",
     )
+
+    if 'gini' in year_data.data.columns:
+        if not cbar.ax.get_visible():
+            cbar.ax.set_visible(True)
+    else:
+        if cbar.ax.get_visible():
+            cbar.ax.set_visible(False)
 
     plt.draw()
 
@@ -387,14 +410,16 @@ def add_tracker(text,
                 ax,
                 precomputed_data,
                 cursor_container,
-                slider):
+                slider,
+                cbar):
 
     tracked_country[0] = text.strip()
     update(slider.val,
            ax,
            precomputed_data,
            cursor_container,
-           tracked_country[0]
+           tracked_country[0],
+           cbar
     )
 
 
@@ -510,10 +535,34 @@ def main() -> None:
         top=0.97,
         bottom=0.1,
         left=0.05,
-        right=0.95,
+        right=0.99,
         hspace=0.13,
         wspace=0.2
     )
+
+    cmap = LinearSegmentedColormap.from_list("custom_gini", ["green", "yellow", "orange", "red", "purple"], N=100)
+    norm = Normalize(vmin=0, vmax=100)
+    sm = ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+
+
+
+    cbar = fig.colorbar(
+        sm,
+        ax=axes["log"],
+        orientation="vertical",
+        pad=0.05,
+        fraction=0.02,
+        aspect=50
+    )
+
+    cbar.set_label("Gini coefficient", labelpad=1)
+    cbar.ax.yaxis.set_label_position('left')
+    cbar.ax.yaxis.set_ticks_position('left')
+
+
+
+
 
     # === Slider ===
     ax_slider = plt.axes([0.05, 0.01, 0.6, 0.03])
@@ -533,12 +582,13 @@ def main() -> None:
                 axes,
                 precomputed_data,
                 cursor_container,
-                tracked_country[0]
+                tracked_country[0],
+                cbar
             ),
     )
 
     # === TextBox for country tracking ===
-    ax_box_tracker = plt.axes([0.75, 0.005, 0.2, 0.05])
+    ax_box_tracker = plt.axes([0.79, 0.005, 0.2, 0.05])
     text_box_tracker = TextBox(ax_box_tracker, "Track Country")
     text_box_tracker.on_submit(
         lambda text: (
@@ -548,7 +598,8 @@ def main() -> None:
                 axes,
                 precomputed_data,
                 cursor_container,
-                year_slider
+                year_slider,
+                cbar
             ),
             add_curve_interactivity(
                 axes,
@@ -562,13 +613,17 @@ def main() -> None:
     corr_graph_settings(axes["corr_log"], years, corr_log, "log", "red")
     corr_graph_settings(axes["corr_lin"], years, corr_lin, "lin", "green")
 
+
+
+
     # === First update call (in order to make everything work at start) ===
     update(
-        INITIAL_YEAR,
-        axes,
-        precomputed_data,
-        cursor_container,
-        tracked_country[0]
+        slider_val=INITIAL_YEAR,
+        axes=axes,
+        precomputed_data=precomputed_data,
+        cursor_container=cursor_container,
+        tracked_country=tracked_country[0],
+        cbar=cbar
     )
 
     add_curve_interactivity(
