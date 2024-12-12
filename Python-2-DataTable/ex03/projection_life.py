@@ -1,3 +1,17 @@
+# Read before anything
+"""
+This file contains two part:
+    - first: uncommented run-ready code,
+    designed to fullfill what the subject required.
+    - second: commented code, for two files (separated with a big blank):
+        - explained.py: an explained code file.
+        Contains the mandatory part,
+        and a personnal bonus (as the subject does not contain
+        any real bonus).
+        
+
+"""
+
 # Subject
 """
 Exercice 03: draw my year

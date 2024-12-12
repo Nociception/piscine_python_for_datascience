@@ -677,9 +677,6 @@ def main() -> None:
         data_path=extra_data_x_path,
     )
 
-
-    
-
     year_slider = build_slider(
         fig,
         years,
@@ -693,9 +690,8 @@ def main() -> None:
         )
     )
 
-
     # === TextBox for country tracking ===
-    ax_box_tracker = plt.axes([0.79, 0.005, 0.2, 0.05])
+    ax_box_tracker = fig.add_axes([0.79, 0.005, 0.2, 0.05])
     text_box_tracker = TextBox(ax_box_tracker, "Track Country")
     text_box_tracker.on_submit(
         lambda text: (
@@ -725,7 +721,7 @@ def main() -> None:
 
     # === First update call (in order to make everything work at start) ===
     update(
-        slider_val=INITIAL_YEAR,
+        slider_val=years.start,
         axes=axes,
         precomputed_data=precomputed_data,
         cursor_container=cursor_container,
