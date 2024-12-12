@@ -2,6 +2,7 @@
 Navigate back keyboard short cut: ctrl alt -
 """
 
+from load_csv import load
 import pandas as pd
 import numpy as np
 import matplotlib.collections as mplcollec
@@ -12,7 +13,6 @@ from matplotlib.colors import Normalize, LinearSegmentedColormap
 from scipy.stats import linregress
 import mplcursors
 from fuzzywuzzy import process
-
 
 
 class LinReg:
@@ -637,15 +637,216 @@ def build_slider(fig, years, update_callback):
     return year_slider
 
 
+def dict_print(d: dict) -> None:
+    """DOCSTRING"""
+    
+    for key, value in d.items():
+        print(f"{key}: {value}")
+
+
+
+
+class Day02Ex03:
+    """DOCSTRING"""
+
+    def __init__(self):
+        """DOCSTRING"""
+        
+        self.files_path_dict = {
+            "data_x_path": None,
+            "data_y_path": None,
+            "data_point_size_path": None,
+            "extra_data_x_path": None,
+            "extra_data_y_path": None,
+        }
+        self.data_frames = {
+            "data_x": None,
+            "data_y": None,
+            "data_point_size": None,
+            "extra_data_x": None,
+            "extra_data_y": None,
+        }
+        self.years = None
+        
+    
+    def show(self):
+        """DOCSTRING"""
+        
+        print("=== Show Day02Ex03 object ===")
+        print(f"files_path:\n{dict_print(self.files_path)}")
+        # print(f"fdata_frames:\n{dict_print(self.data_frames)}")
+        print(f"years:\n{dict_print(self.years)}")
+        print("=== END Show Day02Ex03 object END ===")
+
+
+    def add_data_x_path(self, data_x_path: str) -> None:
+        """DOCSTRING"""
+
+        if isinstance(data_x_path, str):
+            self["data_x_path"] = data_x_path
+        else:
+            raise ValueError("data_x_path must be a str.")
+        
+    def add_data_y_path(self, data_y_path: str) -> None:
+        """DOCSTRING"""
+
+        if isinstance(data_y_path, str):
+            self["data_y_path"] = data_y_path
+        else:
+            raise ValueError("data_y_path must be a str.")
+
+    def add_data_point_size_path(self, data_point_size_path: str) -> None:
+        """DOCSTRING"""
+
+        if isinstance(data_point_size_path, str):
+            self["data_point_size_path"] = data_point_size_path
+        else:
+            raise ValueError("data_point_size_path must be a str.")
+
+    def add_extra_data_x_path(self, extra_data_x_path: str) -> None:
+        """DOCSTRING"""
+
+        if isinstance(extra_data_x_path, str):
+            self["extra_data_x_path"] = extra_data_x_path
+        else:
+            raise ValueError("extra_data_x_path must be a str.")
+
+    def add_extra_data_y_path(self, extra_data_y_path: str) -> None:
+        """DOCSTRING"""
+
+        if isinstance(extra_data_y_path, str):
+            self["extra_data_y_path"] = extra_data_y_path
+        else:
+            raise ValueError("extra_data_y_path must be a str.")
+         
+    def load_csv_from_files_path(self):
+        """DOCSTRING"""
+
+        self.data_frames["data_x"] = load(
+            self.files_path_dict["data_x_path"]
+        )
+        self.data_frames["data_y"] = load(
+            self.files_path_dict["data_y_path"]
+            )
+        self.data_frames["data_point_size"] = load(
+            self.files_path_dict["data_point_size_path"]
+            )
+        self.data_frames["extra_data_x"] = load(
+            self.files_path_dict["extra_data_x_path"]
+            )
+        self.data_frames["extra_data_y"] = load(
+            self.files_path_dict["extra_data_y_path"]
+            )
+
+    def add_range_time(self, start: int, stop: int) -> None:
+        """DOCSTRING"""
+        
+        if all(isinstance(var, int) for var in (start, stop)):
+            self.years = range(start, stop + 1)
+        else:
+            raise ValueError(
+                f"start and stop must be int, not {start} and {stop}"
+            )
+
+    def precompute_data(self) -> None:
+        """DOCSTRING"""
+        
+        data_x.sort_values(by="country").reset_index(drop=True)
+        data_y.sort_values(by="country").reset_index(drop=True)
+        data_point_size.sort_values(by="country").reset_index(drop=True)
+        
+        
+        
+        
+# def precompute_data(
+#     years: range,
+#     data_y: pd.DataFrame,
+#     data_x: pd.DataFrame,
+#     data_point_size: pd.DataFrame,
+#     extra_data_x: pd.DataFrame,
+#     # extra_data_y: pd.DataFrame
+#     ) -> tuple[
+#             dict[int, 'Year'],
+#             np.ndarray[np.float64],
+#             np.ndarray[np.float64]
+#         ]:
+#     """DOCSTRING"""
+
+#     data_x = data_x.sort_values(by="country").reset_index(drop=True)
+#     data_y = data_y.sort_values(by="country").reset_index(drop=True)
+#     data_point_size = data_point_size.sort_values(by="country").reset_index(drop=True)
+    
+#     extra_data_x_cleaned = clean_extra_data_x(extra_data_x, data_x)
+#     # extra_data_x_cleaned.to_csv("clean_data.csv", index=False)
+
+#     precomputed_data = dict()
+#     corr_log = list()
+#     corr_lin = list()
+#     for year in years:
+#         year_col = str(year)
+
+#         # ===== Subsets extraction =====
+#         life_expectancy_year = data_y[['country', year_col]].rename(
+#             columns={year_col: 'life_expectancy'}
+#         )
+#         gdp_year = data_x[['country', year_col]].rename(columns={year_col: 'gdp'})
+#         pop_year = data_point_size[['country', year_col]].rename(columns={year_col: 'population'})
+#         if year >= 1960 and year <= 2023:
+#             gini_year = extra_data_x_cleaned[['country', year_col]].rename(columns={year_col: 'gini'})
+
+#         # === Parsing from string to computable data (float)
+#         gdp_year['gdp'] = gdp_year['gdp'].apply(
+#             cust_suffixed_string_to_float
+#         )
+#         pop_year['population'] = pop_year['population'].apply(
+#             cust_suffixed_string_to_float
+#         )
+#         if year >= 1960 and year <= 2023:
+#             gini_year['gini'] = gini_year['gini'].apply(
+#                 cust_suffixed_string_to_float
+#             )
+
+#         # ===== Subsets merge =====
+#         merged_data = pd.merge(life_expectancy_year, gdp_year, on='country')
+#         merged_data = pd.merge(merged_data, pop_year, on='country')
+#         merged_data = merged_data.dropna()
+#         if year >= 1960 and year <= 2023:
+#             merged_data = pd.merge(merged_data, gini_year, on='country')
+
+#         # === Year object creation and linear regression computation ===
+#         year_object = Year(year, merged_data)
+#         year_object.linear_regressions()
+
+#         # if year in [1950, 2000, 2010, 2040]:
+#         #     print(f"\nmerged_data {year}:\n{merged_data}")
+#         #     year_object.show()
+
+#         # === Data storage in the res variables ===
+#         precomputed_data[year] = year_object
+#         corr_log.append(year_object.lin_reg_log.corr)
+#         corr_lin.append(year_object.lin_reg_lin.corr)
+
+#     corr_log = np.array(corr_log)
+#     corr_lin = np.array(corr_lin)
+#     return precomputed_data, corr_log, corr_lin
+
+
+
 def main() -> None:
     """Main function to run the interactive visualization."""
     
-    # === Data pre-computing ===
+
+
+
+
+
+    
+    # === Data computing ===
     data_y_path = "life_expectancy_years.csv"
     data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
     data_point_size_path = "population_total.csv"
     extra_data_x_path = "Gini_coefficient.csv"
-    # extra_data_y_path = ".csv"
+    # extra_data_y_path = "Gini_coefficient.csv"
 
     data_y = pd.read_csv(data_y_path)
     data_x = pd.read_csv(data_x_path)
@@ -665,7 +866,32 @@ def main() -> None:
         extra_data_x,
         # extra_data_y
     )
-    
+
+
+    # try:
+    #     if 1:
+    #         exo03 = Day02Ex03()
+        
+    #         exo03.add_data_x_path(
+    #             "income_per_person_gdppercapita_ppp_inflation_adjusted.csv")
+    #         exo03.add_data_y_path("life_expectancy_years.csv")
+    #         exo03.add_data_point_size_path("population_total.csv")
+    #         exo03.add_extra_data_x_path("Gini_coefficient.csv")
+    #         # exo03.add_extra_data_y_path("")
+    #         exo03.add_range_time(start=1900, final=2050)
+    #     exo03.precompute_data()        
+        
+    # except ValueError as error:
+    #     print(f"{type(error).__name__}: {error}")
+    # except Exception as error:
+    #     print(f"An unexpected error occurred: {error}")
+        
+        
+    cursor_container = {"log": None, "lin": None}
+    correlation_cursor_container = {"corr_log": None, "corr_lin": None}
+    tracked_country = [None]
+
+
     fig, axes = build_figure_axes()
     cursor_container = {"log": None, "lin": None}
     correlation_cursor_container = {"corr_log": None, "corr_lin": None}
