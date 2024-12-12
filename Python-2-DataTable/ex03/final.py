@@ -1,3 +1,7 @@
+"""
+Navigate back keyboard short cut: ctrl alt -
+"""
+
 import pandas as pd
 import numpy as np
 import matplotlib.collections as mplcollec
@@ -490,15 +494,158 @@ def add_curve_interactivity(axes: dict, correlation_axes: list, cursor_container
                 cursor_container[name] = cursor
 
 
+def get_data_name(file_name: str) -> str:
+    """DOCSTRING"""
+    
+    extension = file_name[file_name.index('.')+1:]
+    return file_name[:file_name.index(extension)].replace('_', ' ')
+    
+
+def build_colorbar_name(file_name: str) -> str:
+    """DOCSTRING"""
+    
+    data_name = get_data_name(file_name).replace(' ', '_')
+    return data_name + '_cbar'
+
+
+def generate_colorbar(
+    fig: plt.Figure,
+    ax: plt.Axes,
+    data_path: str,
+    cmap_colors: list[str]=[
+        "green",
+        "limegreen",
+        "yellow",
+        "orange",
+        "red",
+        "magenta",
+        "mediumpurple",
+        "darkviolet"
+    ],
+    vmin: float = 0,
+    vmax: float = 100,
+    orientation: str = "vertical",
+    label_position: str = "left",
+    ticks_position: str = "left",
+    pad: float = 0.05,
+    fraction: float = 0.02,
+    aspect: int = 50,
+    labelpad: int = 1,
+    nb_divs: int = 100
+    ) -> plt.colorbar:
+    """
+    Génère un colorbar pour une palette de couleurs et l'associe à un axe.
+
+    Args:
+        fig (plt.Figure): La figure Matplotlib principale.
+        ax (plt.Axes): L'axe auquel associer le colorbar.
+        data_path (str): Chemin vers le fichier CSV ou nom de la donnée pour le label.
+        cmap_colors (list[str]): Palette de couleurs pour le colorbar.
+        vmin (float): Valeur minimale pour la normalisation.
+        vmax (float): Valeur maximale pour la normalisation.
+        orientation (str): Orientation du colorbar ('vertical' ou 'horizontal').
+        label_position (str): Position de la légende du colorbar ('left', 'right', etc.).
+        ticks_position (str): Position des ticks du colorbar ('left', 'right', etc.).
+        pad (float): Distance entre le colorbar et l'axe.
+        fraction (float): Fraction de la largeur/hauteur du colorbar.
+        aspect (int): Aspect du colorbar (hauteur/largeur).
+        labelpad (int): Distance entre le label et le colorbar.
+        nb_divs (int): Nombre de divisions dans le colorbar.
+
+    Returns:
+        plt.colorbar: L'objet colorbar généré.
+    """
+
+    cmap = LinearSegmentedColormap.from_list(
+        name=build_colorbar_name(data_path),  
+        colors=cmap_colors,
+        N=nb_divs
+    )
+
+    
+    norm = Normalize(vmin=vmin, vmax=vmax)
+
+    
+    sm = ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])  
+
+    
+    cbar = fig.colorbar(
+        sm,
+        ax=ax,
+        orientation=orientation,
+        pad=pad,
+        fraction=fraction,
+        aspect=aspect
+    )
+
+    cbar.set_label(
+        label=data_path.replace('_', ' ').split('.')[0],
+        labelpad=labelpad
+    )
+    cbar.ax.yaxis.set_label_position(label_position)
+    cbar.ax.yaxis.set_ticks_position(ticks_position)
+
+    return cbar
+
+
+def build_figure_axes():
+    fig, axes = plt.subplot_mosaic(
+        [
+            ["log", "log", "log", "corr_log"],
+            ["lin", "lin", "lin", "corr_lin"],
+        ],
+        figsize=(10, 6)
+    )
+    fig.subplots_adjust(
+        top=0.97,
+        bottom=0.1,
+        left=0.05,
+        right=0.99,
+        hspace=0.13,
+        wspace=0.2
+    )
+    return fig, axes
+
+
+def build_slider(fig, years, update_callback):
+    """
+    Creates and returns a slider for selecting years.
+    
+    Args:
+        fig (matplotlib.figure.Figure): The figure to add the slider to.
+        years (range): The range of years for the slider.
+        update_callback (callable): Function to call when the slider value changes.
+
+    Returns:
+        Slider: The created slider object.
+    """
+    ax_slider = fig.add_axes([0.05, 0.01, 0.6, 0.03])
+    
+    year_slider = Slider(
+        ax_slider,
+        "Year",
+        years.start,
+        years.stop,
+        valinit=years.start,
+        valstep=1,
+        color="blue"
+    )
+
+    year_slider.on_changed(update_callback)
+    
+    return year_slider
+
+
 def main() -> None:
     """Main function to run the interactive visualization."""
     
-    # === Data computing ===
+    # === Data pre-computing ===
     data_y_path = "life_expectancy_years.csv"
     data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
     data_point_size_path = "population_total.csv"
-    extra_data_x_path = "Gini_index.csv"
-    # extra_data_y_path = "Gini_index.csv"
+    extra_data_x_path = "Gini_coefficient.csv"
+    # extra_data_y_path = ".csv"
 
     data_y = pd.read_csv(data_y_path)
     data_x = pd.read_csv(data_x_path)
@@ -518,74 +665,34 @@ def main() -> None:
         extra_data_x,
         # extra_data_y
     )
-
+    
+    fig, axes = build_figure_axes()
     cursor_container = {"log": None, "lin": None}
     correlation_cursor_container = {"corr_log": None, "corr_lin": None}
     tracked_country = [None]
-
-    # === Figure and Axes setup ===
-    fig, axes = plt.subplot_mosaic(
-        [
-            ["log", "log", "log", "corr_log"],
-            ["lin", "lin", "lin", "corr_lin"],
-        ],
-        figsize=(10, 6)
-    )
-    fig.subplots_adjust(
-        top=0.97,
-        bottom=0.1,
-        left=0.05,
-        right=0.99,
-        hspace=0.13,
-        wspace=0.2
-    )
-
-    cmap = LinearSegmentedColormap.from_list("custom_gini", ["green", "yellow", "orange", "red", "purple"], N=100)
-    norm = Normalize(vmin=0, vmax=100)
-    sm = ScalarMappable(cmap=cmap, norm=norm)
-    sm.set_array([])
-
-
-
-    cbar = fig.colorbar(
-        sm,
+    
+    cbar = generate_colorbar(
+        fig=fig,
         ax=axes["log"],
-        orientation="vertical",
-        pad=0.05,
-        fraction=0.02,
-        aspect=50
+        data_path=extra_data_x_path,
     )
 
-    cbar.set_label("Gini coefficient", labelpad=1)
-    cbar.ax.yaxis.set_label_position('left')
-    cbar.ax.yaxis.set_ticks_position('left')
 
+    
 
-
-
-
-    # === Slider ===
-    ax_slider = plt.axes([0.05, 0.01, 0.6, 0.03])
-    year_slider = Slider(
-        ax_slider,
-        "Year",
-        INITIAL_YEAR,
-        FINAL_YEAR,
-        valinit=INITIAL_YEAR,
-        valstep=1,
-        color="blue"
+    year_slider = build_slider(
+        fig,
+        years,
+        lambda slider_val: update(
+            slider_val,
+            axes,
+            precomputed_data,
+            cursor_container,
+            tracked_country[0],
+            cbar
+        )
     )
-    year_slider.on_changed(
-        lambda slider_val:
-            update(
-                slider_val,
-                axes,
-                precomputed_data,
-                cursor_container,
-                tracked_country[0],
-                cbar
-            ),
-    )
+
 
     # === TextBox for country tracking ===
     ax_box_tracker = plt.axes([0.79, 0.005, 0.2, 0.05])
