@@ -139,7 +139,7 @@ def main() -> None:
         )
         plt.xscale('log')
         plt.title(f"Life Expectancy vs GDP per country in {YEAR}")
-        plt.xlabel("Gross Domestic Product (USD, log scale)")
+        plt.xlabel("GDP per person at PPP inflation adjusted (USD, log scale)")
         plt.ylabel("Life Expectancy (years)")
         plt.gcf().canvas.manager.set_window_title(f"Life Expectancy vs GDP ({YEAR})")
 

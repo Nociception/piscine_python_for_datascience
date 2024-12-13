@@ -497,7 +497,9 @@ def add_curve_interactivity(axes: dict, correlation_axes: list, cursor_container
 def get_data_name(file_name: str) -> str:
     """DOCSTRING"""
     
-    extension = file_name[file_name.index('.')+1:]
+    # print("get_data_name")
+    
+    extension = file_name[file_name.index('.'):]
     return file_name[:file_name.index(extension)].replace('_', ' ')
     
 
@@ -637,14 +639,88 @@ def build_slider(fig, years, update_callback):
     return year_slider
 
 
-def dict_print(d: dict) -> None:
+def dict_printer(
+    d: dict,
+    values_type: str,
+    head_value: int=5
+    ) -> None:
     """DOCSTRING"""
     
-    for key, value in d.items():
-        print(f"{key}: {value}")
+    if d is None:
+        print("The dictionnary does not exist.")
+        
+        return None
+
+    if values_type == "pd.DataFrame":
+        if head_value < 1:
+            print("head_value must be greater than 0.")
+            
+            return None
+        for key, value in d.items():
+            if value is not None:
+                print(f"{key}:\n{value.head(head_value)}\n")
+
+    elif values_type == "cust class":
+        for _, value in d.items():
+            if value is not None:
+                value.show()
+    else:
+        for key, value in d.items():
+            print(f"{key}: {value}")
+
+
+def var_print_str(
+    var_name: str,
+    var_value
+    ) -> str:
+    """DOCSTRING"""
+
+    return f"{var_name}:{var_value} ({type(var_value)})\n"
+    
 
 
 
+class DataFrame:
+    """DOCSTRING"""
+
+    def __init__(
+        self,
+        data_type: str,
+        file_path: str
+        ):
+        """DOCSTRING"""
+
+        if all(isinstance(arg, str) for arg in (data_type, file_path)):
+            self.data_type = data_type
+            self.file_path = file_path
+            self.data_name = get_data_name(file_path)
+            self.data_frame = load(file_path)
+            self.first_column_name = None
+            self.last_column_name = None
+            
+        else:
+            raise ValueError(
+                f"Both data_type and data_type must be str, not:\n"
+                f"{var_print_str('data_type', data_type)}\n"
+                f"{var_print_str('file_path', file_path)}"
+            )
+
+    def show(self) -> None:
+        """DOCSTRING"""
+    
+        print("\n===== Show Data_Frame object =====")
+        print(f"data_type: {self.data_type}")
+        print(f"file_path: {self.file_path}")
+        print(f"data_name: {self.data_name}")
+        print(f"data_frame:\n{self.data_frame}")
+        print("===== END Show Data_Frame object END =====\n")
+
+    def get_first_last_column_names(self) -> None:
+        """DOCSTRING"""
+        
+        self.first_column_name = self.data_frame.columns[1]
+        self.last_column_name = self.data_frame.columns[-1]
+    
 
 class Day02Ex03:
     """DOCSTRING"""
@@ -652,13 +728,6 @@ class Day02Ex03:
     def __init__(self):
         """DOCSTRING"""
         
-        self.files_path_dict = {
-            "data_x_path": None,
-            "data_y_path": None,
-            "data_point_size_path": None,
-            "extra_data_x_path": None,
-            "extra_data_y_path": None,
-        }
         self.data_frames = {
             "data_x": None,
             "data_y": None,
@@ -666,302 +735,331 @@ class Day02Ex03:
             "extra_data_x": None,
             "extra_data_y": None,
         }
-        self.years = None
-        
-    
+        self.x_range = None
+        self.common_column = None
+        self.precomputed_data = dict()
+        self.corr_log = list()
+        self.corr_lin = list()
+        self.data_cleaned = False
+
     def show(self):
         """DOCSTRING"""
         
-        print("=== Show Day02Ex03 object ===")
-        print(f"files_path:\n{dict_print(self.files_path)}")
-        # print(f"fdata_frames:\n{dict_print(self.data_frames)}")
-        print(f"years:\n{dict_print(self.years)}")
-        print("=== END Show Day02Ex03 object END ===")
+        print("\n=== Show Day02Ex03 object ===")
+        
+        print("data_frames:")
+        dict_printer(self.data_frames, "cust class")
+        
+        # print(f"x_range: {self.x_range}")
+        
+        print("=== END Show Day02Ex03 object END ===\n")
 
+
+    def add_data_path(
+        self,
+        data_path: str,
+        data_type: str) -> None:
+        """DOCSTRING"""
+        
+        if (
+            all(isinstance(arg, str) for arg in (data_path, data_type))
+            and len(data_path) >= 3
+        ):
+            self.data_frames[data_type] = DataFrame(
+                data_type,
+                data_path
+            )
+        else:
+            raise ValueError(
+                f"Both data_path (min length 3)"
+                f" and data_type must be str, not:\n"
+                f"{var_print_str('data_path', data_path)}\n"
+                f"{var_print_str('data_type', data_type)}"
+            )
 
     def add_data_x_path(self, data_x_path: str) -> None:
         """DOCSTRING"""
 
-        if isinstance(data_x_path, str):
-            self["data_x_path"] = data_x_path
-        else:
-            raise ValueError("data_x_path must be a str.")
+        self.add_data_path(data_x_path, "data_x")
         
     def add_data_y_path(self, data_y_path: str) -> None:
         """DOCSTRING"""
 
-        if isinstance(data_y_path, str):
-            self["data_y_path"] = data_y_path
-        else:
-            raise ValueError("data_y_path must be a str.")
+        self.add_data_path(data_y_path, "data_y")
 
     def add_data_point_size_path(self, data_point_size_path: str) -> None:
         """DOCSTRING"""
 
-        if isinstance(data_point_size_path, str):
-            self["data_point_size_path"] = data_point_size_path
-        else:
-            raise ValueError("data_point_size_path must be a str.")
+        self.add_data_path(data_point_size_path, "data_point_size")
 
     def add_extra_data_x_path(self, extra_data_x_path: str) -> None:
         """DOCSTRING"""
 
-        if isinstance(extra_data_x_path, str):
-            self["extra_data_x_path"] = extra_data_x_path
-        else:
-            raise ValueError("extra_data_x_path must be a str.")
+        self.add_data_path(extra_data_x_path, "extra_data_x")
 
     def add_extra_data_y_path(self, extra_data_y_path: str) -> None:
         """DOCSTRING"""
 
-        if isinstance(extra_data_y_path, str):
-            self["extra_data_y_path"] = extra_data_y_path
-        else:
-            raise ValueError("extra_data_y_path must be a str.")
-         
-    def load_csv_from_files_path(self):
-        """DOCSTRING"""
+        self.add_data_path(extra_data_y_path, "extra_data_y")
 
-        self.data_frames["data_x"] = load(
-            self.files_path_dict["data_x_path"]
-        )
-        self.data_frames["data_y"] = load(
-            self.files_path_dict["data_y_path"]
-            )
-        self.data_frames["data_point_size"] = load(
-            self.files_path_dict["data_point_size_path"]
-            )
-        self.data_frames["extra_data_x"] = load(
-            self.files_path_dict["extra_data_x_path"]
-            )
-        self.data_frames["extra_data_y"] = load(
-            self.files_path_dict["extra_data_y_path"]
-            )
 
-    def add_range_time(self, start: int, stop: int) -> None:
+    def add_x_range(self, start: int, stop: int) -> None:
         """DOCSTRING"""
         
         if all(isinstance(var, int) for var in (start, stop)):
-            self.years = range(start, stop + 1)
+            self.x_range = range(start, stop + 1)
         else:
             raise ValueError(
                 f"start and stop must be int, not {start} and {stop}"
             )
 
-    def precompute_data(self) -> None:
+    
+    def add_common_column(self, common_column: str) -> None:
+        """DOCSTRING"""
+    
+        if isinstance(common_column, str):
+            self.common_column = common_column
+
+    
+    def clean_data_x(self) -> None:
+        """DOCSTRING"""
+    
+        self.data_frames['data_x'].data_frame.sort_values(
+            by=self.common_column
+            ).reset_index(drop=True)
+
+    def clean_data_y(self) -> None:
+        """DOCSTRING"""
+
+        self.data_frames['data_y'].data_frame.sort_values(
+            by=self.common_column
+            ).reset_index(drop=True)
+
+    def clean_data_point_size(self) -> None:
+        """DOCSTRING"""
+
+        self.data_frames['data_point_size'].data_frame.sort_values(
+            by=self.common_column
+            ).reset_index(drop=True)
+
+    def clean_extra_data_x(self) -> None:
+        """DOCSTRING"""
+
+        extra_data_x = self.data_frames['extra_data_x'].data_frame
+        extra_data_x = extra_data_x.drop(
+            columns=[
+                "Country Code",
+                "Indicator Name",
+                "Indicator Code",
+                "Unnamed: 68"
+            ],
+            errors="ignore"
+        )
+        extra_data_x = extra_data_x.rename(
+            columns={"Country Name": self.common_column}
+        )
+
+        data_y_countries =extra_data_x[self.common_column].unique()
+        def match_country_name(country):
+            """DOCSTRING"""
+            
+            match, score = process.extractOne(country, data_y_countries)
+            return match if score >= 80 else None
+
+        extra_data_x[self.common_column] = extra_data_x[self.common_column].apply(
+            match_country_name
+        )
+
+        extra_data_x = extra_data_x.dropna(subset=[self.common_column])
+        extra_data_x = extra_data_x.drop_duplicates(
+            subset=[self.common_column],
+            keep="first"
+        )
+        extra_data_x = extra_data_x.sort_values(
+            by=self.common_column).reset_index(drop=True)
+        
+        self.data_frames['extra_data_x'].data_frame = extra_data_x
+        
+    def clean_extra_data_y(self) -> None:
+        """DOCSTRING"""
+    
+        pass
+    
+    def clean_data_frames(self) -> None:
         """DOCSTRING"""
         
-        data_x.sort_values(by="country").reset_index(drop=True)
-        data_y.sort_values(by="country").reset_index(drop=True)
-        data_point_size.sort_values(by="country").reset_index(drop=True)
-        
-        
-        
-        
-# def precompute_data(
-#     years: range,
-#     data_y: pd.DataFrame,
-#     data_x: pd.DataFrame,
-#     data_point_size: pd.DataFrame,
-#     extra_data_x: pd.DataFrame,
-#     # extra_data_y: pd.DataFrame
-#     ) -> tuple[
-#             dict[int, 'Year'],
-#             np.ndarray[np.float64],
-#             np.ndarray[np.float64]
-#         ]:
-#     """DOCSTRING"""
+        self.clean_data_x()
+        self.clean_data_y()
+        self.clean_data_point_size()
+        self.clean_extra_data_x()
+        self.clean_extra_data_y()
+        self.data_cleaned = True
 
-#     data_x = data_x.sort_values(by="country").reset_index(drop=True)
-#     data_y = data_y.sort_values(by="country").reset_index(drop=True)
-#     data_point_size = data_point_size.sort_values(by="country").reset_index(drop=True)
+    def get_first_last_column_names(self) -> None:
+        """DOCSTRING"""
+
+        if self.data_cleaned:
+            for df in self.data_frames:
+                df.get_first_last_column_names()
+        else:
+            pass
     
-#     extra_data_x_cleaned = clean_extra_data_x(extra_data_x, data_x)
-#     # extra_data_x_cleaned.to_csv("clean_data.csv", index=False)
-
-#     precomputed_data = dict()
-#     corr_log = list()
-#     corr_lin = list()
-#     for year in years:
-#         year_col = str(year)
-
-#         # ===== Subsets extraction =====
-#         life_expectancy_year = data_y[['country', year_col]].rename(
-#             columns={year_col: 'life_expectancy'}
-#         )
-#         gdp_year = data_x[['country', year_col]].rename(columns={year_col: 'gdp'})
-#         pop_year = data_point_size[['country', year_col]].rename(columns={year_col: 'population'})
-#         if year >= 1960 and year <= 2023:
-#             gini_year = extra_data_x_cleaned[['country', year_col]].rename(columns={year_col: 'gini'})
-
-#         # === Parsing from string to computable data (float)
-#         gdp_year['gdp'] = gdp_year['gdp'].apply(
-#             cust_suffixed_string_to_float
-#         )
-#         pop_year['population'] = pop_year['population'].apply(
-#             cust_suffixed_string_to_float
-#         )
-#         if year >= 1960 and year <= 2023:
-#             gini_year['gini'] = gini_year['gini'].apply(
-#                 cust_suffixed_string_to_float
-#             )
-
-#         # ===== Subsets merge =====
-#         merged_data = pd.merge(life_expectancy_year, gdp_year, on='country')
-#         merged_data = pd.merge(merged_data, pop_year, on='country')
-#         merged_data = merged_data.dropna()
-#         if year >= 1960 and year <= 2023:
-#             merged_data = pd.merge(merged_data, gini_year, on='country')
-
-#         # === Year object creation and linear regression computation ===
-#         year_object = Year(year, merged_data)
-#         year_object.linear_regressions()
-
-#         # if year in [1950, 2000, 2010, 2040]:
-#         #     print(f"\nmerged_data {year}:\n{merged_data}")
-#         #     year_object.show()
-
-#         # === Data storage in the res variables ===
-#         precomputed_data[year] = year_object
-#         corr_log.append(year_object.lin_reg_log.corr)
-#         corr_lin.append(year_object.lin_reg_lin.corr)
-
-#     corr_log = np.array(corr_log)
-#     corr_lin = np.array(corr_lin)
-#     return precomputed_data, corr_log, corr_lin
-
-
-
+    def precompute_data(self):
+        """DOCSTRING"""
+        
+        data_x = self.data_frames['data_x']
+        data_y = self.data_frames['data_y']
+        data_point_size = self.data_frames['data_point_size']
+        
+        self.get_first_last_column_names()
+        for timediv in self.x_range:
+            timediv_col = str(timediv)
+        
+            # ===== Subsets extraction =====
+            
+            data_x_timediv = data_x.data_frame[
+                [self.common_column, timediv_col]
+            ].rename(columns={timediv_col: data_x.data_name})
+            
+            data_y_timediv = data_y.data_frame[
+                [self.common_column, timediv_col]
+            ].rename(columns={timediv_col: data_x.data_name})
+            
+            data_point_size_timediv = data_point_size.data_frame[
+                [self.common_column, timediv_col]
+            ].rename(columns={timediv_col: data_x.data_name})
+            
+        
 def main() -> None:
     """Main function to run the interactive visualization."""
     
-
-
-
-
-
-    
-    # === Data computing ===
-    data_y_path = "life_expectancy_years.csv"
-    data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
-    data_point_size_path = "population_total.csv"
-    extra_data_x_path = "Gini_coefficient.csv"
-    # extra_data_y_path = "Gini_coefficient.csv"
-
-    data_y = pd.read_csv(data_y_path)
-    data_x = pd.read_csv(data_x_path)
-    data_point_size = pd.read_csv(data_point_size_path)
-    extra_data_x = pd.read_csv(extra_data_x_path)
-    # extra_data_y = pd.read_csv(extra_data_y_path)
-
-    INITIAL_YEAR = 1900
-    FINAL_YEAR = 2050
-    years = range(INITIAL_YEAR, FINAL_YEAR + 1)
-
-    precomputed_data, corr_log, corr_lin = precompute_data(
-        years,
-        data_y,
-        data_x,
-        data_point_size,
-        extra_data_x,
-        # extra_data_y
-    )
-
-
-    # try:
-    #     if 1:
-    #         exo03 = Day02Ex03()
+    try:
+        if 0:
+            exo03 = Day02Ex03()
         
-    #         exo03.add_data_x_path(
-    #             "income_per_person_gdppercapita_ppp_inflation_adjusted.csv")
-    #         exo03.add_data_y_path("life_expectancy_years.csv")
-    #         exo03.add_data_point_size_path("population_total.csv")
-    #         exo03.add_extra_data_x_path("Gini_coefficient.csv")
-    #         # exo03.add_extra_data_y_path("")
-    #         exo03.add_range_time(start=1900, final=2050)
-    #     exo03.precompute_data()        
+            exo03.add_data_x_path(
+                "income_per_person_gdppercapita_ppp_inflation_adjusted.csv")
+            exo03.add_data_y_path("life_expectancy_years.csv")
+            exo03.add_data_point_size_path("population_total.csv")
+            exo03.add_extra_data_x_path("Gini_coefficient.csv")
+            # exo03.add_extra_data_y_path("")
+
+            exo03.add_x_range(start=1900, stop=2050)
+            
+            exo03.add_common_column("country")
         
-    # except ValueError as error:
-    #     print(f"{type(error).__name__}: {error}")
+            exo03.clean_data_frames()
+            exo03.precompute_data()
+            
+            
+            
+            exo03.show()
+        
+        
+    except ValueError as error:
+        print(f"{type(error).__name__}: {error}")
     # except Exception as error:
     #     print(f"An unexpected error occurred: {error}")
-        
-        
-    cursor_container = {"log": None, "lin": None}
-    correlation_cursor_container = {"corr_log": None, "corr_lin": None}
-    tracked_country = [None]
-
-
-    fig, axes = build_figure_axes()
-    cursor_container = {"log": None, "lin": None}
-    correlation_cursor_container = {"corr_log": None, "corr_lin": None}
-    tracked_country = [None]
     
-    cbar = generate_colorbar(
-        fig=fig,
-        ax=axes["log"],
-        data_path=extra_data_x_path,
-    )
+    if 1:
+        # === Data computing ===
+        data_y_path = "life_expectancy_years.csv"
+        data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
+        data_point_size_path = "population_total.csv"
+        extra_data_x_path = "Gini_coefficient.csv"
+        # extra_data_y_path = "Gini_coefficient.csv"
 
-    year_slider = build_slider(
-        fig,
-        years,
-        lambda slider_val: update(
-            slider_val,
-            axes,
-            precomputed_data,
-            cursor_container,
-            tracked_country[0],
-            cbar
+        data_y = pd.read_csv(data_y_path)
+        data_x = pd.read_csv(data_x_path)
+        data_point_size = pd.read_csv(data_point_size_path)
+        extra_data_x = pd.read_csv(extra_data_x_path)
+        # extra_data_y = pd.read_csv(extra_data_y_path)
+
+        INITIAL_YEAR = 1900
+        FINAL_YEAR = 2050
+        years = range(INITIAL_YEAR, FINAL_YEAR + 1)
+
+        precomputed_data, corr_log, corr_lin = precompute_data(
+            years,
+            data_y,
+            data_x,
+            data_point_size,
+            extra_data_x,
+            # extra_data_y
         )
-    )
+            
+        cursor_container = {"log": None, "lin": None}
+        correlation_cursor_container = {"corr_log": None, "corr_lin": None}
+        tracked_country = [None]
 
-    # === TextBox for country tracking ===
-    ax_box_tracker = fig.add_axes([0.79, 0.005, 0.2, 0.05])
-    text_box_tracker = TextBox(ax_box_tracker, "Track Country")
-    text_box_tracker.on_submit(
-        lambda text: (
-            add_tracker(
-                text,
-                tracked_country,
+
+        fig, axes = build_figure_axes()
+        cursor_container = {"log": None, "lin": None}
+        correlation_cursor_container = {"corr_log": None, "corr_lin": None}
+        tracked_country = [None]
+        
+        cbar = generate_colorbar(
+            fig=fig,
+            ax=axes["log"],
+            data_path=extra_data_x_path,
+        )
+
+        year_slider = build_slider(
+            fig,
+            years,
+            lambda slider_val: update(
+                slider_val,
                 axes,
                 precomputed_data,
                 cursor_container,
-                year_slider,
+                tracked_country[0],
                 cbar
-            ),
-            add_curve_interactivity(
-                axes,
-                ["corr_log", "corr_lin"],
-                correlation_cursor_container
             )
         )
-    )
 
-    # === Right-side correlation graphs ===
-    corr_graph_settings(axes["corr_log"], years, corr_log, "log", "red")
-    corr_graph_settings(axes["corr_lin"], years, corr_lin, "lin", "green")
+        # === TextBox for country tracking ===
+        ax_box_tracker = fig.add_axes([0.79, 0.005, 0.2, 0.05])
+        text_box_tracker = TextBox(ax_box_tracker, "Track Country")
+        text_box_tracker.on_submit(
+            lambda text: (
+                add_tracker(
+                    text,
+                    tracked_country,
+                    axes,
+                    precomputed_data,
+                    cursor_container,
+                    year_slider,
+                    cbar
+                ),
+                add_curve_interactivity(
+                    axes,
+                    ["corr_log", "corr_lin"],
+                    correlation_cursor_container
+                )
+            )
+        )
 
+        # === Right-side correlation graphs ===
+        corr_graph_settings(axes["corr_log"], years, corr_log, "log", "red")
+        corr_graph_settings(axes["corr_lin"], years, corr_lin, "lin", "green")
 
+        # === First update call (in order to make everything work at start) ===
+        update(
+            slider_val=years.start,
+            axes=axes,
+            precomputed_data=precomputed_data,
+            cursor_container=cursor_container,
+            tracked_country=tracked_country[0],
+            cbar=cbar
+        )
 
+        add_curve_interactivity(
+            axes,
+            ["corr_log", "corr_lin"],
+            correlation_cursor_container
+        )
 
-    # === First update call (in order to make everything work at start) ===
-    update(
-        slider_val=years.start,
-        axes=axes,
-        precomputed_data=precomputed_data,
-        cursor_container=cursor_container,
-        tracked_country=tracked_country[0],
-        cbar=cbar
-    )
-
-    add_curve_interactivity(
-        axes,
-        ["corr_log", "corr_lin"],
-        correlation_cursor_container
-    )
-
-    plt.show()
+        plt.show()
 
 
 if __name__ == "__main__":
