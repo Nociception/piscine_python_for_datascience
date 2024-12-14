@@ -15,7 +15,8 @@ import mplcursors
 from fuzzywuzzy import process
 
 
-class LinReg:
+
+class LinReg:  # A GARDER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     def __init__(self,
                  predicted: np.ndarray,
                  corr: float):
@@ -63,7 +64,7 @@ class Year:
         print(f"self.data:\n{self.data}")
         print("\n===== END Show Year Object END =====")
 
-
+# A GARDER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 def cust_suffixed_string_to_float(value) -> float:
     factors = {'k': 1e3, 'M': 1e6, 'B': 1e9}
     try:
@@ -138,6 +139,8 @@ def precompute_data(
         )
         gdp_year = data_x[['country', year_col]].rename(columns={year_col: 'gdp'})
         pop_year = data_point_size[['country', year_col]].rename(columns={year_col: 'population'})
+        
+        gini_year = None
         if year >= 1960 and year <= 2023:
             gini_year = extra_data_x_cleaned[['country', year_col]].rename(columns={year_col: 'gini'})
 
@@ -639,7 +642,7 @@ def build_slider(fig, years, update_callback):
     return year_slider
 
 
-def dict_printer(
+def dict_printer( # A GARDER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     d: dict,
     values_type: str,
     head_value: int=5
@@ -679,10 +682,19 @@ def var_print_str(
     
 
 
+# POO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# POO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# POO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# POO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# POO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# POO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# POO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
 class DataFrame:
     """DOCSTRING"""
 
+    # === General class elements (init, show, exceptions classes) ===
     def __init__(
         self,
         data_type: str,
@@ -695,15 +707,16 @@ class DataFrame:
             self.file_path = file_path
             self.data_name = get_data_name(file_path)
             self.data_frame = load(file_path)
-            self.first_column_name = None
-            self.last_column_name = None
-            
         else:
             raise ValueError(
                 f"Both data_type and data_type must be str, not:\n"
                 f"{var_print_str('data_type', data_type)}\n"
                 f"{var_print_str('file_path', file_path)}"
             )
+
+        self.first_column_name = None
+        self.last_column_name = None
+        self.data_cleaned = False
 
     def show(self) -> None:
         """DOCSTRING"""
@@ -715,11 +728,142 @@ class DataFrame:
         print(f"data_frame:\n{self.data_frame}")
         print("===== END Show Data_Frame object END =====\n")
 
+    class DataFrameException(Exception):
+        """DOCSTRING"""
+        
+        pass
+    
+    class DataFrameNotCleanedException(DataFrameException):
+        """DOCSTRING"""
+        
+        def __init__(
+            self,
+            msg="DataFrame object still not cleaned.\n"\
+                "This exception appears because something has been"\
+                " attempted which needs the DataFrame to be cleaned"\
+                " before."):
+            super().__init__(msg)
+
+    # === Specific class elements ===
     def get_first_last_column_names(self) -> None:
         """DOCSTRING"""
         
-        self.first_column_name = self.data_frame.columns[1]
-        self.last_column_name = self.data_frame.columns[-1]
+        self.first_column_name = int(self.data_frame.columns[1])
+        self.last_column_name = int(self.data_frame.columns[-1])
+    
+    
+    def subset_timediv_extraction(
+        self,
+        timediv: int,
+        common_column: str
+        ) -> pd.DataFrame | None:
+        """DOCSTRING"""
+
+        if timediv in range(self.first_column_name, self.last_column_name):
+            df_timediv = self.data_frame[
+                    [common_column, str(timediv)]
+                ].rename(columns={str(timediv): self.data_name})
+            df_timediv[self.data_name] = df_timediv[self.data_name].apply(
+                cust_suffixed_string_to_float
+            )
+            return df_timediv        
+        return None
+
+
+
+
+class TimeDiv:
+    """DOCSTRING"""
+    
+    def __init__(
+        self,
+        timediv_list: list[pd.DataFrame],
+        common_column: str
+        ):
+        """DOCSTRING"""
+        
+        self.df_dict = {
+            "data_x" : timediv_list[0],
+            "data_y" : timediv_list[1],
+            "data_point_size" : timediv_list[2],
+            "extra_data_x" : timediv_list[3],
+            "extra_data_y" : timediv_list[4]
+        }
+        self.common_column: str=common_column
+        self.merged_data: pd.DataFrame=self.df_dict['data_x']
+        
+        self.lin_reg_log :LinReg=None
+        self.lin_reg_lin :LinReg=None
+        
+        
+    def show(self) -> None:
+        """DOCSTRING"""
+        
+        dict_printer(
+            self.df_dict,
+            values_type="pd.DataFrame",
+            head_value=10
+        )
+        print(self.merged_data)
+        
+    
+
+    def safe_df_merge(
+        self,
+        df_left: pd.DataFrame,
+        df_right: pd.DataFrame
+        ) -> pd.DataFrame:
+        """DOCSTRING"""
+        
+        if (
+                df_left is not None
+                and df_right is not None
+            ):
+                merged_data = pd.merge(
+                    df_left, df_right, on=self.common_column
+                )
+                
+                return merged_data
+        else:
+            return df_left
+
+    def merge(self) -> None:
+        """DOCSTRING"""
+
+        for namedf, df in self.df_dict.items():
+            if namedf != "data_x":
+                self.merged_data = self.safe_df_merge(
+                    self.merged_data, df
+                )
+
+
+    def calculate_linregr(
+        self,
+        log: bool
+        ) -> LinReg:
+        """DOCSTRING"""
+
+        data_x = self.df_dict['data_x'].iloc[:, 1]
+
+        if log:
+            data_x = np.log10(data_x)
+
+        slope, intercept, corr, _, _ = linregress(
+            data_x,
+            self.df_dict['data_y'].iloc[:, 1]
+        )
+
+        data_x_sorted = np.sort(data_x)
+        predicted = slope * data_x_sorted + intercept
+        
+        
+        return LinReg(predicted, corr)
+        
+    def linear_regressions(self) -> None:
+        """DOCSTRING"""
+        
+        self.lin_reg_log = self.calculate_linregr(True)
+        self.lin_reg_lin = self.calculate_linregr(False)
     
 
 class Day02Ex03:
@@ -740,7 +884,6 @@ class Day02Ex03:
         self.precomputed_data = dict()
         self.corr_log = list()
         self.corr_lin = list()
-        self.data_cleaned = False
 
     def show(self):
         """DOCSTRING"""
@@ -748,7 +891,7 @@ class Day02Ex03:
         print("\n=== Show Day02Ex03 object ===")
         
         print("data_frames:")
-        dict_printer(self.data_frames, "cust class")
+        # dict_printer(self.data_frames, "cust class")
         
         # print(f"x_range: {self.x_range}")
         
@@ -813,7 +956,7 @@ class Day02Ex03:
                 f"start and stop must be int, not {start} and {stop}"
             )
 
-    
+
     def add_common_column(self, common_column: str) -> None:
         """DOCSTRING"""
     
@@ -823,68 +966,83 @@ class Day02Ex03:
     
     def clean_data_x(self) -> None:
         """DOCSTRING"""
-    
-        self.data_frames['data_x'].data_frame.sort_values(
-            by=self.common_column
-            ).reset_index(drop=True)
+
+        df = self.data_frames['data_x']
+        if df is not None:
+            df.data_frame.sort_values(
+                by=self.common_column
+                ).reset_index(drop=True)
+            df.data_cleaned = True
 
     def clean_data_y(self) -> None:
         """DOCSTRING"""
 
-        self.data_frames['data_y'].data_frame.sort_values(
-            by=self.common_column
-            ).reset_index(drop=True)
+        df = self.data_frames['data_y']
+        if df is not None:
+            df.data_frame.sort_values(
+                by=self.common_column
+                ).reset_index(drop=True)
+            df.data_cleaned = True
 
     def clean_data_point_size(self) -> None:
         """DOCSTRING"""
 
-        self.data_frames['data_point_size'].data_frame.sort_values(
-            by=self.common_column
-            ).reset_index(drop=True)
+        df = self.data_frames['data_point_size']
+        if df is not None:
+            df.data_frame.sort_values(
+                by=self.common_column
+                ).reset_index(drop=True)
+            df.data_cleaned = True
 
     def clean_extra_data_x(self) -> None:
         """DOCSTRING"""
 
-        extra_data_x = self.data_frames['extra_data_x'].data_frame
-        extra_data_x = extra_data_x.drop(
-            columns=[
-                "Country Code",
-                "Indicator Name",
-                "Indicator Code",
-                "Unnamed: 68"
-            ],
-            errors="ignore"
-        )
-        extra_data_x = extra_data_x.rename(
-            columns={"Country Name": self.common_column}
-        )
+        if self.data_frames['extra_data_x'] is not None:
+            df = self.data_frames['extra_data_x'].data_frame
+            df = df.drop(
+                columns=[
+                    "Country Code",
+                    "Indicator Name",
+                    "Indicator Code",
+                    "Unnamed: 68"
+                ],
+                errors="ignore"
+            )
+            df = df.rename(
+                columns={"Country Name": self.common_column}
+            )
 
-        data_y_countries =extra_data_x[self.common_column].unique()
-        def match_country_name(country):
-            """DOCSTRING"""
+            data_y_countries = self.data_frames[
+                'data_x'
+                ].data_frame[self.common_column].unique()
             
-            match, score = process.extractOne(country, data_y_countries)
-            return match if score >= 80 else None
+            def match_country_name(country):
+                """DOCSTRING"""
+                
+                match, score = process.extractOne(country, data_y_countries)
+                return match if score >= 80 else None
 
-        extra_data_x[self.common_column] = extra_data_x[self.common_column].apply(
-            match_country_name
-        )
+            df[self.common_column] = df[self.common_column].apply(
+                match_country_name
+            )
 
-        extra_data_x = extra_data_x.dropna(subset=[self.common_column])
-        extra_data_x = extra_data_x.drop_duplicates(
-            subset=[self.common_column],
-            keep="first"
-        )
-        extra_data_x = extra_data_x.sort_values(
-            by=self.common_column).reset_index(drop=True)
-        
-        self.data_frames['extra_data_x'].data_frame = extra_data_x
-        
+            df = df.dropna(subset=[self.common_column])
+            df = df.drop_duplicates(
+                subset=[self.common_column],
+                keep="first"
+            )
+            df = df.sort_values(
+                by=self.common_column).reset_index(drop=True)
+            
+            self.data_frames['extra_data_x'].data_frame = df
+            self.data_frames['extra_data_x'].data_cleaned = True
+            
     def clean_extra_data_y(self) -> None:
         """DOCSTRING"""
     
-        pass
-    
+        if self.data_frames['extra_data_y'] is not None:
+            self.data_frames['extra_data_y'].data_cleaned = True
+
     def clean_data_frames(self) -> None:
         """DOCSTRING"""
         
@@ -893,48 +1051,84 @@ class Day02Ex03:
         self.clean_data_point_size()
         self.clean_extra_data_x()
         self.clean_extra_data_y()
-        self.data_cleaned = True
+
 
     def get_first_last_column_names(self) -> None:
         """DOCSTRING"""
+        
+        for key, data_frame in self.data_frames.items():
+            if data_frame is None:
+                continue
+            if not data_frame.data_cleaned:
+                raise data_frame.DataFrameNotCleanedException(
+                    f"The DataFrame '{key}' has not been cleaned."
+                )
+            data_frame.get_first_last_column_names()
+            # print(f"First column in '{key}': {data_frame.first_column_name}")
+            # print(f"Last column in '{key}': {data_frame.last_column_name}")
 
-        if self.data_cleaned:
-            for df in self.data_frames:
-                df.get_first_last_column_names()
-        else:
-            pass
-    
+
+    def subsets_timediv_extraction(
+        self,
+        timediv: int,
+        ) -> list[pd.DataFrame]:
+        """DOCSTRING"""
+
+        res = list()
+        for df in self.data_frames.values():
+            if df is not None:
+                res.append(
+                    df.subset_timediv_extraction(
+                        timediv,
+                        self.common_column
+                    )
+                )
+            else:
+                res.append(None)
+        
+        return res
+
+
     def precompute_data(self):
         """DOCSTRING"""
         
-        data_x = self.data_frames['data_x']
-        data_y = self.data_frames['data_y']
-        data_point_size = self.data_frames['data_point_size']
-        
         self.get_first_last_column_names()
-        for timediv in self.x_range:
-            timediv_col = str(timediv)
         
-            # ===== Subsets extraction =====
+        for div in self.x_range:
+            # ===== Subsets timediv extraction =====
             
-            data_x_timediv = data_x.data_frame[
-                [self.common_column, timediv_col]
-            ].rename(columns={timediv_col: data_x.data_name})
+            timediv = TimeDiv(
+                self.subsets_timediv_extraction(div),
+                self.common_column
+            )
+
+            print(div)
+
+            timediv.merge()
+            timediv.linear_regressions()
             
-            data_y_timediv = data_y.data_frame[
-                [self.common_column, timediv_col]
-            ].rename(columns={timediv_col: data_x.data_name})
+            self.precomputed_data[div] = timediv
+            self.corr_log.append(timediv.lin_reg_log.corr)
+            self.corr_lin.append(timediv.lin_reg_lin.corr)
             
-            data_point_size_timediv = data_point_size.data_frame[
-                [self.common_column, timediv_col]
-            ].rename(columns={timediv_col: data_x.data_name})
             
+            if div >=  2049:
+                print(f"==============={div}=================")
+                timediv.show()
+                
+                
+                
+        self.corr_log = np.array(self.corr_log)
+        self.corr_lin = np.array(self.corr_lin)
         
+        print("precompute_data FIN")
+
+
 def main() -> None:
     """Main function to run the interactive visualization."""
     
     try:
-        if 0:
+        if 1:
             exo03 = Day02Ex03()
         
             exo03.add_data_x_path(
@@ -944,9 +1138,9 @@ def main() -> None:
             exo03.add_extra_data_x_path("Gini_coefficient.csv")
             # exo03.add_extra_data_y_path("")
 
-            exo03.add_x_range(start=1900, stop=2050)
+            exo03.add_x_range(start=1900, stop=2049)
             
-            exo03.add_common_column("country")
+            exo03.add_common_column('country')
         
             exo03.clean_data_frames()
             exo03.precompute_data()
@@ -961,7 +1155,7 @@ def main() -> None:
     # except Exception as error:
     #     print(f"An unexpected error occurred: {error}")
     
-    if 1:
+    if 0:
         # === Data computing ===
         data_y_path = "life_expectancy_years.csv"
         data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
@@ -987,7 +1181,9 @@ def main() -> None:
             extra_data_x,
             # extra_data_y
         )
-            
+        
+        ##################################################################################
+        
         cursor_container = {"log": None, "lin": None}
         correlation_cursor_container = {"corr_log": None, "corr_lin": None}
         tracked_country = [None]
