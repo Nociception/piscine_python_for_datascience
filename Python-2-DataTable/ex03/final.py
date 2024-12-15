@@ -5,11 +5,16 @@ Navigate back keyboard short cut: ctrl alt -
 from load_csv import load
 import pandas as pd
 import numpy as np
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
+from matplotlib.colorbar import Colorbar
 import matplotlib.collections as mplcollec
 import matplotlib.pyplot as plt
 from matplotlib.cm import ScalarMappable
 from matplotlib.widgets import Slider, TextBox
 from matplotlib.colors import Normalize, LinearSegmentedColormap
+from typing import Callable
+
 from scipy.stats import linregress
 import mplcursors
 from fuzzywuzzy import process
@@ -538,28 +543,7 @@ def generate_colorbar(
     labelpad: int = 1,
     nb_divs: int = 100
     ) -> plt.colorbar:
-    """
-    Génère un colorbar pour une palette de couleurs et l'associe à un axe.
-
-    Args:
-        fig (plt.Figure): La figure Matplotlib principale.
-        ax (plt.Axes): L'axe auquel associer le colorbar.
-        data_path (str): Chemin vers le fichier CSV ou nom de la donnée pour le label.
-        cmap_colors (list[str]): Palette de couleurs pour le colorbar.
-        vmin (float): Valeur minimale pour la normalisation.
-        vmax (float): Valeur maximale pour la normalisation.
-        orientation (str): Orientation du colorbar ('vertical' ou 'horizontal').
-        label_position (str): Position de la légende du colorbar ('left', 'right', etc.).
-        ticks_position (str): Position des ticks du colorbar ('left', 'right', etc.).
-        pad (float): Distance entre le colorbar et l'axe.
-        fraction (float): Fraction de la largeur/hauteur du colorbar.
-        aspect (int): Aspect du colorbar (hauteur/largeur).
-        labelpad (int): Distance entre le label et le colorbar.
-        nb_divs (int): Nombre de divisions dans le colorbar.
-
-    Returns:
-        plt.colorbar: L'objet colorbar généré.
-    """
+    """DOCSTRING"""
 
     cmap = LinearSegmentedColormap.from_list(
         name=build_colorbar_name(data_path),  
@@ -698,15 +682,22 @@ class DataFrame:
     def __init__(
         self,
         data_type: str,
-        file_path: str
+        file_path: str,
+        short_name: str,
         ):
         """DOCSTRING"""
 
-        if all(isinstance(arg, str) for arg in (data_type, file_path)):
-            self.data_type = data_type
-            self.file_path = file_path
-            self.data_name = get_data_name(file_path)
-            self.data_frame = load(file_path)
+        if all(
+            isinstance(arg, str) for arg in (
+                data_type,
+                file_path,
+                short_name)
+            ):
+            self.data_type: str = data_type
+            self.file_path:str = file_path
+            self.data_name:str = get_data_name(file_path)
+            self.data_frame:pd.DataFrame = load(file_path)
+            self.short_name:str = short_name
         else:
             raise ValueError(
                 f"Both data_type and data_type must be str, not:\n"
@@ -714,9 +705,9 @@ class DataFrame:
                 f"{var_print_str('file_path', file_path)}"
             )
 
-        self.first_column_name = None
-        self.last_column_name = None
-        self.data_cleaned = False
+        self.first_column_name: int | float | None = None
+        self.last_column_name: int | float | None = None
+        self.data_cleaned:bool = False
 
     def show(self) -> None:
         """DOCSTRING"""
@@ -770,15 +761,14 @@ class DataFrame:
         return None
 
 
-
-
 class TimeDiv:
     """DOCSTRING"""
     
     def __init__(
         self,
         timediv_list: list[pd.DataFrame],
-        common_column: str
+        common_column: str,
+        div: int
         ):
         """DOCSTRING"""
         
@@ -791,10 +781,11 @@ class TimeDiv:
         }
         self.common_column: str=common_column
         self.merged_data: pd.DataFrame=self.df_dict['data_x']
+        self.div = div
         
-        self.lin_reg_log :LinReg=None
-        self.lin_reg_lin :LinReg=None
-        
+        self.lin_reg_log: LinReg | None = None
+        self.lin_reg_lin: LinReg | None = None
+         
         
     def show(self) -> None:
         """DOCSTRING"""
@@ -872,18 +863,56 @@ class Day02Ex03:
     def __init__(self):
         """DOCSTRING"""
         
-        self.data_frames = {
+        self.data_frames: dict[str, pd.DataFrame | None] = {
             "data_x": None,
             "data_y": None,
             "data_point_size": None,
             "extra_data_x": None,
             "extra_data_y": None,
         }
-        self.x_range = None
-        self.common_column = None
-        self.precomputed_data = dict()
-        self.corr_log = list()
-        self.corr_lin = list()
+        self.title: str | None = None
+        self.data_point_size_divider: int = None
+
+        self.x_range: range | None = None
+        self.x_label: str | None = None
+        self.x_unit: str | None = None
+        
+        
+        self.y_label: str | None = None
+        self.y_unit: str | None = None
+        
+        
+        self.common_column: str | None = None
+        self.precomputed_data: dict[int | float, TimeDiv] = {}
+
+        self.corr_log: list[float] | np.ndarray[float] | None = []
+        self.corr_lin: list[float] | np.ndarray[float] | None = []
+        
+        self.tracked_element: list[str | None] = [None]
+
+        self.cursor_container: dict[
+            str, mplcursors.cursor.Cursor | None
+            ] = {
+            "log": None,
+            "lin": None
+        }
+        self.correlation_cursor_container: dict[
+            str, mplcursors.cursor.Cursor | None
+            ] = {
+            "corr_log": None,
+            "corr_lin": None
+        }
+        # TO MERGE ?
+        
+        self.fig: Figure | None = None
+        self.axes: dict[str, Axes] | None = None
+        self.cbar: Colorbar | None = None
+        self.slider: Slider | None = None
+        
+        # definetly set that way (adjustable in future versions)
+        self.colored_extra_data: str = "extra_data_x"
+        
+        
 
     def show(self):
         """DOCSTRING"""
@@ -901,52 +930,158 @@ class Day02Ex03:
     def add_data_path(
         self,
         data_path: str,
-        data_type: str) -> None:
+        data_type: str,
+        short_name: str
+        ) -> None:
         """DOCSTRING"""
         
         if (
-            all(isinstance(arg, str) for arg in (data_path, data_type))
+            all(isinstance(arg, str) for arg in (
+                data_path,
+                data_type,
+                short_name
+                )
+            )
             and len(data_path) >= 3
         ):
             self.data_frames[data_type] = DataFrame(
                 data_type,
-                data_path
+                data_path,
+                short_name
             )
         else:
             raise ValueError(
-                f"Both data_path (min length 3)"
-                f" and data_type must be str, not:\n"
+                f"data_path (min length 3),"
+                f"data_type and short_name must be str, not:\n"
                 f"{var_print_str('data_path', data_path)}\n"
-                f"{var_print_str('data_type', data_type)}"
+                f"{var_print_str('data_type', data_type)}\n"
+                f"{var_print_str('data_type', short_name)}"
             )
 
-    def add_data_x_path(self, data_x_path: str) -> None:
+    def add_data_x_path(
+        self,
+        data_x_path: str,
+        short_name: str,
+        x_label: str,
+        x_unit: str
+        ) -> None:
         """DOCSTRING"""
 
-        self.add_data_path(data_x_path, "data_x")
+        if all(
+            isinstance(arg, str) for arg in (
+                x_label,
+                x_unit,
+            )
+        ):
+            self.add_data_path(
+                data_x_path,
+                "data_x",
+                short_name
+            )
+            self.x_label = x_label
+            self.x_unit = x_unit
+        else:
+            raise ValueError(
+                f"x_label and x_name must be str, not:\n"
+                f"{var_print_str('x_label', x_label)}\n"
+                f"{var_print_str('x_unit', x_unit)}\n"
+            )
+
+      
+    def add_data_y_path(
+        self,
+        data_y_path: str,
+        short_name: str,
+        y_label: str,
+        y_unit: str
+        ) -> None:
+        """DOCSTRING"""
+
+        if all(
+            isinstance(arg, str) for arg in (
+                y_label,
+                y_unit,
+            )
+        ):
+            self.add_data_path(
+                data_y_path,
+                "data_y",
+                short_name
+            )
+            self.y_label = y_label
+            self.y_unit = y_unit
+        else:
+            raise ValueError(
+                f"y_label and y_name must be str, not:\n"
+                f"{var_print_str('y_label', y_label)}\n"
+                f"{var_print_str('y_unit', y_unit)}\n"
+            )
+
+    def add_data_point_size_path(
+        self,
+        data_point_size_path: str,
+        short_name: str,
+        divider: int | float
+        ) -> None:
+        """DOCSTRING"""
+
+        if isinstance(divider, (int, float)):
+            self.data_point_size_divider = divider
+            self.add_data_path(
+                data_point_size_path,
+                "data_point_size",
+                short_name
+            )
+        else:
+            raise TypeError(
+                f"divider must be an int or a float, not {divider}"
+            )
+
+    def add_extra_data_x_path(
+        self,
+        extra_data_x_path: str,
+        short_name: str
+        ) -> None:
+        """DOCSTRING"""
+
+        self.add_data_path(
+            extra_data_x_path,
+            "extra_data_x",
+            short_name
+        )
+
+    def add_extra_data_y_path(
+        self,
+        extra_data_y_path: str,
+        short_name: str
+        ) -> None:
+        """DOCSTRING"""
+
+        self.add_data_path(
+            extra_data_y_path,
+            "extra_data_y",
+            short_name
+        )
+
+    def add_title(
+        self,
+        title: str
+        ) -> None:
+        """DOCSTRING"""
         
-    def add_data_y_path(self, data_y_path: str) -> None:
-        """DOCSTRING"""
-
-        self.add_data_path(data_y_path, "data_y")
-
-    def add_data_point_size_path(self, data_point_size_path: str) -> None:
-        """DOCSTRING"""
-
-        self.add_data_path(data_point_size_path, "data_point_size")
-
-    def add_extra_data_x_path(self, extra_data_x_path: str) -> None:
-        """DOCSTRING"""
-
-        self.add_data_path(extra_data_x_path, "extra_data_x")
-
-    def add_extra_data_y_path(self, extra_data_y_path: str) -> None:
-        """DOCSTRING"""
-
-        self.add_data_path(extra_data_y_path, "extra_data_y")
+        if isinstance(title, str):
+            self.title = title
+        else:
+            raise ValueError(
+                f"title must be a string, not {title} ({type(title)})"
+            )
 
 
-    def add_x_range(self, start: int, stop: int) -> None:
+    def add_x_range(
+        self,
+        start: int,
+        stop: int
+        ) -> None:
         """DOCSTRING"""
         
         if all(isinstance(var, int) for var in (start, stop)):
@@ -1095,59 +1230,497 @@ class Day02Ex03:
         self.get_first_last_column_names()
         
         for div in self.x_range:
-            # ===== Subsets timediv extraction =====
-            
+            # print(div)
             timediv = TimeDiv(
                 self.subsets_timediv_extraction(div),
-                self.common_column
+                self.common_column,
+                div
             )
-
-            print(div)
-
             timediv.merge()
             timediv.linear_regressions()
+            if div >=  2049:
+                print(f"==============={div}=================")
+                timediv.show()
+                
             
             self.precomputed_data[div] = timediv
             self.corr_log.append(timediv.lin_reg_log.corr)
             self.corr_lin.append(timediv.lin_reg_lin.corr)
             
-            
-            if div >=  2049:
-                print(f"==============={div}=================")
-                timediv.show()
-                
-                
-                
         self.corr_log = np.array(self.corr_log)
         self.corr_lin = np.array(self.corr_lin)
         
-        print("precompute_data FIN")
+
+    def build_fig_axes(self) -> None:
+        """DOCSTRING"""
+
+        self.fig, self.axes = plt.subplot_mosaic(
+            [
+                ["log", "log", "log", "corr_log"],
+                ["lin", "lin", "lin", "corr_lin"],
+            ],
+            figsize=(10, 6)
+        )
+        self.fig.subplots_adjust(
+            top=0.97,
+            bottom=0.1,
+            left=0.05,
+            right=0.99,
+            hspace=0.13,
+            wspace=0.2
+        )
+
+    def build_colorbar(
+        self,
+        ax: Axes,
+        extra_data: DataFrame,
+        ) -> None:
+        """DOCSTRING"""
+        
+        cmap_colors: list[str] = [
+            "green",
+            "limegreen",
+            "yellow",
+            "orange",
+            "red",
+            "magenta",
+            "mediumpurple",
+            "darkviolet"
+        ]
+        vmin: float = 0
+        vmax: float = 100
+        orientation: str = "vertical"
+        label_position: str = "left"
+        ticks_position: str = "left"
+        pad: float = 0.05
+        fraction: float = 0.02
+        aspect: int = 50
+        labelpad: int = 1
+        nb_divs: int = 100
+
+        cmap = LinearSegmentedColormap.from_list(
+            name=extra_data.data_name,
+            colors=cmap_colors,
+            N=nb_divs
+        )
+        norm = Normalize(vmin=vmin, vmax=vmax)
+        sm = ScalarMappable(cmap=cmap, norm=norm)
+        sm.set_array([])
+        
+        self.cbar = self.fig.colorbar(
+            sm,
+            ax=ax,
+            orientation=orientation,
+            pad=pad,
+            fraction=fraction,
+            aspect=aspect
+        )
+        self.cbar.set_label(
+            label=extra_data.data_name,
+            labelpad=labelpad
+        )
+        self.cbar.ax.yaxis.set_label_position(label_position)
+        self.cbar.ax.yaxis.set_ticks_position(ticks_position)
+
+    def get_points_color(
+        self,
+        data: pd.DataFrame
+    ) -> list[str]:
+        """DOCSTRING (extra_data_x)"""
+
+        extra_data_colored_name = self.data_frames[
+            self.extra_data_colored].data_name
+        if extra_data_colored_name in data.columns:
+            colors = ["green", "yellow", "orange", "red", "purple"]
+            gray = (0.5, 0.5, 0.5, 1.0)
+            cmap = LinearSegmentedColormap.from_list(
+                "cmap_name",
+                colors,
+                N=100
+            )
+            # gini_values = data['gini']
+            colored_extra_data_values = data[extra_data_colored_name]
+            norm = Normalize(vmin=0, vmax=100)
+            colors = [
+                cmap(norm(g)) if not np.isnan(g) else gray
+                for g in colored_extra_data_values
+            ]
+        else:
+            colors = ['blue'] * len(data)
+
+        return colors
+
+
+    def plot_scatter(
+        self,
+        ax: Axes,
+        data: pd.DataFrame,
+        points_color: list[str],
+        ) -> mplcollec.PathCollection:
+        """DOCSTRING"""
+
+        pt_size_s_name = self.data_frames["data_point_size"].short_name
+        scatter = ax.scatter(
+            data[self.data_frames["data_x"].data_name],
+            data[self.data_frames["data_y"].data_name],
+            s=data[
+                self.data_frames["data_point_size"].data_name
+                ] / self.data_point_size_divider,
+            c=points_color,
+            alpha=0.7,
+            label=f"{self.common_column.title()} ({pt_size_s_name}-sized)"
+        )
+        
+        if self.tracked_element:
+            highlighted = data[
+                data[self.common_column].str.contains(
+                    self.tracked_element,
+                    case=False,
+                    na=False
+                )
+            ]
+            if not highlighted.empty:
+                ax.scatter(
+                    highlighted[self.data_frames["data_x"].data_name],
+                    highlighted[self.data_frames["data_y"].data_name],
+                    s=highlighted[
+                        self.data_frames["data_point_size"].data_name
+                        ] / self.data_point_size_divider,
+                    color='cyan',
+                    label=f"Tracked: {self.tracked_element}",
+                    edgecolor='black'
+            )
+        return scatter
+
+
+    def plot_regressline(
+            self,
+            timediv: TimeDiv,
+            is_log_scale: bool,
+            ax: Axes,
+            color: str            
+        ) -> None:
+        """DOCSTRING"""
+
+        regression = (
+            timediv.lin_reg_log
+            if is_log_scale
+            else timediv.lin_reg_lin
+        )
+        
+        reg_line_type = 'log-linear' if is_log_scale else 'linear'
+        ax.plot(
+            np.sort(
+                timediv.merged_data[self.data_frames["data_x"].data_name]
+            ),
+            regression.predicted,
+            color=color,
+            linestyle='--',
+            label=f"Regression Line ({reg_line_type})"
+                  f" - Corr: {regression.corr:.2f}"
+        )
+
+
+    def set_graph_meta_data(
+        self,
+        timediv: TimeDiv,
+        is_log_scale: bool,
+        ax: Axes,
+        color: str
+        ) -> None:
+        """DOCSTRING"""
+
+        if is_log_scale:
+            ax.set_xscale('log')
+            ax.set_title(f"{self.title} in {timediv.div}")
+            ax.set_xlabel(
+                f"{self.x_label} ({self.x_unit}, log scale)",
+                labelpad=-5
+            )
+        else:
+            ax.set_xlabel(f"{self.x_label} ({self.x_unit})")
+        ax.set_ylabel(f"{self.y_label} ({self.y_unit})")
+        
+        ax.legend(loc="best")
+
+        ax.text(
+        0.5,
+        0.5,
+        "LOG" if is_log_scale else "LINEAR",
+        transform=ax.transAxes,
+        fontsize=100,
+        color=color,
+        alpha=0.08,
+        ha="center", va="center",
+        weight="bold",
+    )
+
+    def plot(
+        self,
+        timediv: TimeDiv,
+        ax: Axes,
+        is_log_scale: bool,
+        ax_name: str,
+        color: str
+        ) -> None:
+        """DOCSTRING"""
+
+        data = timediv.merged_data
+        points_color = self.get_points_color(data)
+        scatter = self.plot_scatter(
+            ax,
+            data,
+            points_color)
+        self.plot_regressline(
+            timediv,
+            is_log_scale,
+            ax,
+            color,
+        )
+        set_graph_meta_data(
+            timediv,
+            is_log_scale=is_log_scale,
+            ax=ax,
+            color=color,
+        )
+    
+        if (
+            ax_name in self.cursor_container
+            and self.cursor_container[ax.name]
+        ):
+            try:
+                self.cursor_container[ax_name].remove()
+                self.cursor_container[ax_name] = None
+            except Exception as e:
+                print(
+                    f"Warning: Failed to remove cursor on "
+                    f"{ax_name}: {e}"
+                )
+        
+        cursor = mplcursors.cursor(
+            scatter,
+            hover=True
+        )
+        
+        def put_kmb_suffix(val: int) -> str:
+            """
+            Formats a large number with 'k', 'M', or 'B' suffixes.
+            """
+            for threshold, suffix in [
+                (1e9, 'B'), (1e6, 'M'), (1e3, 'k')
+                ]:
+                if val > threshold:
+                    return f"{val / threshold:.2f}{suffix}"
+            return str(val)
+    
+        @cursor.connect("add")
+        def on_add(sel):
+            idx = sel.index
+            row = data.iloc[idx]
+
+            data_x_name = data[self.data_frames["data_x"].data_name]
+            data_y_name = data[self.data_frames["data_y"].data_name]
+            data_point_size_name = data[
+                self.data_frames["data_point_size"].data_name
+            ]
+            extra_data_x_text = 'N/A'
+            extra_data_x_name = data[
+                self.data_frames["extra_data_x"].data_name
+            ]
+            
+            if extra_data_x_name in row:
+                extra_data_x_value = row[extra_data_x_name]
+                if extra_data_x_value == extra_data_x_value:
+                    extra_data_x_text = extra_data_x_value
+
+            sel.annotation.set(
+                text=(
+                    f"{row[self.common_column]}\n"
+                    
+                    f"{self.data_frames['data_x'].short_name}: "
+                    f"{put_kmb_suffix(row[data_x_name])} "
+                    f"{self.x_unit}\n"
+                    
+                    f"{self.data_frames['data_y'].short_name}: "
+                    f"{row[data_y_name]:.1f} "
+                    f"{self.y_unit}\n"
+                    
+                    f"{self.data_frames['data_point_size'].short_name}: "
+                    f"{put_kmb_suffix(row[data_point_size_name])}\n"
+                    
+                    f"{self.data_frames['extra_data_x'].short_name}:"
+                    f"{extra_data_x_text}"
+                ),
+                fontsize=10,
+                fontweight="bold"
+            )
+            sel.annotation.get_bbox_patch().set(alpha=0.6, color="white")
+
+        self.cursor_container[ax_name] = cursor
+    
+
+    def update(
+        self,
+        slider_val: int) -> None:
+        """DOCSTRING"""
+
+        timediv = self.precomputed_data[slider_val]
+
+        self.axes["log"].cla()
+        self.axes["lin"].cla()
+
+        self.plot(
+            timediv=timediv,
+            ax=self.axes['log'],
+            is_log_scale=True,
+            ax_name="log",
+            color="red"
+        )
+        self.plot(
+            timediv=timediv,
+            ax=self.axes['lin'],
+            is_log_scale=False,
+            ax_name="lin",
+            color="green"
+        )
+
+        extra_data_x_name = self.data_frames["extra_data_x"].data_name
+        if extra_data_x_name in timediv.merged_data.columns:
+            if not self.cbar.ax.get_visible():
+                self.cbar.ax.set_visible(True)
+        else:
+            if self.cbar.ax.get_visible():
+                self.cbar.ax.set_visible(False)
+
+        plt.draw()
+
+
+
+    def build_slider(  # UPDATE STILL EMPTY
+        self,
+        timediv_type: str,
+        update_callback_function: Callable
+        ) -> None:
+        """DOCSTRING"""
+
+        ax_slider = self.fig.add_axes([0.05, 0.01, 0.6, 0.03])
+    
+        self.slider = Slider(
+            ax_slider,
+            timediv_type.title(),
+            self.x_range.start,
+            self.x_range.stop,
+            valinit=self.x_range.start,
+            valstep=1,
+            color="blue"
+        )
+        self.slider.on_changed(update_callback_function)
+
+
+    def build_mpl_windows(
+        self,
+        timediv_type: str
+        ) -> None:
+        """DOCSTRING"""
+        
+        self.build_fig_axes()
+        self.build_colorbar(
+            ax=self.axes["log"],
+            extra_data=self.data_frames['extra_data_x']
+        )
+
+        self.build_slider(  # update_callback_function still unfixed
+            timediv_type=timediv_type,
+            update_callback_function=self.update
+        )
+        #     year_slider = build_slider(
+        #     fig,
+        #     years,
+        #     lambda slider_val: update(
+        #         slider_val,
+        #         axes,
+        #         precomputed_data,
+        #         cursor_container,
+        #         tracked_country[0],
+        #         cbar
+        #     )
+        # )
+            
+        
+
+    def pltshow(self) -> None:
+        """DOCSTRING"""
+        
+        if self.fig is not None:
+            plt.show()
+        else:
+            raise RuntimeError(
+                "Figure not initialized."
+                " Make sure build_figure_axes Day02Ex03"
+                "method has beed called before."
+            )
+
+
+
+
+
 
 
 def main() -> None:
     """Main function to run the interactive visualization."""
     
+    SWITCH = 0
+    
     try:
-        if 1:
+        if not SWITCH:
             exo03 = Day02Ex03()
         
             exo03.add_data_x_path(
-                "income_per_person_gdppercapita_ppp_inflation_adjusted.csv")
-            exo03.add_data_y_path("life_expectancy_years.csv")
-            exo03.add_data_point_size_path("population_total.csv")
-            exo03.add_extra_data_x_path("Gini_coefficient.csv")
-            # exo03.add_extra_data_y_path("")
+                "income_per_person_gdppercapita_ppp_inflation_adjusted.csv",
+                short_name="GDP per capita",
+                x_label="Gross Domestic Product per capita at PPP",
+                x_unit="USD"
+            )
+            exo03.add_data_y_path(
+                "life_expectancy_years.csv",
+                short_name="life_expectancy",
+                y_label="Life expectancy",
+                y_unit="year"
+            )
+            exo03.add_data_point_size_path(
+                "population_total.csv",
+                short_name="population",
+                divider=1e6
+            )
+            exo03.add_extra_data_x_path(
+                "Gini_coefficient.csv",
+                short_name="Gini Coefficient"
+            )
+            # exo03.add_extra_data_y_path(
+            #     "",
+            #     short_name=""
+            # )
+            exo03.add_title(
+                "Life Expectancy"\
+                " VS "\
+                "Inflation-adjusted GDP per capita "\
+                "at purchasing power parity (PPP)"
+            )
 
             exo03.add_x_range(start=1900, stop=2049)
-            
             exo03.add_common_column('country')
         
             exo03.clean_data_frames()
             exo03.precompute_data()
             
+            exo03.build_mpl_windows(
+                timediv_type="year"
+            )
             
             
-            exo03.show()
+            # exo03.show()
+            
+            exo03.pltshow()
         
         
     except ValueError as error:
@@ -1155,7 +1728,7 @@ def main() -> None:
     # except Exception as error:
     #     print(f"An unexpected error occurred: {error}")
     
-    if 0:
+    if SWITCH:
         # === Data computing ===
         data_y_path = "life_expectancy_years.csv"
         data_x_path = "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
@@ -1182,17 +1755,11 @@ def main() -> None:
             # extra_data_y
         )
         
-        ##################################################################################
         
         cursor_container = {"log": None, "lin": None}
         correlation_cursor_container = {"corr_log": None, "corr_lin": None}
         tracked_country = [None]
-
-
         fig, axes = build_figure_axes()
-        cursor_container = {"log": None, "lin": None}
-        correlation_cursor_container = {"corr_log": None, "corr_lin": None}
-        tracked_country = [None]
         
         cbar = generate_colorbar(
             fig=fig,
@@ -1212,6 +1779,7 @@ def main() -> None:
                 cbar
             )
         )
+    ##################################################################################
 
         # === TextBox for country tracking ===
         ax_box_tracker = fig.add_axes([0.79, 0.005, 0.2, 0.05])
