@@ -684,7 +684,7 @@ class DataFrame:
         data_type: str,
         file_path: str,
         short_name: str,
-        ):
+    ):
         """DOCSTRING"""
 
         if all(
@@ -732,7 +732,8 @@ class DataFrame:
             msg="DataFrame object still not cleaned.\n"\
                 "This exception appears because something has been"\
                 " attempted which needs the DataFrame to be cleaned"\
-                " before."):
+                " before."
+        ):
             super().__init__(msg)
 
     # === Specific class elements ===
@@ -747,7 +748,7 @@ class DataFrame:
         self,
         timediv: int,
         common_column: str
-        ) -> pd.DataFrame | None:
+    ) -> pd.DataFrame | None:
         """DOCSTRING"""
 
         if timediv in range(self.first_column_name, self.last_column_name):
@@ -769,7 +770,7 @@ class TimeDiv:
         timediv_list: list[pd.DataFrame],
         common_column: str,
         div: int
-        ):
+    ):
         """DOCSTRING"""
         
         self.df_dict = {
@@ -803,7 +804,7 @@ class TimeDiv:
         self,
         df_left: pd.DataFrame,
         df_right: pd.DataFrame
-        ) -> pd.DataFrame:
+    ) -> pd.DataFrame:
         """DOCSTRING"""
         
         if (
@@ -831,7 +832,7 @@ class TimeDiv:
     def calculate_linregr(
         self,
         log: bool
-        ) -> LinReg:
+    ) -> LinReg:
         """DOCSTRING"""
 
         data_x = self.df_dict['data_x'].iloc[:, 1]
@@ -908,6 +909,8 @@ class Day02Ex03:
         self.axes: dict[str, Axes] | None = None
         self.cbar: Colorbar | None = None
         self.slider: Slider | None = None
+        self.ax_box_tracker: Axes | None = None
+        self.text_box_tracker: TextBox | None = None
         
         # definetly set that way (adjustable in future versions)
         self.colored_extra_data: str = "extra_data_x"
@@ -932,7 +935,7 @@ class Day02Ex03:
         data_path: str,
         data_type: str,
         short_name: str
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
         
         if (
@@ -964,7 +967,7 @@ class Day02Ex03:
         short_name: str,
         x_label: str,
         x_unit: str
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
 
         if all(
@@ -987,14 +990,13 @@ class Day02Ex03:
                 f"{var_print_str('x_unit', x_unit)}\n"
             )
 
-      
     def add_data_y_path(
         self,
         data_y_path: str,
         short_name: str,
         y_label: str,
         y_unit: str
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
 
         if all(
@@ -1022,7 +1024,7 @@ class Day02Ex03:
         data_point_size_path: str,
         short_name: str,
         divider: int | float
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
 
         if isinstance(divider, (int, float)):
@@ -1041,7 +1043,7 @@ class Day02Ex03:
         self,
         extra_data_x_path: str,
         short_name: str
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
 
         self.add_data_path(
@@ -1054,7 +1056,7 @@ class Day02Ex03:
         self,
         extra_data_y_path: str,
         short_name: str
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
 
         self.add_data_path(
@@ -1066,7 +1068,7 @@ class Day02Ex03:
     def add_title(
         self,
         title: str
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
         
         if isinstance(title, str):
@@ -1076,12 +1078,11 @@ class Day02Ex03:
                 f"title must be a string, not {title} ({type(title)})"
             )
 
-
     def add_x_range(
         self,
         start: int,
         stop: int
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
         
         if all(isinstance(var, int) for var in (start, stop)):
@@ -1091,8 +1092,10 @@ class Day02Ex03:
                 f"start and stop must be int, not {start} and {stop}"
             )
 
-
-    def add_common_column(self, common_column: str) -> None:
+    def add_common_column(
+        self,
+        common_column: str
+    ) -> None:
         """DOCSTRING"""
     
         if isinstance(common_column, str):
@@ -1187,7 +1190,6 @@ class Day02Ex03:
         self.clean_extra_data_x()
         self.clean_extra_data_y()
 
-
     def get_first_last_column_names(self) -> None:
         """DOCSTRING"""
         
@@ -1202,11 +1204,10 @@ class Day02Ex03:
             # print(f"First column in '{key}': {data_frame.first_column_name}")
             # print(f"Last column in '{key}': {data_frame.last_column_name}")
 
-
     def subsets_timediv_extraction(
         self,
         timediv: int,
-        ) -> list[pd.DataFrame]:
+    ) -> list[pd.DataFrame]:
         """DOCSTRING"""
 
         res = list()
@@ -1222,7 +1223,6 @@ class Day02Ex03:
                 res.append(None)
         
         return res
-
 
     def precompute_data(self):
         """DOCSTRING"""
@@ -1274,7 +1274,7 @@ class Day02Ex03:
         self,
         ax: Axes,
         extra_data: DataFrame,
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
         
         cmap_colors: list[str] = [
@@ -1350,13 +1350,12 @@ class Day02Ex03:
 
         return colors
 
-
     def plot_scatter(
         self,
         ax: Axes,
         data: pd.DataFrame,
         points_color: list[str],
-        ) -> mplcollec.PathCollection:
+    ) -> mplcollec.PathCollection:
         """DOCSTRING"""
 
         pt_size_s_name = self.data_frames["data_point_size"].short_name
@@ -1392,14 +1391,13 @@ class Day02Ex03:
             )
         return scatter
 
-
     def plot_regressline(
             self,
             timediv: TimeDiv,
             is_log_scale: bool,
             ax: Axes,
             color: str            
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
 
         regression = (
@@ -1420,14 +1418,13 @@ class Day02Ex03:
                   f" - Corr: {regression.corr:.2f}"
         )
 
-
     def set_graph_meta_data(
         self,
         timediv: TimeDiv,
         is_log_scale: bool,
         ax: Axes,
         color: str
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
 
         if is_log_scale:
@@ -1455,14 +1452,14 @@ class Day02Ex03:
         weight="bold",
     )
 
-    def plot(
+    def plot(  # STILL TOO LARGE
         self,
         timediv: TimeDiv,
         ax: Axes,
         is_log_scale: bool,
         ax_name: str,
         color: str
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
 
         data = timediv.merged_data
@@ -1557,14 +1554,16 @@ class Day02Ex03:
             sel.annotation.get_bbox_patch().set(alpha=0.6, color="white")
 
         self.cursor_container[ax_name] = cursor
-    
 
     def update(
         self,
-        slider_val: int) -> None:
+    ) -> None:
         """DOCSTRING"""
 
-        timediv = self.precomputed_data[slider_val]
+        print("DEBUT UPDATE FUNCTION")
+        print(type(self.slider))
+
+        timediv = self.precomputed_data[self.slider.val]
 
         self.axes["log"].cla()
         self.axes["lin"].cla()
@@ -1594,13 +1593,14 @@ class Day02Ex03:
 
         plt.draw()
 
+        print("FIN UPDATE FUNCTION")
 
 
-    def build_slider(  # UPDATE STILL EMPTY
+    def build_slider(
         self,
         timediv_type: str,
         update_callback_function: Callable
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
 
         ax_slider = self.fig.add_axes([0.05, 0.01, 0.6, 0.03])
@@ -1617,35 +1617,139 @@ class Day02Ex03:
         self.slider.on_changed(update_callback_function)
 
 
+    def add_curve_interactivity(
+        self,
+    ) -> None:
+        """DOCSTRING"""
+        
+        for name in ["corr_log", "corr_lin"]:
+            if name in self.axes:
+                ax = self.axes[name]
+
+                if name in self.correlation_cursor_container and self.correlation_cursor_container[name]:
+                    try:
+                        self.correlation_cursor_container[name].remove()
+                        self.correlation_cursor_container[name] = None
+                    except Exception as e:
+                        print(f"Warning: Failed to remove cursor on {name}: {e}")
+
+                for line in ax.get_lines():
+                    cursor = mplcursors.cursor(line, hover=True)
+
+                    @cursor.connect("add")
+                    def on_add(sel):
+                        x, y = sel.target
+                        sel.annotation.set(
+                            text=f"Year: {x:.0f}\nCorr: {y:.2f}",
+                            fontsize=10,
+                            fontweight="bold"
+                        )
+                        sel.annotation.get_bbox_patch().set(alpha=0.8, color="white")
+
+                    self.correlation_cursor_container[name] = cursor
+
+
+    def add_tracker(
+        self,
+        text: str
+    ) -> None:
+        """DOCSTRING"""
+        
+        self.tracked_element[0] = text.strip()
+        
+        self.update()
+        
+        self.add_curve_interactivity(
+            ["corr_log", "corr_lin"]
+        )
+    
+
+    def build_tracker(self) -> None:
+        """DOCSTRING"""
+        
+        self.ax_box_tracker = self.fig.add_axes([0.79, 0.005, 0.2, 0.05])
+        self.text_box_tracker = TextBox(
+            self.ax_box_tracker,
+            f"Track {self.common_column}"
+        )
+        
+        self.text_box_tracker.on_submit(self.add_tracker)
+
+
+    def plot_corr_graph(
+        self,
+        ax: Axes,
+        corr: np.ndarray[float],
+        label: str,
+        color: str
+    ) -> None:
+        """DOCSTRING"""
+        
+        ax.plot(
+            np.array(self.x_range),
+            corr,
+            label=f"{label} correlation",
+            color=color
+        )
+
+        ax.set_xlabel(self.x_unit, labelpad=0)
+        ax.set_xlim(self.x_range.start, self.x_range.stop - 1)
+        ax.set_ylabel("Correlation Coefficient")
+        ax.set_ylim(0, 1)
+
+        ax.text(
+            0.5,
+            0.5,
+            label.upper(),
+            transform=ax.transAxes,
+            fontsize=30,
+            color=color,
+            alpha=0.08,
+            ha="center", va="center",
+            weight="bold",
+        )
+
+        ax.legend()
+
+
     def build_mpl_windows(
         self,
         timediv_type: str
-        ) -> None:
+    ) -> None:
         """DOCSTRING"""
         
+        print("DEBUT BUILD_MPL_WINDOWS FUNCTION")
+        
         self.build_fig_axes()
+        
         self.build_colorbar(
             ax=self.axes["log"],
             extra_data=self.data_frames['extra_data_x']
         )
 
-        self.build_slider(  # update_callback_function still unfixed
+
+        print(f"AVANT: {type(self.slider)}")
+        self.build_slider(
             timediv_type=timediv_type,
-            update_callback_function=self.update
-        )
-        #     year_slider = build_slider(
-        #     fig,
-        #     years,
-        #     lambda slider_val: update(
-        #         slider_val,
-        #         axes,
-        #         precomputed_data,
-        #         cursor_container,
-        #         tracked_country[0],
-        #         cbar
-        #     )
-        # )
+            update_callback_function=self.update)
+        print(f"APRES: {type(self.slider)}")
+        
+        self.build_tracker()
             
+        self.plot_corr_graph(
+            self.axes["corr_log"],
+            self.corr_log,
+            "log",
+            "red"
+        )
+        self.plot_corr_graph(
+            self.axes["corr_lin"],
+            self.corr_lin,
+            "lin",
+            "green"
+        )
+        
+        print("FIN BUILD_MPL_WINDOWS FUNCTION")
         
 
     def pltshow(self) -> None:
@@ -1717,6 +1821,10 @@ def main() -> None:
                 timediv_type="year"
             )
             
+            
+            exo03.update()
+            
+            exo03.add_curve_interactivity()
             
             # exo03.show()
             
