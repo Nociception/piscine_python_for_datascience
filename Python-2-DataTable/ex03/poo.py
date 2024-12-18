@@ -325,6 +325,9 @@ class TimeDiv:
                     on=self.common_column,
                     how='inner'
                 )
+        
+        self.merged_data.reset_index(drop=True, inplace=True)
+
 
     def harmonize_for_regression(self) -> tuple[np.ndarray, np.ndarray]:
         """DOCSTRING"""
@@ -1010,11 +1013,11 @@ class Day02Ex03:
         # print(data_y)
         
         scatter = ax.scatter(
-            data[self.data_frames["data_x"].data_name],
-            data[self.data_frames["data_y"].data_name],
+            data[self.data_frames["data_x"].data_name].values,
+            data[self.data_frames["data_y"].data_name].values,
             s=data[
                 self.data_frames["data_point_size"].data_name
-                ] / self.data_point_size_divider,
+                ].values / self.data_point_size_divider,
             c=points_color,
             alpha=0.7,
             label=f"{self.common_column.title()} ({pt_size_s_name}-sized)"
@@ -1137,7 +1140,6 @@ class Day02Ex03:
         if DEBUG and G_DEBUG:
             debug(inspect.currentframe().f_code.co_name)
 
-
         data = timediv.merged_data
         points_color = self.get_points_color(data)
         scatter = self.plot_scatter(
@@ -1156,7 +1158,7 @@ class Day02Ex03:
             ax=ax,
             color=color,
         )
-    
+
         if (
             ax_name in self.cursor_container
             and self.cursor_container[ax_name]
@@ -1169,68 +1171,64 @@ class Day02Ex03:
                     f"Warning: Failed to remove cursor on "
                     f"{ax_name}: {e}"
                 )
-        
+
         cursor = mplcursors.cursor(
             scatter,
             hover=True
         )
-        
-        def put_kmb_suffix(val: int) -> str:
+
+        def put_kmb_suffix(val: float) -> str:
             """
             Formats a large number with 'k', 'M', or 'B' suffixes.
             """
             for threshold, suffix in [
                 (1e9, 'B'), (1e6, 'M'), (1e3, 'k')
-                ]:
+            ]:
                 if val > threshold:
                     return f"{val / threshold:.2f}{suffix}"
             return str(val)
-    
+
         @cursor.connect("add")
         def on_add(sel):
             idx = sel.index
-            row = data.iloc[idx]
 
-            data_x_name = data[self.data_frames["data_x"].data_name]
-            data_y_name = data[self.data_frames["data_y"].data_name]
-            data_point_size_name = data[
-                self.data_frames["data_point_size"].data_name
-            ]
-            
-            # extra_data_x_text = 'N/A'
-            # extra_data_x_name = data[
-            #     self.data_frames["extra_data_x"].data_name
-            # ]
-            
-            # if extra_data_x_name in row:
-            #     extra_data_x_value = row[extra_data_x_name]
-            #     if extra_data_x_value == extra_data_x_value:
-            #         extra_data_x_text = extra_data_x_value
+            try:
+                row = data.iloc[idx]
 
-            sel.annotation.set(
-                text=(
-                    f"{row[self.common_column]}\n"
-                    
-                    f"{self.data_frames['data_x'].short_name}: "
-                    f"{put_kmb_suffix(row[data_x_name])} "
-                    f"{self.x_unit}\n"
-                    
-                    f"{self.data_frames['data_y'].short_name}: "
-                    f"{row[data_y_name]:.1f} "
-                    f"{self.y_unit}\n"
-                    
-                    f"{self.data_frames['data_point_size'].short_name}: "
-                    f"{put_kmb_suffix(row[data_point_size_name])}\n"
-                    
-                    # f"{self.data_frames['extra_data_x'].short_name}:"
-                    # f"{extra_data_x_text}"
-                ),
-                fontsize=10,
-                fontweight="bold"
-            )
-            sel.annotation.get_bbox_patch().set(alpha=0.6, color="white")
+                data_x_name = self.data_frames["data_x"].data_name
+                data_y_name = self.data_frames["data_y"].data_name
+                data_point_size_name = self.data_frames["data_point_size"].data_name
+
+                extra_data_x_text = 'N/A'
+                extra_data_x_name = self.data_frames["extra_data_x"].data_name
+
+                if extra_data_x_name in row.index and pd.notna(row[extra_data_x_name]):
+                    extra_data_x_text = f"{row[extra_data_x_name]:.2f}"
+
+                sel.annotation.set(
+                    text=(
+                        f"{row[self.common_column]}\n"
+                        f"{self.data_frames['data_x'].short_name}: "
+                        f"{put_kmb_suffix(row[data_x_name])} {self.x_unit}\n"
+                        f"{self.data_frames['data_y'].short_name}: "
+                        f"{row[data_y_name]:.1f} {self.y_unit}\n"
+                        f"{self.data_frames['data_point_size'].short_name}: "
+                        f"{put_kmb_suffix(row[data_point_size_name])}\n"
+                        f"{self.data_frames['extra_data_x'].short_name}: "
+                        f"{extra_data_x_text}"
+                    ),
+                    fontsize=10,
+                    fontweight="bold"
+                )
+                sel.annotation.get_bbox_patch().set(alpha=0.6, color="white")
+
+            except KeyError as e:
+                print(f"KeyError during cursor annotation: {e}")
+            except Exception as e:
+                print(f"Unexpected error during cursor annotation: {e}")
 
         self.cursor_container[ax_name] = cursor
+
 
     def update(
         self,
