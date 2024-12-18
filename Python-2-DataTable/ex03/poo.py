@@ -272,155 +272,40 @@ class TimeDiv:
         div: int
     ):
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         self.df_dict = {
-            "data_x" : timediv_list[0],
-            "data_y" : timediv_list[1],
-            "data_point_size" : timediv_list[2],
-            "extra_data_x" : timediv_list[3],
-            "extra_data_y" : timediv_list[4]
+            "data_x": timediv_list[0],
+            "data_y": timediv_list[1],
+            "data_point_size": timediv_list[2],
+            "extra_data_x": timediv_list[3],
+            "extra_data_y": timediv_list[4]
         }
-        self.common_column: str=common_column
-        self.merged_data: pd.DataFrame=self.df_dict['data_x']
-        self.div: int = div
+        self.common_column = common_column
+        self.div = div
+
+        self.merged_data: pd.DataFrame | None = None
 
         self.lin_reg_log: LinReg | None = None
         self.lin_reg_lin: LinReg | None = None
-        
-         
-        
+
     def show(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-        
-        print("\n=== START Show TimeDiv object ===")
-        dict_printer(
-            self.df_dict,
-            values_type="pd.DataFrame",
-            head_value=10
-        )
-
-        print(f"common_column: {self.common_column}")
-        print(f"div: {self.div}")
-        if self.lin_reg_log : self.lin_reg_log.show()
-        if self.lin_reg_lin : self.lin_reg_lin.show()
-        print(f"merged_data:\n{self.merged_data}")
-        print("=== END Show TimeDiv object ===\n")
-    
-
-    def safe_df_merge(
-        self,
-        df_left: pd.DataFrame,
-        df_right: pd.DataFrame
-    ) -> pd.DataFrame:
-        """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-        
-        if (
-                df_left is not None
-                and df_right is not None
-            ):
-                merged_data = pd.merge(
-                    df_left, df_right, on=self.common_column
-                )
-                
-                return merged_data
-        else:
-            return df_left
+        print("\n=== TimeDiv Details ===")
+        print(f"Time Division: {self.div}")
+        print(f"Common Column: {self.common_column}")
+        print(f"Merged Data:\n{self.merged_data}")
+        if self.lin_reg_log:
+            print("Linear Regression (Log):")
+            self.lin_reg_log.show()
+        if self.lin_reg_lin:
+            print("Linear Regression (Linear):")
+            self.lin_reg_lin.show()
+        print("========================\n")
 
     def merge(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-
-        self.harmonize_for_merge()
-        self.merged_data = self.df_dict['data_x']
-        for key, df in self.df_dict.items():
-            if key != 'data_x' and df is not None:
-                self.merged_data = self.safe_df_merge(self.merged_data, df)
-
-    def harmonize_for_regression(self) -> tuple[np.ndarray, np.ndarray]:
-        """DOCSTRING"""
-        
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-        
-        data_x = self.df_dict['data_x'].iloc[:, 1]
-        data_y = self.df_dict['data_y'].iloc[:, 1]
-
-        mask = ~data_x.isna() & ~data_y.isna()
-        data_x_cleaned = data_x[mask].to_numpy()
-        data_y_cleaned = data_y[mask].to_numpy()
-
-        return data_x_cleaned, data_y_cleaned
-
-
-    def calculate_linregr(
-        self,
-        log: bool
-    ) -> LinReg:
-        """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-        data_x, data_y = self.harmonize_for_regression()
-
-        if log:
-            data_x = np.log10(data_x)
-
-        slope, intercept, corr, _, _ = linregress(data_x, data_y)
-
-        data_x_sorted = np.sort(data_x)
-        predicted = slope * data_x_sorted + intercept
-
-        return LinReg(predicted, corr)
-        
-    def linear_regressions(self) -> None:
-        """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-        
-        # if self.div == YEAR_TEST:
-        #     print("=== (class TimeDiv) DEBUT linear_regressions DEBUT ===")
-        self.lin_reg_log = self.calculate_linregr(True)
-        self.lin_reg_lin = self.calculate_linregr(False)
-        # if self.div == YEAR_TEST:
-        #     print("=== (class TimeDiv) FIN linear_regressions FIN ===")
-        
-
-    def harmonize_for_merge(self) -> None:
-        """DOCSTRING"""
-        
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-        reference_index = self.df_dict['data_x'].index
-
-        for key in self.df_dict:
-            if self.df_dict[key] is not None:
-                self.df_dict[key] = self.df_dict[key].reindex(reference_index)
+        for key in ['data_x', 'data_y', 'data_point_size']:
+            if self.df_dict[key] is None:
+                raise ValueError(f"Essential DataFrame '{key}' is missing.")
 
         mask = (
             ~self.df_dict['data_x'].iloc[:, 1].isna() &
@@ -428,9 +313,46 @@ class TimeDiv:
             ~self.df_dict['data_point_size'].iloc[:, 1].isna()
         )
 
-        for key in self.df_dict:
+        for key in ['data_x', 'data_y', 'data_point_size']:
+            self.df_dict[key] = self.df_dict[key].loc[mask]
+
+        self.merged_data = self.df_dict['data_x']
+        for key in ['data_y', 'data_point_size', 'extra_data_x', 'extra_data_y']:
             if self.df_dict[key] is not None:
-                self.df_dict[key] = self.df_dict[key][mask]
+                self.merged_data = pd.merge(
+                    self.merged_data,
+                    self.df_dict[key],
+                    on=self.common_column,
+                    how='inner'
+                )
+
+    def harmonize_for_regression(self) -> tuple[np.ndarray, np.ndarray]:
+        """DOCSTRING"""
+        if self.merged_data is None:
+            raise ValueError("Merged data is not available. Did you call `merge()`?")
+
+        data_x = self.merged_data.iloc[:, 1].to_numpy()
+        data_y = self.merged_data.iloc[:, 2].to_numpy()
+
+        return data_x, data_y
+
+    def calculate_linregr(self, log: bool) -> LinReg:
+        """DOCSTRING"""
+        data_x, data_y = self.harmonize_for_regression()
+
+        if log:
+            data_x = np.log10(data_x)
+
+        slope, intercept, corr, _, _ = linregress(data_x, data_y)
+        data_x_sorted = np.sort(data_x)
+        predicted = slope * data_x_sorted + intercept
+
+        return LinReg(predicted, corr)
+
+    def linear_regressions(self) -> None:
+        """DOCSTRING"""
+        self.lin_reg_log = self.calculate_linregr(log=True)
+        self.lin_reg_lin = self.calculate_linregr(log=False)
 
 
 class Day02Ex03:
@@ -1592,19 +1514,18 @@ def main() -> None:
 
     
         exo03.precompute_data()
-        # exo03.show()
         
-        # exo03.build_mpl_window(
-        #     timediv_type="year"
-        # )
-        
-        
-        # exo03.update()
-        
-        # exo03.add_curve_interactivity()
+        exo03.build_mpl_window(
+            timediv_type="year"
+        )
         
         
-        # exo03.pltshow()
+        exo03.update()
+        
+        exo03.add_curve_interactivity()
+        
+        
+        exo03.pltshow()
         
         
     # except ValueError as error:
