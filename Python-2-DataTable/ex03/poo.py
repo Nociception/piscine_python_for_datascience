@@ -20,7 +20,7 @@ from fuzzywuzzy import process
 import inspect
 
 
-G_DEBUG = 1
+G_DEBUG = 0
 
 YEAR_TEST = 1800
 
@@ -868,9 +868,9 @@ class Day02Ex03:
             self.corr_log.append(timediv.lin_reg_log.corr)
             self.corr_lin.append(timediv.lin_reg_lin.corr)
             
-            if div ==  YEAR_TEST:
-                print(f"==============={div}=================")
-                timediv.show()
+            # if div ==  YEAR_TEST:
+            #     print(f"==============={div}=================")
+            #     timediv.show()
             
             
         self.corr_log = np.array(self.corr_log)
@@ -978,7 +978,6 @@ class Day02Ex03:
                 colors,
                 N=100
             )
-            # gini_values = data['gini']
             colored_extra_data_values = data[extra_data_colored_name]
             norm = Normalize(vmin=0, vmax=100)
             colors = [
@@ -1294,8 +1293,8 @@ class Day02Ex03:
             ax_slider,
             timediv_type.title(),
             self.x_range.start,
-            self.x_range.stop,
-            valinit=self.x_range.start,
+            self.x_range.stop - 1,
+            valinit=1900,
             valstep=1,
             color="blue"
         )
@@ -1396,7 +1395,7 @@ class Day02Ex03:
         )
 
         ax.set_xlabel(self.x_unit, labelpad=0)
-        ax.set_xlim(self.x_range.start, self.x_range.stop - 1)
+        ax.set_xlim(self.x_range.start, self.x_range.stop)
         ax.set_ylabel("Correlation Coefficient")
         ax.set_ylim(0, 1)
 
