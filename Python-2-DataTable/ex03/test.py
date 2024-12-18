@@ -17,31 +17,11 @@ from typing import Callable
 from scipy.stats import linregress
 import mplcursors
 from fuzzywuzzy import process
-import inspect
 
-
-G_DEBUG = 1
-
-YEAR_TEST = 1800
-
-
-def debug(
-    function_name: str,
-    step = "START"
-) -> None:
-    """DOCSTRING"""
-    
-    print(f"DEBUG: current function -> {function_name}")
-    
+YEAR_TEST = 2030
 
 
 def cust_suffixed_string_to_float(value) -> float:
-    """DOCSTRING"""
-
-    DEBUG = 0
-    if DEBUG and G_DEBUG:
-        debug(inspect.currentframe().f_code.co_name)
-
     factors = {'k': 1e3, 'M': 1e6, 'B': 1e9}
     try:
         if isinstance(value, str) and value[-1] in factors:
@@ -57,11 +37,6 @@ def dict_printer(
     head_value: int=5
     ) -> None:
     """DOCSTRING"""
-
-    DEBUG = 0
-    if DEBUG and G_DEBUG:
-        debug(inspect.currentframe().f_code.co_name)
-
     
     if d is None:
         print("The dictionnary does not exist.")
@@ -75,8 +50,7 @@ def dict_printer(
             return None
         for key, value in d.items():
             if value is not None:
-                # print(f"{key}:\n{value.head(head_value)}\n")
-                print(f"{key}:\n{value}\n")
+                print(f"{key}:\n{value.head(head_value)}\n")
 
     elif values_type == "cust class":
         for _, value in d.items():
@@ -89,11 +63,6 @@ def dict_printer(
 
 def get_data_name(file_name: str) -> str:
     """DOCSTRING"""
-
-    DEBUG = 0
-    if DEBUG and G_DEBUG:
-        debug(inspect.currentframe().f_code.co_name)
-
     
     # print("get_data_name")
     
@@ -107,13 +76,7 @@ def var_print_str(
     ) -> str:
     """DOCSTRING"""
 
-    DEBUG = 0
-    if DEBUG and G_DEBUG:
-        debug(inspect.currentframe().f_code.co_name)
-
-
     return f"{var_name}:{var_value} ({type(var_value)})\n"
-
 
 class LinReg:
     def __init__(self,
@@ -124,11 +87,6 @@ class LinReg:
 
     def show(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         print("\n=== SHOW LinReg object ===")
         print(f"self.predicted:\n{self.predicted}")
@@ -139,6 +97,7 @@ class LinReg:
 class DataFrame:
     """DOCSTRING"""
 
+    # === General class elements (init, show, exceptions classes) ===
     def __init__(
         self,
         data_type: str,
@@ -146,11 +105,6 @@ class DataFrame:
         short_name: str,
     ):
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
 
         if all(
             isinstance(arg, str) for arg in (
@@ -176,11 +130,6 @@ class DataFrame:
 
     def show(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
     
         print("\n===== Show Data_Frame object =====")
         print(f"data_type: {self.data_type}")
@@ -195,12 +144,12 @@ class DataFrame:
 
     class DataFrameException(Exception):
         """DOCSTRING"""
-
+        
         pass
     
     class DataFrameNotCleanedException(DataFrameException):
         """DOCSTRING"""
-
+        
         def __init__(
             self,
             msg="DataFrame object still not cleaned.\n"\
@@ -210,13 +159,9 @@ class DataFrame:
         ):
             super().__init__(msg)
 
+    # === Specific class elements ===
     def get_first_last_column_names(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         self.first_column_name = int(self.data_frame.columns[1])
         self.last_column_name = int(self.data_frame.columns[-1])
@@ -229,17 +174,12 @@ class DataFrame:
     ) -> pd.DataFrame | None:
         """DOCSTRING"""
 
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
+        if timediv == YEAR_TEST :
+            print("=== (class DataFrame) DEBUT SUBSET_TIMEDIV_EXTRACTION ===")
+            print(f"timediv: {timediv}")
+            self.show()
 
-
-        # if timediv == YEAR_TEST :
-        #     print("=== (class DataFrame) DEBUT SUBSET_TIMEDIV_EXTRACTION ===")
-        #     print(f"timediv: {timediv}")
-        #     self.show()
-
-        if timediv in range(self.first_column_name, self.last_column_name + 1):
+        if timediv in range(self.first_column_name, self.last_column_name):
             df_timediv = self.data_frame[
                     [common_column, str(timediv)]
                 ].rename(columns={str(timediv): self.data_name})
@@ -247,24 +187,21 @@ class DataFrame:
                 cust_suffixed_string_to_float
             )
             
-            # if timediv == YEAR_TEST :
-            #     print(f"timediv: {timediv}")
-            #     print(f"df_timediv:\n{df_timediv}")
-            #     print("=== (class DataFrame) FIN SUBSET_TIMEDIV_EXTRACTION ===\n")
+            if timediv == YEAR_TEST :
+                print("=== (class DataFrame) FIN SUBSET_TIMEDIV_EXTRACTION ===\n")
         
             return df_timediv
 
 
-        # if timediv == YEAR_TEST :
-        #     print("Just before return None")
-        #     print("=== (class DataFrame) FIN SUBSET_TIMEDIV_EXTRACTION ===\n")
+        if timediv == YEAR_TEST :
+            print("=== (class DataFrame) FIN SUBSET_TIMEDIV_EXTRACTION ===\n")
         
         return None
 
 
 class TimeDiv:
     """DOCSTRING"""
-
+    
     def __init__(
         self,
         timediv_list: list[pd.DataFrame],
@@ -272,99 +209,105 @@ class TimeDiv:
         div: int
     ):
         """DOCSTRING"""
+        
+        
+        
         self.df_dict = {
-            "data_x": timediv_list[0],
-            "data_y": timediv_list[1],
-            "data_point_size": timediv_list[2],
-            "extra_data_x": timediv_list[3],
-            "extra_data_y": timediv_list[4]
+            "data_x" : timediv_list[0],
+            "data_y" : timediv_list[1],
+            "data_point_size" : timediv_list[2],
+            "extra_data_x" : timediv_list[3],
+            "extra_data_y" : timediv_list[4]
         }
-        self.common_column = common_column
-        self.div = div
-
-        self.merged_data: pd.DataFrame | None = None
+        self.common_column: str=common_column
+        self.merged_data: pd.DataFrame=self.df_dict['data_x']
+        self.div: int = div
 
         self.lin_reg_log: LinReg | None = None
         self.lin_reg_lin: LinReg | None = None
-
+         
+        
     def show(self) -> None:
         """DOCSTRING"""
-        print("\n=== TimeDiv Details ===")
-        print(f"Time Division: {self.div}")
-        print(f"Common Column: {self.common_column}")
-        print(f"Merged Data:\n{self.merged_data}")
-        if self.lin_reg_log:
-            print("Linear Regression (Log):")
-            self.lin_reg_log.show()
-        if self.lin_reg_lin:
-            print("Linear Regression (Linear):")
-            self.lin_reg_lin.show()
-        print("========================\n")
+        
+        print("\n=== START Show TimeDiv object ===")
+        dict_printer(
+            self.df_dict,
+            values_type="pd.DataFrame",
+            head_value=10
+        )
+
+        print(f"common_column: {self.common_column}")
+        print(f"div: {self.div}")
+        self.lin_reg_log.show()
+        self.lin_reg_lin.show()
+        print(f"merged_data:\n{self.merged_data}")
+        print("=== END Show TimeDiv object ===\n")
+    
+
+    def safe_df_merge(
+        self,
+        df_left: pd.DataFrame,
+        df_right: pd.DataFrame
+    ) -> pd.DataFrame:
+        """DOCSTRING"""
+        
+        if (
+                df_left is not None
+                and df_right is not None
+            ):
+                merged_data = pd.merge(
+                    df_left, df_right, on=self.common_column
+                )
+                
+                return merged_data
+        else:
+            return df_left
 
     def merge(self) -> None:
         """DOCSTRING"""
-        for key in ['data_x', 'data_y', 'data_point_size']:
-            if self.df_dict[key] is None:
-                raise ValueError(f"Essential DataFrame '{key}' is missing.")
 
-        mask = (
-            ~self.df_dict['data_x'].iloc[:, 1].isna() &
-            ~self.df_dict['data_y'].iloc[:, 1].isna() &
-            ~self.df_dict['data_point_size'].iloc[:, 1].isna()
-        )
-
-        for key in ['data_x', 'data_y', 'data_point_size']:
-            self.df_dict[key] = self.df_dict[key].loc[mask]
-
-        self.merged_data = self.df_dict['data_x']
-        for key in ['data_y', 'data_point_size', 'extra_data_x', 'extra_data_y']:
-            if self.df_dict[key] is not None:
-                self.merged_data = pd.merge(
-                    self.merged_data,
-                    self.df_dict[key],
-                    on=self.common_column,
-                    how='inner'
+        for namedf, df in self.df_dict.items():
+            if namedf != "data_x":
+                self.merged_data = self.safe_df_merge(
+                    self.merged_data, df
                 )
 
-    def harmonize_for_regression(self) -> tuple[np.ndarray, np.ndarray]:
+
+    def calculate_linregr(
+        self,
+        log: bool
+    ) -> LinReg:
         """DOCSTRING"""
-        if self.merged_data is None:
-            raise ValueError("Merged data is not available. Did you call `merge()`?")
 
-        data_x = self.merged_data.iloc[:, 1].to_numpy()
-        data_y = self.merged_data.iloc[:, 2].to_numpy()
-
-        return data_x, data_y
-
-    def calculate_linregr(self, log: bool) -> LinReg:
-        """DOCSTRING"""
-        data_x, data_y = self.harmonize_for_regression()
+        data_x = self.df_dict['data_x'].iloc[:, 1]
 
         if log:
             data_x = np.log10(data_x)
 
-        slope, intercept, corr, _, _ = linregress(data_x, data_y)
+        slope, intercept, corr, _, _ = linregress(
+            data_x,
+            self.df_dict['data_y'].iloc[:, 1]
+        )
+
         data_x_sorted = np.sort(data_x)
         predicted = slope * data_x_sorted + intercept
-
+        
+        
         return LinReg(predicted, corr)
-
+        
     def linear_regressions(self) -> None:
         """DOCSTRING"""
-        self.lin_reg_log = self.calculate_linregr(log=True)
-        self.lin_reg_lin = self.calculate_linregr(log=False)
-
+        
+        self.lin_reg_log = self.calculate_linregr(True)
+        self.lin_reg_lin = self.calculate_linregr(False)
+    
 
 class Day02Ex03:
     """DOCSTRING"""
 
     def __init__(self):
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         self.data_frames: dict[str, pd.DataFrame | None] = {
             "data_x": None,
@@ -417,14 +360,10 @@ class Day02Ex03:
         # definetly set that way (adjustable in future versions)
         self.colored_extra_data: str = "extra_data_x"
         
+        
 
     def show(self):
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         print("\n=== Show Day02Ex03 object ===")
         
@@ -443,6 +382,11 @@ class Day02Ex03:
         
         print(f"tracked_element: {self.tracked_element}")
         
+        
+        
+        
+        
+        
         print("data_frames:")
         dict_printer(self.data_frames, "cust class")
         print("=== END Show Day02Ex03 object END ===\n")
@@ -455,11 +399,6 @@ class Day02Ex03:
         short_name: str
     ) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         if (
             all(isinstance(arg, str) for arg in (
@@ -493,11 +432,6 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
 
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-
         if all(
             isinstance(arg, str) for arg in (
                 x_label,
@@ -527,11 +461,6 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
 
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-
         if all(
             isinstance(arg, str) for arg in (
                 y_label,
@@ -560,11 +489,6 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
 
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-
         if isinstance(divider, (int, float)):
             self.data_point_size_divider = divider
             self.add_data_path(
@@ -584,11 +508,6 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
 
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-
         self.add_data_path(
             extra_data_x_path,
             "extra_data_x",
@@ -602,11 +521,6 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
 
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-
         self.add_data_path(
             extra_data_y_path,
             "extra_data_y",
@@ -618,11 +532,6 @@ class Day02Ex03:
         title: str
     ) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         if isinstance(title, str):
             self.title = title
@@ -637,11 +546,6 @@ class Day02Ex03:
         stop: int
     ) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         if all(isinstance(var, int) for var in (start, stop)):
             self.x_range = range(start, stop + 1)
@@ -655,11 +559,6 @@ class Day02Ex03:
         common_column: str
     ) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
     
         if isinstance(common_column, str):
             self.common_column = common_column
@@ -667,11 +566,6 @@ class Day02Ex03:
     
     def clean_data_x(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
 
         df = self.data_frames['data_x']
         if df is not None:
@@ -683,11 +577,6 @@ class Day02Ex03:
     def clean_data_y(self) -> None:
         """DOCSTRING"""
 
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-
         df = self.data_frames['data_y']
         if df is not None:
             df.data_frame.sort_values(
@@ -698,11 +587,6 @@ class Day02Ex03:
     def clean_data_point_size(self) -> None:
         """DOCSTRING"""
 
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-
         df = self.data_frames['data_point_size']
         if df is not None:
             df.data_frame.sort_values(
@@ -712,11 +596,6 @@ class Day02Ex03:
 
     def clean_extra_data_x(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
 
         if self.data_frames['extra_data_x'] is not None:
             df = self.data_frames['extra_data_x'].data_frame
@@ -739,11 +618,6 @@ class Day02Ex03:
             
             def match_country_name(country):
                 """DOCSTRING"""
-
-                DEBUG = 0
-                if DEBUG and G_DEBUG:
-                    debug(inspect.currentframe().f_code.co_name)
-
                 
                 match, score = process.extractOne(country, data_y_countries)
                 return match if score >= 80 else None
@@ -765,22 +639,12 @@ class Day02Ex03:
             
     def clean_extra_data_y(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
     
         if self.data_frames['extra_data_y'] is not None:
             self.data_frames['extra_data_y'].data_cleaned = True
 
     def clean_data_frames(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         self.clean_data_x()
         self.clean_data_y()
@@ -790,11 +654,6 @@ class Day02Ex03:
 
     def get_first_last_column_names(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         for key, data_frame in self.data_frames.items():
             if data_frame is None:
@@ -813,14 +672,9 @@ class Day02Ex03:
     ) -> list[pd.DataFrame]:
         """DOCSTRING"""
 
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-
-        # if timediv == YEAR_TEST :
-        #     print("=== (class Day02Ex03) DEBUT SUBSETS_TIMEDIV_EXTRACTION ===")
-        #     print(f"timediv: {timediv}")
+        if timediv == YEAR_TEST :
+            print("=== (class Day02Ex03) DEBUT SUBSETS_TIMEDIV_EXTRACTION ===")
+            print(f"timediv: {timediv}")
 
         res = list()
         for df in self.data_frames.values():
@@ -834,19 +688,13 @@ class Day02Ex03:
             else:
                 res.append(None)
         
-        # if timediv == YEAR_TEST :
-        #     print("=== (class Day02Ex03) FIN SUBSETS_TIMEDIV_EXTRACTION ===\n")
+        if timediv == YEAR_TEST : print("=== (class Day02Ex03) FIN SUBSETS_TIMEDIV_EXTRACTION ===\n")
         
         
         return res
 
     def precompute_data(self):
         """DOCSTRING"""
-
-        DEBUG = 1
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         self.get_first_last_column_names()
         # self.show()
@@ -860,15 +708,14 @@ class Day02Ex03:
             )
             timediv.merge()
             timediv.linear_regressions()
-                
-            self.precomputed_data[div] = timediv
-            self.corr_log.append(timediv.lin_reg_log.corr)
-            self.corr_lin.append(timediv.lin_reg_lin.corr)
-            
             if div ==  YEAR_TEST:
                 print(f"==============={div}=================")
                 timediv.show()
+                
             
+            self.precomputed_data[div] = timediv
+            self.corr_log.append(timediv.lin_reg_log.corr)
+            self.corr_lin.append(timediv.lin_reg_lin.corr)
             
         self.corr_log = np.array(self.corr_log)
         self.corr_lin = np.array(self.corr_lin)
@@ -876,11 +723,6 @@ class Day02Ex03:
 
     def build_fig_axes(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
 
         self.fig, self.axes = plt.subplot_mosaic(
             [
@@ -904,11 +746,6 @@ class Day02Ex03:
         extra_data: DataFrame,
     ) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         cmap_colors: list[str] = [
             "green",
@@ -961,10 +798,6 @@ class Day02Ex03:
     ) -> list[str]:
         """DOCSTRING (extra_data_x)"""
 
-        DEBUG = 1
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         extra_data_colored_name = self.data_frames[
             self.colored_extra_data].data_name
         if extra_data_colored_name in data.columns:
@@ -995,20 +828,7 @@ class Day02Ex03:
     ) -> mplcollec.PathCollection:
         """DOCSTRING"""
 
-        DEBUG = 1
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-
         pt_size_s_name = self.data_frames["data_point_size"].short_name
-        
-        
-        # data_x = data[self.data_frames["data_x"].data_name]
-        # data_y = data[self.data_frames["data_y"].data_name]
-        # print(self.slider.val)
-        # print(data_x)
-        # print(data_y)
-        
         scatter = ax.scatter(
             data[self.data_frames["data_x"].data_name],
             data[self.data_frames["data_y"].data_name],
@@ -1050,34 +870,18 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
 
-        DEBUG = 1
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-
-        """
-        mask = ~np.isnan(data_x) & ~np.isnan(data_y)
-        data_x_cleaned = data_x[mask]
-        data_y_cleaned = data_y[mask]
-        
-        """
-        x = np.sort(
-                timediv.merged_data[self.data_frames["data_x"].data_name])
         regression = (
             timediv.lin_reg_log
             if is_log_scale
             else timediv.lin_reg_lin
         )
-        y = regression.predicted
-        mask = ~np.isnan(x) & ~np.isnan(y)
-        x_cleaned = x[mask]
-        y_cleaned = y[mask]
-
         
         reg_line_type = 'log-linear' if is_log_scale else 'linear'
         ax.plot(
-            x_cleaned,
-            y_cleaned,
+            np.sort(
+                timediv.merged_data[self.data_frames["data_x"].data_name]
+            ),
+            regression.predicted,
             color=color,
             linestyle='--',
             label=f"Regression Line ({reg_line_type})"
@@ -1092,11 +896,6 @@ class Day02Ex03:
         color: str
     ) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
 
         if is_log_scale:
             ax.set_xscale('log')
@@ -1132,11 +931,6 @@ class Day02Ex03:
         color: str
     ) -> None:
         """DOCSTRING"""
-
-        DEBUG = 1
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
 
         data = timediv.merged_data
         points_color = self.get_points_color(data)
@@ -1196,16 +990,15 @@ class Day02Ex03:
             data_point_size_name = data[
                 self.data_frames["data_point_size"].data_name
             ]
+            extra_data_x_text = 'N/A'
+            extra_data_x_name = data[
+                self.data_frames["extra_data_x"].data_name
+            ]
             
-            # extra_data_x_text = 'N/A'
-            # extra_data_x_name = data[
-            #     self.data_frames["extra_data_x"].data_name
-            # ]
-            
-            # if extra_data_x_name in row:
-            #     extra_data_x_value = row[extra_data_x_name]
-            #     if extra_data_x_value == extra_data_x_value:
-            #         extra_data_x_text = extra_data_x_value
+            if extra_data_x_name in row:
+                extra_data_x_value = row[extra_data_x_name]
+                if extra_data_x_value == extra_data_x_value:
+                    extra_data_x_text = extra_data_x_value
 
             sel.annotation.set(
                 text=(
@@ -1222,8 +1015,8 @@ class Day02Ex03:
                     f"{self.data_frames['data_point_size'].short_name}: "
                     f"{put_kmb_suffix(row[data_point_size_name])}\n"
                     
-                    # f"{self.data_frames['extra_data_x'].short_name}:"
-                    # f"{extra_data_x_text}"
+                    f"{self.data_frames['extra_data_x'].short_name}:"
+                    f"{extra_data_x_text}"
                 ),
                 fontsize=10,
                 fontweight="bold"
@@ -1232,22 +1025,12 @@ class Day02Ex03:
 
         self.cursor_container[ax_name] = cursor
 
-    def update(
-        self,
-        slider_val=None
-    ) -> None:
+    def update(self) -> None:
         """DOCSTRING"""
 
-        DEBUG = 1
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
+        # print(type(self.slider))
 
-
-        if slider_val is None:
-            slider_val = int(self.slider.val)
-
-
-        timediv = self.precomputed_data[slider_val]
+        timediv = self.precomputed_data[int(self.slider.val)]
 
         self.axes["log"].cla()
         self.axes["lin"].cla()
@@ -1285,11 +1068,6 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
 
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
-
         ax_slider = self.fig.add_axes([0.05, 0.01, 0.6, 0.03])
     
         self.slider = Slider(
@@ -1308,11 +1086,6 @@ class Day02Ex03:
         self,
     ) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         for name in ["corr_log", "corr_lin"]:
             if name in self.axes:
@@ -1346,11 +1119,6 @@ class Day02Ex03:
         text: str
     ) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         self.tracked_element = text.strip()
         
@@ -1361,11 +1129,6 @@ class Day02Ex03:
 
     def build_tracker(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         self.ax_box_tracker = self.fig.add_axes([0.79, 0.005, 0.2, 0.05])
         self.text_box_tracker = TextBox(
@@ -1384,11 +1147,6 @@ class Day02Ex03:
         color: str
     ) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         ax.plot(
             np.array(self.x_range),
@@ -1417,16 +1175,11 @@ class Day02Ex03:
         ax.legend()
 
 
-    def build_mpl_window(
+    def build_mpl_windows(
         self,
         timediv_type: str
     ) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         
         self.build_fig_axes()
@@ -1459,11 +1212,6 @@ class Day02Ex03:
 
     def pltshow(self) -> None:
         """DOCSTRING"""
-
-        DEBUG = 0
-        if DEBUG and G_DEBUG:
-            debug(inspect.currentframe().f_code.co_name)
-
         
         if self.fig is not None:
             plt.show()
@@ -1475,8 +1223,11 @@ class Day02Ex03:
             )
 
 
+
+
 def main() -> None:
     """Main function to run the interactive visualization."""
+    
     
     try:
         exo03 = Day02Ex03()
@@ -1513,33 +1264,37 @@ def main() -> None:
             "at purchasing power parity (PPP)"
         )
 
-        exo03.add_x_range(start=1800, stop=2050)
+        exo03.add_x_range(start=1900, stop=2049)
         exo03.add_common_column('country')
+        exo03.show()
     
-        exo03.clean_data_frames()
+        # exo03.clean_data_frames()
 
     
-        exo03.precompute_data()
-        
-        exo03.build_mpl_window(
-            timediv_type="year"
-        )
         
         
-        exo03.update()
-        
-        exo03.add_curve_interactivity()
         
         
-        exo03.pltshow()
+        # exo03.precompute_data()
+        
+        # exo03.build_mpl_windows(
+        #     timediv_type="year"
+        # )
         
         
-    # except ValueError as error:
-    #     print(f"{type(error).__name__}: {error}")
+        # exo03.update()
+        
+        # exo03.add_curve_interactivity()
+        
+        # exo03.show()
+        
+        # exo03.pltshow()
+        
+        
+    except ValueError as error:
+        print(f"{type(error).__name__}: {error}")
     # except Exception as error:
     #     print(f"An unexpected error occurred: {error}")
-    finally:
-        pass
     
     
 if __name__ == "__main__":
