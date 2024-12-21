@@ -370,6 +370,16 @@ class Day02Ex03:
         self.ax_box_tracker: Axes | None = None
         self.axes: dict[str, Axes] | None = None
         self.cbar: Colorbar | None = None
+        self.cmap_colors: list[str] = [
+            "green",
+            "limegreen",
+            "yellow",
+            "orange",
+            "red",
+            "magenta",
+            "mediumpurple",
+            "darkviolet"
+        ]
         self.common_column: str | None = None
         self.corr_log: list | np.ndarray = []
         self.corr_lin: list | np.ndarray = []
@@ -805,16 +815,16 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
         
-        cmap_colors: list[str] = [
-            "green",
-            "limegreen",
-            "yellow",
-            "orange",
-            "red",
-            "magenta",
-            "mediumpurple",
-            "darkviolet"
-        ]
+        # cmap_colors: list[str] = [
+        #     "green",
+        #     "limegreen",
+        #     "yellow",
+        #     "orange",
+        #     "red",
+        #     "magenta",
+        #     "mediumpurple",
+        #     "darkviolet"
+        # ]
         vmin: float = 0
         vmax: float = 100
         orientation: str = "vertical"
@@ -827,7 +837,7 @@ class Day02Ex03:
         nb_divs: int = 100
         cmap = LinearSegmentedColormap.from_list(
             name=extra_data.data_name,
-            colors=cmap_colors,
+            colors=self.cmap_colors,
             N=nb_divs
         )
         norm = Normalize(vmin=vmin, vmax=vmax)
@@ -857,7 +867,7 @@ class Day02Ex03:
         extra_data_colored_name = self.data_frames[
             self.colored_extra_data].data_name
         if extra_data_colored_name in data.columns:
-            colors = ["green", "yellow", "orange", "red", "purple"]
+            colors = self.cmap_colors
             gray = (0.5, 0.5, 0.5, 1.0)
             cmap = LinearSegmentedColormap.from_list(
                 "cmap_name",
@@ -1266,6 +1276,53 @@ class Day02Ex03:
                 "method has beed called before."
             )
 
+    def check_entry_dataframe(
+        self,
+        entry: str
+    ) -> None:
+        """DOCSTRING"""
+        
+        for key, df in self.data_frames.items():
+            if df is not None:
+                # print(f"In {key} ({df.short_name}):\n{df.data_frame}")
+                
+                if self.common_column in df.data_frame.columns:
+                    entry_data = df.data_frame[df.data_frame[self.common_column].str.contains(entry, case=False, na=False)]
+                    if not entry_data.empty:
+                        print(f"In {key} ({df.short_name}):\n{entry_data}")
+                    else:
+                        print(f"In {key} ({df.short_name}): '{entry}' is not in there.")
+                else:
+                    print(f"In {key} ({df.short_name}): Column '{self.common_column}' is not there.")
+                
+    def check_entry_date_precomputed_data(
+        self,
+        entry: str,
+        timediv_value: int = timediv_test_value()
+    ) -> None:
+        """DOCSTRING"""
+        
+        if timediv_value not in self.precomputed_data:
+            print(f"Timediv value {timediv_value} does not exist in precomputed_data.")
+            return
+        
+        timediv_df = self.precomputed_data[timediv_value]
+        
+        print(f"\n=== Check for '{entry}' in the TimeDiv object for year {timediv_df.div} ===")
+        
+        for key, value in timediv_df.df_dict.items():
+            if value is not None:
+                entry_data = value[value[self.common_column].str.contains(entry, case=False, na=False)]
+                if not entry_data.empty:
+                    print(f"In {key}:\n{entry_data}\n")
+                else:
+                    print(f"In {key}: '{entry}' is not here.\n")
+            else:
+                print(f"In {key}: DataFrame is None.\n")
+
+        
+
+            
 
 def main() -> None:
     """DOCSTRING"""
@@ -1309,10 +1366,14 @@ def main() -> None:
             stop=2050,
             type="year")
         exo03.add_common_column('country')
-    
-        exo03.clean_data_frames()
+        
 
+        exo03.clean_data_frames()
+        # exo03.check_entry_dataframe("Norway")
+
+    
         exo03.precompute_data()
+        # exo03.check_entry_date_precomputed_data("Norway")
         
         exo03.build_mpl_window()
         
