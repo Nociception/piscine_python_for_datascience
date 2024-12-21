@@ -17,14 +17,14 @@ by switching on 0 or 1 the second condition in the if
 (if debug and 1:)
 
 Still to do:
-- global variables
 - docstrings
 - readme
 - reduce some large methods (plot for example)
 - parsing add path factorizing
 - adjusting colorbar in the first colors
-- debug decorator
 - responsive
+- # matplotlib.use('TkA0') when to use it
+- update show classes methods
 
 Upgrade projects :
 - world events
@@ -32,7 +32,9 @@ Upgrade projects :
 - play/pause button
 """
 
+from functools import wraps
 from fuzzywuzzy import process
+import inspect
 from load_csv import load
 import matplotlib
 from matplotlib.figure import Figure
@@ -48,10 +50,13 @@ import numpy as np
 import pandas as pd
 from scipy.stats import linregress
 from typing import Callable
-import inspect
-matplotlib.use('TkA0')
+# matplotlib.use('TkA0')
 
-YEAR_TEST = 1800
+
+def timediv_test_value():
+    """DOCSTRING"""
+    
+    return 1800
 
 
 def debug(
@@ -61,13 +66,30 @@ def debug(
 ) -> None:
     """DOCSTRING"""
 
+    #debug(inspect.currentframe().f_code.co_name, 0)
+    
     if debug and 1:
         print(f"DEBUG: {step} current function -> {function_name}")
+
+
+def debug_decorator(func: Callable) -> Callable:
+    """DOCSTRING"""
     
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        function_name = func.__name__
+        debug_level = 1
+        if debug_level:
+            print(f"DEBUG: START current function -> {function_name}")
+        result = func(*args, **kwargs)
+        if debug_level:
+            print(f"DEBUG: END current function -> {function_name}")
+        return result
+    return wrapper
+
 
 def cust_suffixed_string_to_float(value) -> float:
     """DOCSTRING"""
-    debug(inspect.currentframe().f_code.co_name, 0)
 
     factors = {'k': 1e3, 'M': 1e6, 'B': 1e9}
     try:
@@ -84,7 +106,6 @@ def dict_printer(
     head_value: int=5
     ) -> None:
     """DOCSTRING"""
-    debug(inspect.currentframe().f_code.co_name, 0)
     
     if d is None:
         print("The dictionnary does not exist.")
@@ -110,7 +131,6 @@ def dict_printer(
 
 def get_data_name(file_name: str) -> str:
     """DOCSTRING"""
-    debug(inspect.currentframe().f_code.co_name, 0)
 
     extension = file_name[file_name.index('.'):]
     return file_name[:file_name.index(extension)].replace('_', ' ')
@@ -121,7 +141,6 @@ def var_print_str(
     var_value
     ) -> str:
     """DOCSTRING"""
-    debug(inspect.currentframe().f_code.co_name, 0)
 
     return f"{var_name}:{var_value} ({type(var_value)})\n"
 
@@ -181,7 +200,7 @@ class DataFrame:
 
     def show(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
+
     
         print("\n===== Show Data_Frame object =====")
         print(f"data_type: {self.data_type}")
@@ -215,7 +234,6 @@ class DataFrame:
 
     def get_first_last_column_names(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
         
         self.first_column_name = int(self.data_frame.columns[1])
         self.last_column_name = int(self.data_frame.columns[-1])
@@ -226,7 +244,6 @@ class DataFrame:
         common_column: str
     ) -> pd.DataFrame | None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         if timediv in range(self.first_column_name, self.last_column_name + 1):
             df_timediv = self.data_frame[
@@ -283,7 +300,6 @@ class TimeDiv:
 
     def merge(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         for key in ['data_x', 'data_y', 'data_point_size']:
             if self.df_dict[key] is None:
@@ -311,7 +327,6 @@ class TimeDiv:
 
     def harmonize_for_regression(self) -> tuple[np.ndarray, np.ndarray]:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         if self.merged_data is None:
             raise ValueError(
@@ -328,7 +343,6 @@ class TimeDiv:
             log: bool
         ) -> LinReg:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         data_x, data_y = self.harmonize_for_regression()
         if log:
@@ -342,7 +356,6 @@ class TimeDiv:
 
     def linear_regressions(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         self.lin_reg_log = self.calculate_linregr(log=True)
         self.lin_reg_lin = self.calculate_linregr(log=False)
@@ -383,10 +396,11 @@ class Day02Ex03:
         self.fig: Figure | None = None
         self.precomputed_data: dict[int | float, TimeDiv] = {}
         self.slider: Slider | None = None
+        self.timediv_range: range | None = None
         self.text_box_tracker: TextBox | None = None
+        self.timediv_type: str | None = None
         self.title: str | None = None
         self.tracked_element: str = "None"
-        self.x_range: range | None = None
         self.x_label: str | None = None
         self.x_unit: str | None = None
         self.y_label: str | None = None
@@ -401,7 +415,7 @@ class Day02Ex03:
         print("\n=== Show Day02Ex03 object ===")
         print(f"title: {self.title}")
         print(f"data_point_size_divider: {self.data_point_size_divider}")
-        print(f"x_range: {self.x_range}")
+        print(f"timediv_range: {self.timediv_range}")
         print(f"x_label: {self.x_label}")
         print(f"y_label: {self.y_label}")
         print(f"y_unit: {self.y_unit}")
@@ -421,7 +435,6 @@ class Day02Ex03:
         short_name: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
         
         if (
             all(isinstance(arg, str) for arg in (
@@ -454,7 +467,6 @@ class Day02Ex03:
         x_unit: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         if all(
             isinstance(arg, str) for arg in (
@@ -484,7 +496,6 @@ class Day02Ex03:
         y_unit: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         if all(
             isinstance(arg, str) for arg in (
@@ -513,7 +524,6 @@ class Day02Ex03:
         divider: int | float
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         if isinstance(divider, (int, float)):
             self.data_point_size_divider = divider
@@ -533,7 +543,6 @@ class Day02Ex03:
         short_name: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         self.add_data_path(
             extra_data_x_path,
@@ -547,7 +556,6 @@ class Day02Ex03:
         short_name: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         self.add_data_path(
             extra_data_y_path,
@@ -560,7 +568,6 @@ class Day02Ex03:
         title: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
         
         if isinstance(title, str):
             self.title = title
@@ -569,19 +576,26 @@ class Day02Ex03:
                 f"title must be a string, not {title} ({type(title)})"
             )
 
-    def add_x_range(
+    def add_timediv_range(
         self,
         start: int,
-        stop: int
+        stop: int,
+        type: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
         
         if all(isinstance(var, int) for var in (start, stop)):
-            self.x_range = range(start, stop + 1)
+            self.timediv_range = range(start, stop + 1)
         else:
             raise ValueError(
                 f"start and stop must be int, not {start} and {stop}"
+            )
+        
+        if isinstance(type, str):
+            self.timediv_type = type
+        else:
+            raise ValueError(
+                f"{var_print_str('data_path', data_path)}\n"
             )
 
     def add_common_column(
@@ -589,14 +603,12 @@ class Day02Ex03:
         common_column: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
     
         if isinstance(common_column, str):
             self.common_column = common_column
 
     def clean_data_x(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         df = self.data_frames['data_x']
         if df is not None:
@@ -607,7 +619,6 @@ class Day02Ex03:
 
     def clean_data_y(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         df = self.data_frames['data_y']
         if df is not None:
@@ -618,7 +629,6 @@ class Day02Ex03:
 
     def clean_data_point_size(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         df = self.data_frames['data_point_size']
         if df is not None:
@@ -629,7 +639,6 @@ class Day02Ex03:
 
     def clean_extra_data_x(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         if self.data_frames['extra_data_x'] is not None:
             df = self.data_frames['extra_data_x'].data_frame
@@ -652,7 +661,7 @@ class Day02Ex03:
             
             def match_country_name(country):
                 """DOCSTRING"""
-                debug(inspect.currentframe().f_code.co_name, 0)
+        
 
                 
                 match, score = process.extractOne(country, data_y_countries)
@@ -675,14 +684,12 @@ class Day02Ex03:
             
     def clean_extra_data_y(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
     
         if self.data_frames['extra_data_y'] is not None:
             self.data_frames['extra_data_y'].data_cleaned = True
 
     def clean_data_frames(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
         
         self.clean_data_x()
         self.clean_data_y()
@@ -692,7 +699,6 @@ class Day02Ex03:
 
     def get_first_last_column_names(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         for key, data_frame in self.data_frames.items():
             if data_frame is None:
@@ -708,9 +714,8 @@ class Day02Ex03:
         timediv: int,
     ) -> list[pd.DataFrame]:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
-        # if timediv == YEAR_TEST :
+        # if timediv == timediv_test_value() :
         #     print("=== (class Day02Ex03) DEBUT SUBSETS_TIMEDIV_EXTRACTION ===")
         #     print(f"timediv: {timediv}")
 
@@ -726,18 +731,17 @@ class Day02Ex03:
             else:
                 res.append(None)
         
-        # if timediv == YEAR_TEST :
+        # if timediv == timediv_test_value() :
         #     print("=== (class Day02Ex03) FIN SUBSETS_TIMEDIV_EXTRACTION ===\n")
 
         return res
 
     def precompute_data(self):
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         self.get_first_last_column_names()
         
-        for div in self.x_range:
+        for div in self.timediv_range:
             timediv = TimeDiv(
                 self.subsets_timediv_extraction(div),
                 self.common_column,
@@ -750,7 +754,7 @@ class Day02Ex03:
             self.corr_log.append(timediv.lin_reg_log.corr)
             self.corr_lin.append(timediv.lin_reg_lin.corr)
             
-            # if div ==  YEAR_TEST:
+            # if div ==  timediv_test_value():
             #     print(f"==============={div}=================")
             #     timediv.show()
             
@@ -759,15 +763,32 @@ class Day02Ex03:
 
     def build_fig_axes(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
+
+        fig_w, fig_h = 10, 6
 
         self.fig, self.axes = plt.subplot_mosaic(
             [
                 ["log", "log", "log", "corr_log"],
                 ["lin", "lin", "lin", "corr_lin"],
             ],
-            figsize=(10, 6)
+            figsize=(fig_w, fig_h)
         )
+        
+        def on_resize(event):
+            fig_width, fig_height = self.fig.get_size_inches()
+            scale = min(fig_width / fig_w, fig_height /fig_h)
+            self.fig.subplots_adjust(
+                top=0.97,
+                bottom=0.1,
+                left=0.05,
+                right=0.99,
+                hspace=0.13 * scale,
+                wspace=0.2 * scale
+            )
+            plt.draw()
+            
+        self.fig.canvas.mpl_connect('resize_event', on_resize)
+        
         self.fig.subplots_adjust(
             top=0.97,
             bottom=0.1,
@@ -783,7 +804,6 @@ class Day02Ex03:
         extra_data: DataFrame,
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
         
         cmap_colors: list[str] = [
             "green",
@@ -833,7 +853,6 @@ class Day02Ex03:
         data: pd.DataFrame
     ) -> list[str]:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         extra_data_colored_name = self.data_frames[
             self.colored_extra_data].data_name
@@ -864,7 +883,6 @@ class Day02Ex03:
         points_color: list[str],
     ) -> mplcollec.PathCollection:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         pt_size_s_name = self.data_frames["data_point_size"].short_name
         scatter = ax.scatter(
@@ -907,7 +925,6 @@ class Day02Ex03:
             color: str            
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         x = np.sort(
                 timediv.merged_data[self.data_frames["data_x"].data_name])
@@ -940,7 +957,7 @@ class Day02Ex03:
         color: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
+
 
         if is_log_scale:
             ax.set_xscale('log')
@@ -976,7 +993,6 @@ class Day02Ex03:
         color: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         data = timediv.merged_data
         points_color = self.get_points_color(data)
@@ -1072,7 +1088,6 @@ class Day02Ex03:
         slider_val=None
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         self.axes["log"].cla()
         self.axes["lin"].cla()
@@ -1109,18 +1124,16 @@ class Day02Ex03:
 
     def build_slider(
         self,
-        timediv_type: str,
         update_callback_function: Callable
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
 
         ax_slider = self.fig.add_axes([0.05, 0.01, 0.6, 0.03])
         self.slider = Slider(
             ax_slider,
-            timediv_type.title(),
-            self.x_range.start,
-            self.x_range.stop - 1,
+            self.timediv_type.title(),
+            self.timediv_range.start,
+            self.timediv_range.stop - 1,
             valinit=1900,
             valstep=1,
             color="blue"
@@ -1131,7 +1144,7 @@ class Day02Ex03:
         self,
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
+
         
         for name in ["corr_log", "corr_lin"]:
             if name in self.axes:
@@ -1164,7 +1177,6 @@ class Day02Ex03:
         text: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
         
         self.tracked_element = text.strip()
         self.update()
@@ -1172,7 +1184,6 @@ class Day02Ex03:
 
     def build_tracker(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
         
         self.ax_box_tracker = self.fig.add_axes([0.79, 0.005, 0.2, 0.05])
         self.text_box_tracker = TextBox(
@@ -1189,16 +1200,15 @@ class Day02Ex03:
         color: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
         
         ax.plot(
-            np.array(self.x_range),
+            np.array(self.timediv_range),
             corr,
             label=f"{label} correlation",
             color=color
         )
-        ax.set_xlabel(self.x_unit, labelpad=0)
-        ax.set_xlim(self.x_range.start, self.x_range.stop)
+        ax.set_xlabel(self.timediv_type, labelpad=0)
+        ax.set_xlim(self.timediv_range.start, self.timediv_range.stop)
         ax.set_ylabel("Correlation Coefficient")
         ax.set_ylim(0, 1)
         ax.text(
@@ -1216,10 +1226,8 @@ class Day02Ex03:
 
     def build_mpl_window(
         self,
-        timediv_type: str
     ) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
         
         self.build_fig_axes()
         
@@ -1229,7 +1237,6 @@ class Day02Ex03:
         )
 
         self.build_slider(
-            timediv_type=timediv_type,
             update_callback_function=self.update)
         
         self.build_tracker()
@@ -1238,19 +1245,18 @@ class Day02Ex03:
             self.axes["corr_log"],
             self.corr_log,
             "log",
-            "red"
+            "red",
         )
         self.plot_corr_graph(
             self.axes["corr_lin"],
             self.corr_lin,
             "lin",
-            "green"
+            "green",
         )
 
     def pltshow(self) -> None:
         """DOCSTRING"""
-        debug(inspect.currentframe().f_code.co_name, 0)
-        
+
         if self.fig is not None:
             plt.show()
         else:
@@ -1262,7 +1268,7 @@ class Day02Ex03:
 
 
 def main() -> None:
-    """Main function to run the interactive visualization."""
+    """DOCSTRING"""
     
     try:
         exo03 = Day02Ex03()
@@ -1298,16 +1304,17 @@ def main() -> None:
             "Inflation-adjusted GDP per capita "\
             "at purchasing power parity (PPP)"
         )
-        exo03.add_x_range(start=1800, stop=2050)
+        exo03.add_timediv_range(
+            start=1800,
+            stop=2050,
+            type="year")
         exo03.add_common_column('country')
     
         exo03.clean_data_frames()
 
         exo03.precompute_data()
         
-        exo03.build_mpl_window(
-            timediv_type="year"
-        )
+        exo03.build_mpl_window()
         
         exo03.update()
         
