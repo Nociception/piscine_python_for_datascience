@@ -38,14 +38,15 @@ from fuzzywuzzy import process
 import inspect
 from load_csv import load
 import matplotlib
-from matplotlib.figure import Figure
+from matplotlib.animation import FuncAnimation
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 from matplotlib.colorbar import Colorbar
 import matplotlib.collections as mplcollec
 from matplotlib.collections import PathCollection
 import matplotlib.pyplot as plt
 from matplotlib.cm import ScalarMappable
-from matplotlib.widgets import Slider, TextBox
+from matplotlib.widgets import Slider, TextBox, Button
 from matplotlib.colors import Normalize, LinearSegmentedColormap
 import mplcursors
 import numpy as np
@@ -473,12 +474,12 @@ class Day02Ex03:
         
         
     
-        self.running_mode = True
-        self.thread = None
-        self.play_ax = None
-        self.pause_ax = None
-        self.play_button = None
-        self.pause_button = None
+        self.running_mode: bool = True
+        self.anim: FuncAnimation | None = None
+        self.play_ax: Axes | None = None
+        self.pause_ax: Axes | None = None
+        self.play_button: Button | None = None
+        self.pause_button: Button | None = None
         
         
     def show(self):
@@ -1203,12 +1204,48 @@ class Day02Ex03:
         self.slider.on_changed(update_callback_function)
         
         self.play_ax = self.fig.add_axes([0.66, 0.01, 0.03, 0.03])
-        self.pause_ax = self.fig.add_axes([0.695, 0.01, 0.03, 0.03])
-        
-        
         self.play_button = plt.Button(self.play_ax, '\u25B6')
-        self.pause_button = plt.Button(self.pause_ax, r'$\mathbf{| |}$')
+        self.play_button.on_clicked(self.start_animation)
         
+        self.pause_ax = self.fig.add_axes([0.695, 0.01, 0.03, 0.03])
+        self.pause_button = plt.Button(self.pause_ax, r'$\mathbf{| |}$')
+        self.pause_button.on_clicked(self.stop_animation)
+        
+    def start_animation(self, event=None):
+        """DOCSTRING"""
+
+        if self.running_mode:
+            return
+        self.running_mode = True
+        self.anim = FuncAnimation(
+            self.fig,
+            self.update_slider,
+            frames=range(self.timediv_range.start, self.timediv_range.stop),
+            repeat=True,
+            interval=100,
+        )
+        plt.draw()
+
+    def stop_animation(self, event=None):
+        """DOCSTRING"""
+
+        if not self.running_mode:
+            return
+        self.running_mode = False
+        if self.anim is not None:
+            self.anim.event_source.stop()
+            self.anim = None
+
+    def update_slider(self, frame):
+        """DOCSTRING"""
+
+        self.slider.set_val(frame)
+
+
+
+
+
+
 
     def add_curve_interactivity(
         self,
