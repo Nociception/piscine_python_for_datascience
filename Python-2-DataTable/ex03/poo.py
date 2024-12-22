@@ -1453,13 +1453,13 @@ def main() -> None:
         exo03.precompute_data()
         # exo03.check_entry_date_timediv_object("df_dict", "Norway")
         
-        # exo03.build_mpl_window()
+        exo03.build_mpl_window()
         
-        # exo03.update()
+        exo03.update()
         
-        # exo03.add_curve_interactivity()
+        exo03.add_curve_interactivity()
         
-        # exo03.pltshow()
+        exo03.pltshow()
         
     # except ValueError as error:
     #     print(f"{type(error).__name__}: {error}")
