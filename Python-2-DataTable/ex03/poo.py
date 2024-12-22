@@ -7,6 +7,8 @@ number and the beginning of the foldable line.
 Try with this triple quoted string!
 - After a ctr+clic on a function/method,
 navigate back with the keyboard short cut: ctrl alt -
+- global code blocks folding (available on VSCode):
+ctrl+K then ctrl+[indent level ; I suggest 2 for this file]
 
 Debug adjusting:
 Enable or disable debugging; two ways:
