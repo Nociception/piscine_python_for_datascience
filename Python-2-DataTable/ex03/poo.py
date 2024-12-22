@@ -322,14 +322,18 @@ class TimeDiv:
             if self.df_dict[key] is None:
                 raise ValueError(f"Essential DataFrame '{key}' is missing.")
 
-        mask = (
-            ~self.df_dict['data_x'].iloc[:, 1].isna() &
-            ~self.df_dict['data_y'].iloc[:, 1].isna() &
-            ~self.df_dict['data_point_size'].iloc[:, 1].isna()
-        )
         for key in ['data_x', 'data_y', 'data_point_size']:
-            self.df_dict[key] = self.df_dict[key].loc[mask]
-        
+            self.df_dict[key] = self.df_dict[key].set_index(self.common_column)
+
+        mask = (
+            ~self.df_dict['data_x'].iloc[:, 0].isna() &
+            ~self.df_dict['data_y'].iloc[:, 0].isna() &
+            ~self.df_dict['data_point_size'].iloc[:, 0].isna()
+        )
+
+        for key in ['data_x', 'data_y', 'data_point_size']:
+            self.df_dict[key] = self.df_dict[key][mask].reset_index()
+
         if self.div == timediv_test_value():
             print(f"=== merge method for timediv in {self.div}: mask applied to each df ; before the pd.merge")
             for key, value in self.df_dict.items():
@@ -351,8 +355,9 @@ class TimeDiv:
                     on=self.common_column,
                     how='inner'
                 )
-        
+
         self.merged_data.reset_index(drop=True, inplace=True)
+
 
     def harmonize_for_regression(self) -> tuple[np.ndarray, np.ndarray]:
         """DOCSTRING"""
