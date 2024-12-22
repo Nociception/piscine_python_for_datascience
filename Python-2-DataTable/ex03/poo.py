@@ -332,7 +332,7 @@ class TimeDiv:
         )
 
         for key in ['data_x', 'data_y', 'data_point_size']:
-            self.df_dict[key] = self.df_dict[key][mask].reset_index()
+            self.df_dict[key] = self.df_dict[key].loc[mask.reindex(self.df_dict[key].index, fill_value=False)].reset_index()
 
         if self.div == timediv_test_value():
             print(f"=== merge method for timediv in {self.div}: mask applied to each df ; before the pd.merge")
@@ -357,6 +357,7 @@ class TimeDiv:
                 )
 
         self.merged_data.reset_index(drop=True, inplace=True)
+
 
 
     def harmonize_for_regression(self) -> tuple[np.ndarray, np.ndarray]:
