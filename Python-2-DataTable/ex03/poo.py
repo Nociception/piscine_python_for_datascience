@@ -19,7 +19,6 @@ by switching on 0 or 1 the second condition in the if
 Still to do:
 - docstrings
 - readme
-- parsing add path factorizing
 - responsive
 - # matplotlib.use('TkA0') when to use it
 - update show classes methods
@@ -49,6 +48,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import linregress
 from typing import Callable
+import typeguard
 # matplotlib.use('TkA0')
 
 
@@ -515,6 +515,7 @@ class Day02Ex03:
                 f"{var_print_str('data_type', short_name)}"
             )
 
+    @typeguard.typechecked
     def add_data_x_path(
         self,
         data_x_path: str,
@@ -524,26 +525,15 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
 
-        if all(
-            isinstance(arg, str) for arg in (
-                x_label,
-                x_unit,
-            )
-        ):
-            self.add_data_path(
-                data_x_path,
-                "data_x",
-                short_name
-            )
-            self.x_label = x_label
-            self.x_unit = x_unit
-        else:
-            raise ValueError(
-                f"x_label and x_name must be str, not:\n"
-                f"{var_print_str('x_label', x_label)}\n"
-                f"{var_print_str('x_unit', x_unit)}\n"
-            )
+        self.add_data_path(
+            data_x_path,
+            "data_x",
+            short_name
+        )
+        self.x_label = x_label
+        self.x_unit = x_unit
 
+    @typeguard.typechecked
     def add_data_y_path(
         self,
         data_y_path: str,
@@ -553,26 +543,15 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
 
-        if all(
-            isinstance(arg, str) for arg in (
-                y_label,
-                y_unit,
-            )
-        ):
-            self.add_data_path(
-                data_y_path,
-                "data_y",
-                short_name
-            )
-            self.y_label = y_label
-            self.y_unit = y_unit
-        else:
-            raise ValueError(
-                f"y_label and y_name must be str, not:\n"
-                f"{var_print_str('y_label', y_label)}\n"
-                f"{var_print_str('y_unit', y_unit)}\n"
-            )
+        self.add_data_path(
+            data_y_path,
+            "data_y",
+            short_name
+        )
+        self.y_label = y_label
+        self.y_unit = y_unit
 
+    @typeguard.typechecked
     def add_data_point_size_path(
         self,
         data_point_size_path: str,
@@ -581,18 +560,14 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
 
-        if isinstance(divider, (int, float)):
-            self.data_point_size_divider = divider
-            self.add_data_path(
-                data_point_size_path,
-                "data_point_size",
-                short_name
-            )
-        else:
-            raise TypeError(
-                f"divider must be an int or a float, not {divider}"
-            )
+        self.data_point_size_divider = divider
+        self.add_data_path(
+            data_point_size_path,
+            "data_point_size",
+            short_name
+        )
 
+    @typeguard.typechecked
     def add_extra_data_x_path(
         self,
         extra_data_x_path: str,
@@ -606,6 +581,7 @@ class Day02Ex03:
             short_name
         )
 
+    @typeguard.typechecked
     def add_extra_data_y_path(
         self,
         extra_data_y_path: str,
@@ -619,19 +595,16 @@ class Day02Ex03:
             short_name
         )
 
+    @typeguard.typechecked
     def add_title(
         self,
         title: str
     ) -> None:
         """DOCSTRING"""
         
-        if isinstance(title, str):
-            self.title = title
-        else:
-            raise ValueError(
-                f"title must be a string, not {title} ({type(title)})"
-            )
+        self.title = title
 
+    @typeguard.typechecked
     def add_timediv_range(
         self,
         start: int,
@@ -640,28 +613,17 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
         
-        if all(isinstance(var, int) for var in (start, stop)):
-            self.timediv_range = range(start, stop + 1)
-        else:
-            raise ValueError(
-                f"start and stop must be int, not {start} and {stop}"
-            )
-        
-        if isinstance(type, str):
-            self.timediv_type = type
-        else:
-            raise ValueError(
-                f"{var_print_str('data_path', data_path)}\n"
-            )
+        self.timediv_range = range(start, stop + 1)
+        self.timediv_type = type
 
+    @typeguard.typechecked
     def add_common_column(
         self,
         common_column: str
     ) -> None:
         """DOCSTRING"""
     
-        if isinstance(common_column, str):
-            self.common_column = common_column
+        self.common_column = common_column
 
     def clean_data_x(self) -> None:
         """DOCSTRING"""
@@ -1413,11 +1375,9 @@ def main() -> None:
             stop=2050,
             type="year")
         exo03.add_common_column('country')
-        
 
         exo03.clean_data_frames()
         # exo03.check_entry_dataframe("Norway")
-
     
         exo03.precompute_data()
         
@@ -1430,6 +1390,8 @@ def main() -> None:
         exo03.pltshow()
         
     # except ValueError as error:
+    #     print(f"{type(error).__name__}: {error}")
+    # except typeguard.TypeCheckError as error:
     #     print(f"{type(error).__name__}: {error}")
     # except Exception as error:
     #     print(f"An unexpected error occurred: {error}")
