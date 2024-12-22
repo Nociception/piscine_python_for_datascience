@@ -23,10 +23,12 @@ Still to do:
 - # matplotlib.use('TkA0') when to use it
 - update show classes methods
 
-Upgrade projects :
-- world events
 - interpolation between two years
 - play/pause button
+
+Upgrade projects :
+- world events
+
 """
 
 from functools import wraps
@@ -49,7 +51,9 @@ import pandas as pd
 from scipy.stats import linregress
 from typing import Callable
 import typeguard
-# matplotlib.use('TkA0')
+
+if matplotlib.get_backend() != 'TkAgg':
+    matplotlib.use('TkAgg')
 
 
 def timediv_test_value():
