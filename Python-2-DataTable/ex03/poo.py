@@ -471,6 +471,16 @@ class Day02Ex03:
         # definetly set that way (adjustable in future versions)
         self.colored_extra_data: str = "extra_data_x"
         
+        
+    
+        self.running_mode = True
+        self.thread = None
+        self.play_ax = None
+        self.pause_ax = None
+        self.play_button = None
+        self.pause_button = None
+        
+        
     def show(self):
         """DOCSTRING"""
         
@@ -1191,6 +1201,14 @@ class Day02Ex03:
             color="blue"
         )
         self.slider.on_changed(update_callback_function)
+        
+        self.play_ax = self.fig.add_axes([0.66, 0.01, 0.03, 0.03])
+        self.pause_ax = self.fig.add_axes([0.695, 0.01, 0.03, 0.03])
+        
+        
+        self.play_button = plt.Button(self.play_ax, '\u25B6')
+        self.pause_button = plt.Button(self.pause_ax, r'$\mathbf{| |}$')
+        
 
     def add_curve_interactivity(
         self,
@@ -1237,7 +1255,7 @@ class Day02Ex03:
     def build_tracker(self) -> None:
         """DOCSTRING"""
         
-        self.ax_box_tracker = self.fig.add_axes([0.79, 0.005, 0.2, 0.05])
+        self.ax_box_tracker = self.fig.add_axes([0.81, 0.005, 0.18, 0.05])
         self.text_box_tracker = TextBox(
             self.ax_box_tracker,
             f"Track {self.common_column}"
