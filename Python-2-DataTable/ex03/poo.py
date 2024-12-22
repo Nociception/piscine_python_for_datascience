@@ -19,9 +19,7 @@ by switching on 0 or 1 the second condition in the if
 Still to do:
 - docstrings
 - readme
-- reduce some large methods (plot for example)
 - parsing add path factorizing
-- adjusting colorbar in the first colors
 - responsive
 - # matplotlib.use('TkA0') when to use it
 - update show classes methods
@@ -41,6 +39,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.colorbar import Colorbar
 import matplotlib.collections as mplcollec
+from matplotlib.collections import PathCollection
 import matplotlib.pyplot as plt
 from matplotlib.cm import ScalarMappable
 from matplotlib.widgets import Slider, TextBox
@@ -140,6 +139,18 @@ def get_data_name(file_name: str) -> str:
 
     extension = file_name[file_name.index('.'):]
     return file_name[:file_name.index(extension)].replace('_', ' ')
+
+
+def put_kmb_suffix(val: float) -> str:
+    """
+    Formats a large number with 'k', 'M', or 'B' suffixes.
+    """
+    for threshold, suffix in [
+        (1e9, 'B'), (1e6, 'M'), (1e3, 'k')
+    ]:
+        if val > threshold:
+            return f"{val / threshold:.2f}{suffix}"
+    return str(val)
 
 
 def var_print_str(
@@ -334,17 +345,17 @@ class TimeDiv:
         for key in ['data_x', 'data_y', 'data_point_size']:
             self.df_dict[key] = self.df_dict[key].loc[mask.reindex(self.df_dict[key].index, fill_value=False)].reset_index()
 
-        if self.div == timediv_test_value():
-            print(f"=== merge method for timediv in {self.div}: mask applied to each df ; before the pd.merge")
-            for key, value in self.df_dict.items():
-                if value is not None:
-                    entry_data = value[value[self.common_column].str.contains(target_test_value(), case=False, na=False)]
-                    if not entry_data.empty:
-                        print(f"In {key}:\n{entry_data}\n")
-                    else:
-                        print(f"In {key}: '{target_test_value()}' is not here.\n")
-                else:
-                    print(f"In {key}: DataFrame is None.\n")
+        # if self.div == timediv_test_value():
+        #     print(f"=== merge method for timediv in {self.div}: mask applied to each df ; before the pd.merge")
+        #     for key, value in self.df_dict.items():
+        #         if value is not None:
+        #             entry_data = value[value[self.common_column].str.contains(target_test_value(), case=False, na=False)]
+        #             if not entry_data.empty:
+        #                 print(f"In {key}:\n{entry_data}\n")
+        #             else:
+        #                 print(f"In {key}: '{target_test_value()}' is not here.\n")
+        #         else:
+        #             print(f"In {key}: DataFrame is None.\n")
 
         self.merged_data = self.df_dict['data_x']
         for key in ['data_y', 'data_point_size', 'extra_data_x', 'extra_data_y']:
@@ -793,31 +804,31 @@ class Day02Ex03:
                 div
             )
             
-            if div == timediv_test_value():
-                print(f"=== precompute_data in {div} ; after the TimeDiv object build===")
-                for key, value in timediv.df_dict.items():
-                    if value is not None:
-                        entry_data = value[value[self.common_column].str.contains(target_test_value(), case=False, na=False)]
-                        if not entry_data.empty:
-                            print(f"In {key}:\n{entry_data}\n")
-                        else:
-                            print(f"In {key}: '{target_test_value()}' is not here.\n")
-                    else:
-                        print(f"In {key}: DataFrame is None.\n")
+            # if div == timediv_test_value():
+            #     print(f"=== precompute_data in {div} ; after the TimeDiv object build===")
+            #     for key, value in timediv.df_dict.items():
+            #         if value is not None:
+            #             entry_data = value[value[self.common_column].str.contains(target_test_value(), case=False, na=False)]
+            #             if not entry_data.empty:
+            #                 print(f"In {key}:\n{entry_data}\n")
+            #             else:
+            #                 print(f"In {key}: '{target_test_value()}' is not here.\n")
+            #         else:
+            #             print(f"In {key}: DataFrame is None.\n")
             
             timediv.merge()
             
-            if div == timediv_test_value():
-                print(f"=== precompute_data in {div} ; after the TimeDiv merge method===")
-                for key, value in timediv.df_dict.items():
-                    if value is not None:
-                        entry_data = value[value[self.common_column].str.contains(target_test_value(), case=False, na=False)]
-                        if not entry_data.empty:
-                            print(f"In {key}:\n{entry_data}\n")
-                        else:
-                            print(f"In {key}: '{target_test_value()}' is not here.\n")
-                    else:
-                        print(f"In {key}: DataFrame is None.\n")
+            # if div == timediv_test_value():
+            #     print(f"=== precompute_data in {div} ; after the TimeDiv merge method===")
+            #     for key, value in timediv.df_dict.items():
+            #         if value is not None:
+            #             entry_data = value[value[self.common_column].str.contains(target_test_value(), case=False, na=False)]
+            #             if not entry_data.empty:
+            #                 print(f"In {key}:\n{entry_data}\n")
+            #             else:
+            #                 print(f"In {key}: '{target_test_value()}' is not here.\n")
+            #         else:
+            #             print(f"In {key}: DataFrame is None.\n")
                         
             
             timediv.linear_regressions()
@@ -1056,35 +1067,14 @@ class Day02Ex03:
             weight="bold",
         )
 
-    def plot(  # STILL TOO LARGE
+    def manage_cursor(
         self,
-        timediv: TimeDiv,
-        ax: Axes,
-        is_log_scale: bool,
         ax_name: str,
-        color: str
+        scatter: PathCollection,
+        data: pd.DataFrame
     ) -> None:
         """DOCSTRING"""
-
-        data = timediv.merged_data
-        points_color = self.get_points_color(data)
-        scatter = self.plot_scatter(
-            ax,
-            data,
-            points_color)
-        self.plot_regressline(
-            timediv,
-            is_log_scale,
-            ax,
-            color,
-        )
-        self.set_graph_meta_data(
-            timediv,
-            is_log_scale=is_log_scale,
-            ax=ax,
-            color=color,
-        )
-
+        
         if (
             ax_name in self.cursor_container
             and self.cursor_container[ax_name]
@@ -1097,22 +1087,11 @@ class Day02Ex03:
                     f"Warning: Failed to remove cursor on "
                     f"{ax_name}: {e}"
                 )
-
+                
         cursor = mplcursors.cursor(
             scatter,
             hover=True
         )
-
-        def put_kmb_suffix(val: float) -> str:
-            """
-            Formats a large number with 'k', 'M', or 'B' suffixes.
-            """
-            for threshold, suffix in [
-                (1e9, 'B'), (1e6, 'M'), (1e3, 'k')
-            ]:
-                if val > threshold:
-                    return f"{val / threshold:.2f}{suffix}"
-            return str(val)
 
         @cursor.connect("add")
         def on_add(sel):
@@ -1120,11 +1099,9 @@ class Day02Ex03:
 
             try:
                 row = data.iloc[idx]
-
                 data_x_name = self.data_frames["data_x"].data_name
                 data_y_name = self.data_frames["data_y"].data_name
                 data_point_size_name = self.data_frames["data_point_size"].data_name
-
                 extra_data_x_text = 'N/A'
                 extra_data_x_name = self.data_frames["extra_data_x"].data_name
 
@@ -1154,6 +1131,41 @@ class Day02Ex03:
                 print(f"Unexpected error during cursor annotation: {e}")
 
         self.cursor_container[ax_name] = cursor
+
+    def plot(
+        self,
+        timediv: TimeDiv,
+        ax: Axes,
+        is_log_scale: bool,
+        ax_name: str,
+        color: str
+    ) -> None:
+        """DOCSTRING"""
+
+        data = timediv.merged_data
+        points_color = self.get_points_color(data)
+        scatter = self.plot_scatter(
+            ax,
+            data,
+            points_color)
+        self.plot_regressline(
+            timediv,
+            is_log_scale,
+            ax,
+            color,
+        )
+        self.set_graph_meta_data(
+            timediv,
+            is_log_scale=is_log_scale,
+            ax=ax,
+            color=color,
+        )
+
+        self.manage_cursor(
+            ax_name,
+            scatter,
+            data
+        )
 
     def update(
         self,
@@ -1358,49 +1370,6 @@ class Day02Ex03:
                 else:
                     print(f"In {key} ({df.short_name}): Column '{self.common_column}' is not there.")
                 
-    def check_entry_date_timediv_object(
-        self,
-        which: str,
-        entry: str,
-        timediv_value: int = timediv_test_value()
-    ) -> None:
-        """DOCSTRING"""
-        
-        print("=== START check_entry_date_timediv_object START===")
-        
-        if timediv_value not in self.precomputed_data:
-            print(f"Timediv value {timediv_value} does not exist in precomputed_data.")
-            return
-        
-        timediv_df = self.precomputed_data[timediv_value]
-        
-        print(f"\n=== Check for '{entry}' in the TimeDiv object for year {timediv_df.div} ===")
-        
-        
-        # if which == "df_dict":
-        for key, value in timediv_df.df_dict.items():
-            if value is not None:
-                entry_data = value[value[self.common_column].str.contains(entry, case=False, na=False)]
-                if not entry_data.empty:
-                    print(f"In {key}:\n{entry_data}\n")
-                else:
-                    print(f"In {key}: '{entry}' is not here.\n")
-            else:
-                print(f"In {key}: DataFrame is None.\n")
-        
-        # elif which == "merged_data":
-        #     # entry_data = value[value[self.common_column].str.contains(entry, case=False, na=False)]
-        #     entry_data = timediv_df.merged_data
-        #     target = entry_data[entry_data[self.common_column].str.contains(entry, case=False, na=False)]
-        #     if not target.empty:
-        #         print(f"In {timediv_value}:\n{target}\n")
-        #     else:
-        #         print(f"In {timediv_value}: '{target}' is not here.\n")
-
-        print("=== END check_entry_date_timediv_object END===")
-        
-
-            
 
 def main() -> None:
     """DOCSTRING"""
@@ -1451,7 +1420,6 @@ def main() -> None:
 
     
         exo03.precompute_data()
-        # exo03.check_entry_date_timediv_object("df_dict", "Norway")
         
         exo03.build_mpl_window()
         
