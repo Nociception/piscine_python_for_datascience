@@ -19,14 +19,13 @@ by switching on 0 or 1 the second condition in the if
 (if debug and 1:)
 
 Still to do:
+- play/pause button : on going
 - docstrings
 - readme
 - responsive
 - # matplotlib.use('TkA0') when to use it
 - update show classes methods
-
-- interpolation between two years
-- play/pause button
+- fluid transition between two years
 
 Upgrade projects :
 - world events
@@ -873,16 +872,6 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
         
-        # cmap_colors: list[str] = [
-        #     "green",
-        #     "limegreen",
-        #     "yellow",
-        #     "orange",
-        #     "red",
-        #     "magenta",
-        #     "mediumpurple",
-        #     "darkviolet"
-        # ]
         vmin: float = 0
         vmax: float = 100
         orientation: str = "vertical"
