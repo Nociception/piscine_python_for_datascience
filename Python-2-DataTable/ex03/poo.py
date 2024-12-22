@@ -473,6 +473,9 @@ class Day02Ex03:
         self.colored_extra_data: str = "extra_data_x"
         
         
+        self.init_value: int | None = None
+        self.current_frame: int | None = None
+        
     
         self.running_mode: bool = True
         self.anim: FuncAnimation | None = None
@@ -626,12 +629,15 @@ class Day02Ex03:
         self,
         start: int,
         stop: int,
+        init_value: int,
         type: str
     ) -> None:
         """DOCSTRING"""
         
         self.timediv_range = range(start, stop + 1)
         self.timediv_type = type
+        self.init_value = init_value
+        self.current_frame = init_value
 
     @typeguard.typechecked
     def add_common_column(
@@ -1197,7 +1203,7 @@ class Day02Ex03:
             self.timediv_type.title(),
             self.timediv_range.start,
             self.timediv_range.stop - 1,
-            valinit=1900,
+            valinit=self.init_value,
             valstep=1,
             color="blue"
         )
@@ -1220,7 +1226,7 @@ class Day02Ex03:
         self.anim = FuncAnimation(
             self.fig,
             self.update_slider,
-            frames=range(self.timediv_range.start, self.timediv_range.stop),
+            frames=range(self.slider.val, self.timediv_range.stop),
             repeat=True,
             interval=100,
         )
@@ -1240,6 +1246,8 @@ class Day02Ex03:
         """DOCSTRING"""
 
         self.slider.set_val(frame)
+        self.current_frame = frame
+
 
 
 
@@ -1366,6 +1374,7 @@ class Day02Ex03:
 
         if self.fig is not None:
             plt.show()
+            self.start_animation()
         else:
             raise RuntimeError(
                 "Figure not initialized.\n"
@@ -1434,7 +1443,9 @@ def main() -> None:
         exo03.add_timediv_range(
             start=1800,
             stop=2050,
-            type="year")
+            init_value = 1900,
+            type="year",
+        )
         exo03.add_common_column('country')
 
         exo03.clean_data_frames()
