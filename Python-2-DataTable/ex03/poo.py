@@ -59,6 +59,12 @@ def timediv_test_value():
     return 1800
 
 
+def target_test_value():
+    """DOCSTRING"""
+
+    return "Norway"
+
+
 def debug(
     function_name: str,
     debug:int,
@@ -66,7 +72,7 @@ def debug(
 ) -> None:
     """DOCSTRING"""
 
-    #debug(inspect.currentframe().f_code.co_name, 0)
+    # debug(inspect.currentframe().f_code.co_name, 0)
     
     if debug and 1:
         print(f"DEBUG: {step} current function -> {function_name}")
@@ -238,12 +244,17 @@ class DataFrame:
         self.first_column_name = int(self.data_frame.columns[1])
         self.last_column_name = int(self.data_frame.columns[-1])
     
+    # @debug_decorator
     def subset_timediv_extraction(
         self,
         timediv: int,
         common_column: str
     ) -> pd.DataFrame | None:
         """DOCSTRING"""
+
+        # if timediv == timediv_test_value():
+        #     print(f"FIST IF ({self.short_name})")
+        #     print(self.data_frame[self.data_frame["country"].str.contains(target_test_value(), case=False, na=False)])
 
         if timediv in range(self.first_column_name, self.last_column_name + 1):
             df_timediv = self.data_frame[
@@ -252,6 +263,12 @@ class DataFrame:
             df_timediv[self.data_name] = df_timediv[self.data_name].apply(
                 cust_suffixed_string_to_float
             )
+            
+            # if timediv == timediv_test_value():
+            #     print(f"SECOND IF ({self.short_name})")
+            #     print(df_timediv[df_timediv["country"].str.contains(target_test_value(), case=False, na=False)])
+            
+            
             return df_timediv
         
         return None
@@ -757,7 +774,34 @@ class Day02Ex03:
                 self.common_column,
                 div
             )
+            
+            if div == timediv_test_value():
+                print(f"=== precompute_data in {div} ; after the TimeDiv object build===")
+                for key, value in timediv.df_dict.items():
+                    if value is not None:
+                        entry_data = value[value[self.common_column].str.contains(target_test_value(), case=False, na=False)]
+                        if not entry_data.empty:
+                            print(f"In {key}:\n{entry_data}\n")
+                        else:
+                            print(f"In {key}: '{target_test_value()}' is not here.\n")
+                    else:
+                        print(f"In {key}: DataFrame is None.\n")
+            
             timediv.merge()
+            
+            if div == timediv_test_value():
+                print(f"=== precompute_data in {div} ; after the TimeDiv merge method===")
+                for key, value in timediv.df_dict.items():
+                    if value is not None:
+                        entry_data = value[value[self.common_column].str.contains(target_test_value(), case=False, na=False)]
+                        if not entry_data.empty:
+                            print(f"In {key}:\n{entry_data}\n")
+                        else:
+                            print(f"In {key}: '{target_test_value()}' is not here.\n")
+                    else:
+                        print(f"In {key}: DataFrame is None.\n")
+                        
+            
             timediv.linear_regressions()
                 
             self.precomputed_data[div] = timediv
@@ -1276,6 +1320,7 @@ class Day02Ex03:
                 "method has beed called before."
             )
 
+    @debug_decorator
     def check_entry_dataframe(
         self,
         entry: str
@@ -1295,12 +1340,15 @@ class Day02Ex03:
                 else:
                     print(f"In {key} ({df.short_name}): Column '{self.common_column}' is not there.")
                 
-    def check_entry_date_precomputed_data(
+    def check_entry_date_timediv_object(
         self,
+        which: str,
         entry: str,
         timediv_value: int = timediv_test_value()
     ) -> None:
         """DOCSTRING"""
+        
+        print("=== START check_entry_date_timediv_object START===")
         
         if timediv_value not in self.precomputed_data:
             print(f"Timediv value {timediv_value} does not exist in precomputed_data.")
@@ -1310,6 +1358,8 @@ class Day02Ex03:
         
         print(f"\n=== Check for '{entry}' in the TimeDiv object for year {timediv_df.div} ===")
         
+        
+        # if which == "df_dict":
         for key, value in timediv_df.df_dict.items():
             if value is not None:
                 entry_data = value[value[self.common_column].str.contains(entry, case=False, na=False)]
@@ -1319,7 +1369,17 @@ class Day02Ex03:
                     print(f"In {key}: '{entry}' is not here.\n")
             else:
                 print(f"In {key}: DataFrame is None.\n")
+        
+        # elif which == "merged_data":
+        #     # entry_data = value[value[self.common_column].str.contains(entry, case=False, na=False)]
+        #     entry_data = timediv_df.merged_data
+        #     target = entry_data[entry_data[self.common_column].str.contains(entry, case=False, na=False)]
+        #     if not target.empty:
+        #         print(f"In {timediv_value}:\n{target}\n")
+        #     else:
+        #         print(f"In {timediv_value}: '{target}' is not here.\n")
 
+        print("=== END check_entry_date_timediv_object END===")
         
 
             
@@ -1373,15 +1433,15 @@ def main() -> None:
 
     
         exo03.precompute_data()
-        # exo03.check_entry_date_precomputed_data("Norway")
+        # exo03.check_entry_date_timediv_object("df_dict", "Norway")
         
-        exo03.build_mpl_window()
+        # exo03.build_mpl_window()
         
-        exo03.update()
+        # exo03.update()
         
-        exo03.add_curve_interactivity()
+        # exo03.add_curve_interactivity()
         
-        exo03.pltshow()
+        # exo03.pltshow()
         
     # except ValueError as error:
     #     print(f"{type(error).__name__}: {error}")
