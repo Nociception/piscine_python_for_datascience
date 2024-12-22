@@ -329,6 +329,18 @@ class TimeDiv:
         )
         for key in ['data_x', 'data_y', 'data_point_size']:
             self.df_dict[key] = self.df_dict[key].loc[mask]
+        
+        if self.div == timediv_test_value():
+            print(f"=== merge method for timediv in {self.div}: mask applied to each df ; before the pd.merge")
+            for key, value in self.df_dict.items():
+                if value is not None:
+                    entry_data = value[value[self.common_column].str.contains(target_test_value(), case=False, na=False)]
+                    if not entry_data.empty:
+                        print(f"In {key}:\n{entry_data}\n")
+                    else:
+                        print(f"In {key}: '{target_test_value()}' is not here.\n")
+                else:
+                    print(f"In {key}: DataFrame is None.\n")
 
         self.merged_data = self.df_dict['data_x']
         for key in ['data_y', 'data_point_size', 'extra_data_x', 'extra_data_y']:
