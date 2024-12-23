@@ -1244,9 +1244,7 @@ class Day02Ex03:
         if self.running_mode and not self.first_running:
             return
         
-        if self.first_running:
-            self.first_running = False
-        
+        self.first_running = False
         self.running_mode = True
         self.anim = FuncAnimation(
             self.fig,
@@ -1481,7 +1479,7 @@ def main() -> None:
         
         exo03.add_curve_interactivity()
         
-        exo03.set_autoplay_at_start(False)
+        exo03.set_autoplay_at_start(True)
         
         exo03.pltshow()
         
