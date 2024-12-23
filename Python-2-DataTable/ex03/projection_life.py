@@ -135,7 +135,7 @@ def main() -> None:
         plt.scatter(
             x=merged_data['gdp'],
             y=merged_data['life_expectancy'],
-            label="Countries (population-weighted)"
+            label="Countries"
         )
         plt.xscale('log')
         plt.title(f"Life Expectancy vs GDP per country in {YEAR}")

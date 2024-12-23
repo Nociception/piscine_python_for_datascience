@@ -10,26 +10,21 @@ navigate back with the keyboard short cut: ctrl alt -
 - global code blocks folding (available on VSCode):
 ctrl+K then ctrl+[indent level ; I suggest 2 for this file]
 
-Debug adjusting:
-Enable or disable debugging; two ways:
-- privatly in each funciton/method,
-by switching on 0 or 1 the second debug function parameter
-- generally in the debug function,
+Enable or disable debugging:
+in the debug function,
 by switching on 0 or 1 the second condition in the if
 (if debug and 1:)
 
 Still to do:
-- play/pause button : on going
 - docstrings
 - readme
 - responsive
 - # matplotlib.use('TkA0') when to use it
 - update show classes methods
-- fluid transition between two years
 
 Upgrade projects :
 - world events
-
+- fluid transition between two years
 """
 
 from functools import wraps
