@@ -143,9 +143,8 @@ def get_data_name(file_name: str) -> str:
 
 
 def put_kmb_suffix(val: float) -> str:
-    """
-    Formats a large number with 'k', 'M', or 'B' suffixes.
-    """
+    """DOCSTRING"""
+
     for threshold, suffix in [
         (1e9, 'B'), (1e6, 'M'), (1e3, 'k')
     ]:
@@ -370,8 +369,6 @@ class TimeDiv:
 
         self.merged_data.reset_index(drop=True, inplace=True)
 
-
-
     def harmonize_for_regression(self) -> tuple[np.ndarray, np.ndarray]:
         """DOCSTRING"""
 
@@ -481,8 +478,6 @@ class Day02Ex03:
         self.slider_title_text: str | None = None
         
         self.first_running = False
-        
-        
         
     def show(self):
         """DOCSTRING"""
@@ -655,7 +650,6 @@ class Day02Ex03:
         """DOCSTRING"""
         
         self.first_running = autoplay_at_start
-
 
     def clean_data_x(self) -> None:
         """DOCSTRING"""
@@ -1215,10 +1209,10 @@ class Day02Ex03:
             self.timediv_range.stop - 1,
             valinit=self.init_value,
             valstep=1,
-            color="blue"
+            color="olive"
         )
         self.slider_title_text = ax_slider.text(
-            -0.07, 0.3,
+            0.5, 0.3,
             f"{self.timediv_type.title()}: {int(self.slider.val)}",
             transform=ax_slider.transAxes,
             fontsize=10,
@@ -1235,14 +1229,12 @@ class Day02Ex03:
         self.pause_button = Button(self.pause_ax, r'$\mathbf{| |}$')
         self.pause_button.on_clicked(self.stop_animation)
         
-    # @debug_decorator
     def start_animation(
         self,
         event=None
     ) -> None:
         """DOCSTRING"""
 
-        # print(f"At the beginning of the function : {self.running_mode}")
         if self.running_mode and not self.first_running:
             return
         
@@ -1256,7 +1248,6 @@ class Day02Ex03:
             interval=100,
         )
         plt.draw()
-        # print(f"At the end of the function : {self.running_mode}")
 
     def stop_animation(
         self,
@@ -1276,9 +1267,6 @@ class Day02Ex03:
 
         self.slider.set_val(frame)
         self.current_frame = frame
-
-
-
 
     def add_curve_interactivity(
         self,
@@ -1479,15 +1467,11 @@ def main() -> None:
         exo03.add_common_column('country')
 
         exo03.clean_data_frames()
-    
         exo03.precompute_data()
         
         exo03.build_mpl_window()
-        
         exo03.update()
-        
         exo03.add_curve_interactivity()
-        
         exo03.set_autoplay_at_start(False)
         
         exo03.pltshow()
