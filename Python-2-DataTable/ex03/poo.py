@@ -855,7 +855,7 @@ class Day02Ex03:
             fig_width, fig_height = self.fig.get_size_inches()
             scale = min(fig_width / fig_w, fig_height /fig_h)
             self.fig.subplots_adjust(
-                top=0.97,
+                top=0.96,
                 bottom=0.1,
                 left=0.05,
                 right=0.99,
@@ -867,7 +867,7 @@ class Day02Ex03:
         self.fig.canvas.mpl_connect('resize_event', on_resize)
         
         self.fig.subplots_adjust(
-            top=0.97,
+            top=0.96,
             bottom=0.1,
             left=0.05,
             right=0.99,
@@ -885,7 +885,7 @@ class Day02Ex03:
         vmin: float = 0
         vmax: float = 100
         orientation: str = "vertical"
-        label_position: str = "left"
+        label_position: str = "right"
         ticks_position: str = "left"
         pad: float = 0.05
         fraction: float = 0.02
@@ -1347,9 +1347,9 @@ class Day02Ex03:
             label=f"{label} correlation",
             color=color
         )
-        ax.set_xlabel(self.timediv_type, labelpad=0)
+        ax.set_xlabel(self.timediv_type, labelpad=-27)
         ax.set_xlim(self.timediv_range.start, self.timediv_range.stop)
-        ax.set_ylabel("Correlation Coefficient")
+        ax.set_ylabel("Correlation Coefficient", labelpad=-35, loc='top')
         ax.set_ylim(0, 1)
         ax.text(
             0.5,
@@ -1359,10 +1359,14 @@ class Day02Ex03:
             fontsize=30,
             color=color,
             alpha=0.08,
-            ha="center", va="center",
+            ha="center",
+            va="center",
             weight="bold",
         )
         ax.legend()
+        
+        if label == "log":
+            ax.set_title(f"Correlation coefficient VS {self.timediv_type}")
 
     def build_mpl_window(
         self,
