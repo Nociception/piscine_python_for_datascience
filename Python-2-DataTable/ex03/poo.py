@@ -483,6 +483,9 @@ class Day02Ex03:
         self.play_button: Button | None = None
         self.pause_button: Button | None = None
         
+        self.slider_title_text: str | None = None
+        
+        
         
     def show(self):
         """DOCSTRING"""
@@ -1180,6 +1183,13 @@ class Day02Ex03:
 
         plt.draw()
 
+    def update_slider_title(self, val):
+        """DOCSTRING"""
+        self.slider_title_text.set_text(
+            f"{self.timediv_type.title()}: {int(val)}"
+        )
+        self.fig.canvas.draw_idle()
+
     def build_slider(
         self,
         update_callback_function: Callable
@@ -1189,21 +1199,29 @@ class Day02Ex03:
         ax_slider = self.fig.add_axes([0.05, 0.01, 0.6, 0.03])
         self.slider = Slider(
             ax_slider,
-            self.timediv_type.title(),
+            "",
             self.timediv_range.start,
             self.timediv_range.stop - 1,
             valinit=self.init_value,
             valstep=1,
             color="blue"
         )
+        self.slider_title_text = ax_slider.text(
+            -0.07, 0.3,
+            f"{self.timediv_type.title()}: {int(self.slider.val)}",
+            transform=ax_slider.transAxes,
+            fontsize=10,
+            ha='left'
+        )
+        self.slider.on_changed(self.update_slider_title)
         self.slider.on_changed(update_callback_function)
         
         self.play_ax = self.fig.add_axes([0.66, 0.01, 0.03, 0.03])
-        self.play_button = plt.Button(self.play_ax, '\u25B6')
+        self.play_button = Button(self.play_ax, '\u25B6')
         self.play_button.on_clicked(self.start_animation)
         
         self.pause_ax = self.fig.add_axes([0.695, 0.01, 0.03, 0.03])
-        self.pause_button = plt.Button(self.pause_ax, r'$\mathbf{| |}$')
+        self.pause_button = Button(self.pause_ax, r'$\mathbf{| |}$')
         self.pause_button.on_clicked(self.stop_animation)
         
     def start_animation(self, event=None):
@@ -1438,7 +1456,6 @@ def main() -> None:
         exo03.add_common_column('country')
 
         exo03.clean_data_frames()
-        # exo03.check_entry_dataframe("Norway")
     
         exo03.precompute_data()
         
