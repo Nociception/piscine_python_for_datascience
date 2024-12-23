@@ -485,7 +485,7 @@ class Day02Ex03:
         
         self.slider_title_text: str | None = None
         
-        self.first_running = True
+        self.first_running = False
         
         
         
@@ -1479,7 +1479,7 @@ def main() -> None:
         
         exo03.add_curve_interactivity()
         
-        exo03.set_autoplay_at_start(True)
+        exo03.set_autoplay_at_start(False)
         
         exo03.pltshow()
         
