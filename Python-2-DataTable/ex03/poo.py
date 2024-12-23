@@ -1195,8 +1195,12 @@ class Day02Ex03:
 
         plt.draw()
 
-    def update_slider_title(self, val):
+    def update_slider_title(
+        self,
+        val:int
+    ) -> None:
         """DOCSTRING"""
+
         self.slider_title_text.set_text(
             f"{self.timediv_type.title()}: {int(val)}"
         )
@@ -1237,7 +1241,10 @@ class Day02Ex03:
         self.pause_button.on_clicked(self.stop_animation)
         
     # @debug_decorator
-    def start_animation(self, event=None):
+    def start_animation(
+        self,
+        event=None
+    ) -> None:
         """DOCSTRING"""
 
         # print(f"At the beginning of the function : {self.running_mode}")
@@ -1256,7 +1263,10 @@ class Day02Ex03:
         plt.draw()
         # print(f"At the end of the function : {self.running_mode}")
 
-    def stop_animation(self, event=None):
+    def stop_animation(
+        self,
+        event=None
+    ) -> None:
         """DOCSTRING"""
 
         if not self.running_mode:
