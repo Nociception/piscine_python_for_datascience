@@ -476,7 +476,7 @@ class Day02Ex03:
         self.current_frame: int | None = None
         
     
-        self.running_mode: bool = True
+        self.running_mode: bool = False
         self.anim: FuncAnimation | None = None
         self.play_ax: Axes | None = None
         self.pause_ax: Axes | None = None
@@ -484,6 +484,8 @@ class Day02Ex03:
         self.pause_button: Button | None = None
         
         self.slider_title_text: str | None = None
+        
+        self.first_running = True
         
         
         
@@ -649,6 +651,16 @@ class Day02Ex03:
         """DOCSTRING"""
     
         self.common_column = common_column
+
+    @typeguard.typechecked
+    def set_autoplay_at_start(
+        self,
+        autoplay_at_start:bool
+    ) -> None :
+        """DOCSTRING"""
+        
+        self.first_running = autoplay_at_start
+
 
     def clean_data_x(self) -> None:
         """DOCSTRING"""
@@ -1224,11 +1236,17 @@ class Day02Ex03:
         self.pause_button = Button(self.pause_ax, r'$\mathbf{| |}$')
         self.pause_button.on_clicked(self.stop_animation)
         
+    # @debug_decorator
     def start_animation(self, event=None):
         """DOCSTRING"""
 
-        if self.running_mode:
+        # print(f"At the beginning of the function : {self.running_mode}")
+        if self.running_mode and not self.first_running:
             return
+        
+        if self.first_running:
+            self.first_running = False
+        
         self.running_mode = True
         self.anim = FuncAnimation(
             self.fig,
@@ -1238,6 +1256,7 @@ class Day02Ex03:
             interval=100,
         )
         plt.draw()
+        # print(f"At the end of the function : {self.running_mode}")
 
     def stop_animation(self, event=None):
         """DOCSTRING"""
@@ -1254,10 +1273,6 @@ class Day02Ex03:
 
         self.slider.set_val(frame)
         self.current_frame = frame
-
-
-
-
 
 
 
@@ -1380,8 +1395,9 @@ class Day02Ex03:
         """DOCSTRING"""
 
         if self.fig is not None:
+            if self.first_running:
+                self.start_animation()
             plt.show()
-            self.start_animation()
         else:
             raise RuntimeError(
                 "Figure not initialized.\n"
@@ -1464,6 +1480,8 @@ def main() -> None:
         exo03.update()
         
         exo03.add_curve_interactivity()
+        
+        exo03.set_autoplay_at_start(False)
         
         exo03.pltshow()
         
