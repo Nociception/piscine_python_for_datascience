@@ -1273,8 +1273,8 @@ class Day02Ex03:
             return
         self.running_mode = False
         if self.anim is not None:
-            self.anim.event_source.stop()
-            self.anim = None
+            self.anim.pause()
+            # self.anim = None
 
     def update_slider(self, frame):
         """DOCSTRING"""
