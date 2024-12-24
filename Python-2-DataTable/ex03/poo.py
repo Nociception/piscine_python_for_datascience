@@ -19,7 +19,6 @@ Still to do:
 - docstrings
 - readme
 - responsive
-- # matplotlib.use('TkA0') when to use it
 - update show classes methods
 
 Upgrade projects :
@@ -1240,7 +1239,7 @@ class Day02Ex03:
     ) -> None:
         """DOCSTRING"""
 
-        ax_slider = self.fig.add_axes([0.05, 0.01, 0.6, 0.03])
+        ax_slider = self.fig.add_axes([0.05, 0.01, 0.5, 0.03])
         self.slider = Slider(
             ax_slider,
             "",
@@ -1260,11 +1259,11 @@ class Day02Ex03:
         self.slider.on_changed(self.update_slider_title)
         self.slider.on_changed(update_callback_function)
         
-        self.play_ax = self.fig.add_axes([0.66, 0.01, 0.03, 0.03])
+        self.play_ax = self.fig.add_axes([0.56, 0.01, 0.03, 0.03])
         self.play_button = Button(self.play_ax, '\u25B6')
         self.play_button.on_clicked(self.start_animation)
         
-        self.pause_ax = self.fig.add_axes([0.695, 0.01, 0.03, 0.03])
+        self.pause_ax = self.fig.add_axes([0.6, 0.01, 0.03, 0.03])
         self.pause_button = Button(self.pause_ax, r'$\mathbf{| |}$')
         self.pause_button.on_clicked(self.stop_animation)
         
