@@ -1182,6 +1182,45 @@ class Day02Ex03:
             if self.cbar.ax.get_visible():
                 self.cbar.ax.set_visible(False)
 
+
+        for corr_name, corr_ax in self.axes.items():
+            if "corr" in corr_name:
+                corr_x = self.timediv_range
+                if "log" in corr_name:
+                    corr_y = self.corr_log
+                else:
+                    corr_y = self.corr_lin
+
+                index = slider_val - self.timediv_range.start
+                selected_x = slider_val
+                selected_y = corr_y[index]
+
+                if hasattr(self, f"{corr_name}_vline"):
+                    getattr(self, f"{corr_name}_vline").remove()
+                if hasattr(self, f"{corr_name}_hline"):
+                    getattr(self, f"{corr_name}_hline").remove()
+
+                setattr(
+                    self,
+                    f"{corr_name}_vline",
+                    corr_ax.axvline(
+                        x=selected_x,
+                        color="orange",
+                        linestyle="--",
+                        linewidth=0.8
+                    )
+                )
+                setattr(
+                    self,
+                    f"{corr_name}_hline",
+                    corr_ax.axhline(
+                        y=selected_y,
+                        color="orange",
+                        linestyle="--",
+                        linewidth=0.8
+                    )
+                )
+
         plt.draw()
 
     def update_slider_title(
