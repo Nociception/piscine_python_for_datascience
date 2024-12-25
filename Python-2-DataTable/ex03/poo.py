@@ -1144,6 +1144,61 @@ class Day02Ex03:
             data
         )
 
+    def update_color_point_from_extra_data(
+        self,
+        timediv: TimeDiv
+    ) -> None:
+        """DOCSTRING"""
+
+        extra_data_x_name = self.data_frames["extra_data_x"].data_name
+        if extra_data_x_name in timediv.merged_data.columns:
+            if not self.cbar.ax.get_visible():
+                self.cbar.ax.set_visible(True)
+        else:
+            if self.cbar.ax.get_visible():
+                self.cbar.ax.set_visible(False)
+
+    def update_corr_graphs(self) -> None:
+        """DOCSTRING"""
+
+        for corr_name, corr_ax in self.axes.items():
+            if "corr" in corr_name:
+                corr_x = self.timediv_range
+                if "log" in corr_name:
+                    corr_y = self.corr_log
+                else:
+                    corr_y = self.corr_lin
+
+                index = self.slider.val - self.timediv_range.start
+                selected_x = self.slider.val
+                selected_y = corr_y[index]
+
+                if hasattr(self, f"{corr_name}_vline"):
+                    getattr(self, f"{corr_name}_vline").remove()
+                if hasattr(self, f"{corr_name}_hline"):
+                    getattr(self, f"{corr_name}_hline").remove()
+
+                setattr(
+                    self,
+                    f"{corr_name}_vline",
+                    corr_ax.axvline(
+                        x=selected_x,
+                        color="orange",
+                        linestyle="--",
+                        linewidth=0.8
+                    )
+                )
+                setattr(
+                    self,
+                    f"{corr_name}_hline",
+                    corr_ax.axhline(
+                        y=selected_y,
+                        color="orange",
+                        linestyle="--",
+                        linewidth=0.8
+                    )
+                )
+
     def update(
         self,
         slider_val=None
@@ -1173,52 +1228,9 @@ class Day02Ex03:
             color="green"
         )
 
-        extra_data_x_name = self.data_frames["extra_data_x"].data_name
-        if extra_data_x_name in timediv.merged_data.columns:
-            if not self.cbar.ax.get_visible():
-                self.cbar.ax.set_visible(True)
-        else:
-            if self.cbar.ax.get_visible():
-                self.cbar.ax.set_visible(False)
+        self.update_color_point_from_extra_data(timediv)
 
-
-        for corr_name, corr_ax in self.axes.items():
-            if "corr" in corr_name:
-                corr_x = self.timediv_range
-                if "log" in corr_name:
-                    corr_y = self.corr_log
-                else:
-                    corr_y = self.corr_lin
-
-                index = slider_val - self.timediv_range.start
-                selected_x = slider_val
-                selected_y = corr_y[index]
-
-                if hasattr(self, f"{corr_name}_vline"):
-                    getattr(self, f"{corr_name}_vline").remove()
-                if hasattr(self, f"{corr_name}_hline"):
-                    getattr(self, f"{corr_name}_hline").remove()
-
-                setattr(
-                    self,
-                    f"{corr_name}_vline",
-                    corr_ax.axvline(
-                        x=selected_x,
-                        color="orange",
-                        linestyle="--",
-                        linewidth=0.8
-                    )
-                )
-                setattr(
-                    self,
-                    f"{corr_name}_hline",
-                    corr_ax.axhline(
-                        y=selected_y,
-                        color="orange",
-                        linestyle="--",
-                        linewidth=0.8
-                    )
-                )
+        self.update_corr_graphs()
 
         plt.draw()
 
