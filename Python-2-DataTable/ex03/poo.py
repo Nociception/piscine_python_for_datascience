@@ -5,10 +5,11 @@ to fold/unfold functions/methods/classes/if/triple quoted docstrings.
 VSCode allows this feature with the little arrow between the line
 number and the beginning of the foldable line.
 Try with this triple quoted string!
-- After a ctr+clic on a function/method,
-navigate back with the keyboard short cut: ctrl alt -
-- global code blocks folding (available on VSCode):
+Global code blocks folding (available on VSCode):
 ctrl+K then ctrl+[indent level ; I suggest 2 for this file]
+
+After a ctr+clic on a function/method,
+navigate back with the keyboard short cut: ctrl alt -
 
 Enable or disable debugging:
 in the debug function,
@@ -18,7 +19,6 @@ by switching on 0 or 1 the second condition in the if
 Still to do:
 - docstrings
 - readme
-- responsive
 - update show classes methods
 
 Upgrade projects :
@@ -254,7 +254,6 @@ class DataFrame:
         self.first_column_name = int(self.data_frame.columns[1])
         self.last_column_name = int(self.data_frame.columns[-1])
     
-    # @debug_decorator
     def subset_timediv_extraction(
         self,
         timediv: int,
