@@ -52,33 +52,52 @@ if matplotlib.get_backend() != 'TkAgg':
     matplotlib.use('TkAgg')
 
 
-def timediv_test_value():
-    """DOCSTRING"""
-    
-    return 1800
-
-
-def target_test_value():
-    """DOCSTRING"""
-
-    return "Norway"
-
 
 def debug(
     function_name: str,
     debug:int,
     step = "START"
 ) -> None:
-    """DOCSTRING"""
+    """
+    Prints debug information for a function,
+    including its name and the current step (if written).
+    
+    Usage:
+        Copy the line below the if 0 into any function
+        for debugging.
+        No need to write on your own the function name.
+        You also can specify a STEP about the function/method
+        instructions.
 
-    # debug(inspect.currentframe().f_code.co_name, 0)
+    Parameters:
+        function_name (str): The name of the function to debug.
+        debug (int): The debug level. If non-zero, the debug information is printed.
+        step (str): The current step in the function's execution (e.g., "START" or "END").
+    """
+
+    if 0:  # Do not switch to 1.
+        debug(inspect.currentframe().f_code.co_name, 1) #  copy this line
     
     if debug and 1:
         print(f"DEBUG: {step} current function -> {function_name}")
 
 
 def debug_decorator(func: Callable) -> Callable:
-    """DOCSTRING"""
+    """
+    A decorator to print debug information
+    before and after a function's execution.
+
+    Parameters:
+        func (Callable): The function to wrap with debug logging.
+        
+    Usage:
+        Copy that:
+            @debug_decorator
+        above a function/method definition.
+
+    Returns:
+        Callable: The wrapped function with debug logging enabled.
+    """
     
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -93,8 +112,37 @@ def debug_decorator(func: Callable) -> Callable:
     return wrapper
 
 
+def timediv_test_value():
+    """
+    As we were told not to use any global variable,
+    here is this "function" useful for debug.
+    """
+    
+    return 1800
+
+
+def target_test_value():
+    """
+    As we were told not to use any global variable,
+    here is this "function" useful for debug.
+    """
+
+    return "Norway"
+
+
 def cust_suffixed_string_to_float(value) -> float:
-    """DOCSTRING"""
+    """
+    Converts a string with custom suffixes (k, M, B) to a float.
+
+    Parameters:
+        value (str or numeric):
+        The input value to convert.
+        Strings can have suffixes 'k', 'M', or 'B'.
+
+    Returns:
+        float: The numeric value after conversion,
+        or NaN if conversion fails.
+    """
 
     factors = {'k': 1e3, 'M': 1e6, 'B': 1e9}
     try:
@@ -110,7 +158,19 @@ def dict_printer(
     values_type: str,
     head_value: int=5
     ) -> None:
-    """DOCSTRING"""
+    """
+    Prints the contents of a dictionary based on the type of its values.
+
+    Parameters:
+        d (dict):
+            The dictionary to print.
+        values_type (str):
+            The expected type of the dictionary's values
+            ("pd.DataFrame", "cust class", or others).
+        head_value (int):
+            For DataFrame values, the number of rows to display.
+            Must be greater than 0.
+    """
     
     if d is None:
         print("The dictionnary does not exist.")
@@ -135,14 +195,33 @@ def dict_printer(
 
 
 def get_data_name(file_name: str) -> str:
-    """DOCSTRING"""
+    """
+    Extracts the base name from a file path,
+    removing the extension and replacing underscores with spaces.
+
+    Parameters:
+        file_name (str): The full file path or name.
+
+    Returns:
+        str: The extracted base name with spaces instead of underscores.
+    """
 
     extension = file_name[file_name.index('.'):]
     return file_name[:file_name.index(extension)].replace('_', ' ')
 
 
 def put_kmb_suffix(val: float) -> str:
-    """DOCSTRING"""
+    """
+    Converts a numeric value to a string with
+    'k', 'M', or 'B' suffix for thousands, millions, or billions.
+
+    Parameters:
+        val (float): The numeric value to convert.
+
+    Returns:
+        str: The formatted string with an appropriate suffix,
+        or the original number as a string if below 1,000.
+    """
 
     for threshold, suffix in [
         (1e9, 'B'), (1e6, 'M'), (1e3, 'k')
@@ -156,26 +235,57 @@ def var_print_str(
     var_name: str,
     var_value
     ) -> str:
-    """DOCSTRING"""
+    """
+    Formats a variable's name and value as a string, including its type.
+
+    Parameters:
+        var_name (str): The name of the variable.
+        var_value (Any): The value of the variable.
+
+    Returns:
+        str:
+            A string representation of
+            the variable's name, value, and type.
+    """
 
     return f"{var_name}:{var_value} ({type(var_value)})\n"
 
 
 class LinReg:
-    """DOCSTRING"""
+    """
+    Represents the results of a linear regression analysis.
+
+    Attributes:
+        corr (float):
+            The correlation coefficient of the regression.
+        predicted (np.ndarray):
+            The predicted values resulting from the regression.
+        pvalue (float):
+            The p-value indicating the significance of the correlation.
+    """
 
     def __init__(self,
                  predicted: np.ndarray,
                  corr: float,
                  pvalue: float):
-        """DOCSTRING"""
+        """
+        Initializes a LinReg object with regression results.
+
+        Parameters:
+            corr (float):
+                The correlation coefficient of the regression.
+            predicted (np.ndarray):
+                The predicted values from the regression model.
+            pvalue (float):
+                The p-value indicating the significance of the regression.
+        """
 
         self.predicted: np.ndarray = predicted
         self.corr:float = corr
         self.pvalue: float = pvalue
 
     def show(self) -> None:
-        """DOCSTRING"""
+        """The class show method for a LinReg class object"""
 
         print("\n=== SHOW LinReg object ===")
         print(f"self.predicted:\n{self.predicted}")
@@ -184,7 +294,28 @@ class LinReg:
         
 
 class DataFrame:
-    """DOCSTRING"""
+    """
+    Represents a data structure to handle and process
+    CSV or other tabular data.
+
+    Attributes:
+        data_cleaned (bool):
+            Indicates if the data has been cleaned.
+        data_frame (pd.DataFrame):
+            The loaded pandas DataFrame containing the data.
+        data_name (str):
+            The name of the data derived from the file path.
+        data_type (str):
+            The type of data (e.g., 'numerical', 'categorical').
+        file_path (str):
+            The path to the file containing the data.
+        first_column_name (int | float | None):
+            The name of the first data column (used for time ranges).
+        last_column_name (int | float | None):
+            The name of the last data column (used for time ranges).
+        short_name (str):
+            A shorter, descriptive name for the data.
+    """
 
     def __init__(
         self,
@@ -192,7 +323,21 @@ class DataFrame:
         file_path: str,
         short_name: str,
     ):
-        """DOCSTRING"""
+        """
+        Initializes a DataFrame object
+        and loads data from the provided file.
+
+        Parameters:
+            data_type (str):
+                The type of data (e.g., 'numerical', 'categorical').
+            file_path (str):
+                The path to the file containing the data.
+            short_name (str):
+                A shorter, descriptive name for the data.
+
+        Raises:
+            ValueError: If any parameter is not a string.
+        """
 
         if all(
             isinstance(arg, str) for arg in (
@@ -217,9 +362,8 @@ class DataFrame:
         self.data_cleaned: bool = False
 
     def show(self) -> None:
-        """DOCSTRING"""
+        """The class show method for a DataFrame class object"""
 
-    
         print("\n===== Show Data_Frame object =====")
         print(f"data_type: {self.data_type}")
         print(f"file_path: {self.file_path}")
@@ -232,11 +376,19 @@ class DataFrame:
         print("===== END Show Data_Frame object END =====\n")
 
     class DataFrameException(Exception):
-        """DOCSTRING"""
+        """
+        A base exception class for errors related to the DataFrame class.
+        """
         pass
     
     class DataFrameNotCleanedException(DataFrameException):
-        """DOCSTRING"""
+        """
+        Exception raised when an operation requiring
+        a cleaned DataFrame is attempted.
+
+        Attributes:
+            msg (str): A descriptive message about the error.
+        """
 
         def __init__(
             self,
@@ -251,7 +403,10 @@ class DataFrame:
 
 
     def get_first_last_column_names(self) -> None:
-        """DOCSTRING"""
+        """
+        Extracts and sets the first and last
+        column names as integer or float values.
+        """
         
         self.first_column_name = int(self.data_frame.columns[1])
         self.last_column_name = int(self.data_frame.columns[-1])
@@ -261,11 +416,20 @@ class DataFrame:
         timediv: int,
         common_column: str
     ) -> pd.DataFrame | None:
-        """DOCSTRING"""
+        """
+        Extracts a subset of the DataFrame for a specific time division.
 
-        # if timediv == timediv_test_value():
-        #     print(f"FIST IF ({self.short_name})")
-        #     print(self.data_frame[self.data_frame["country"].str.contains(target_test_value(), case=False, na=False)])
+        Parameters:
+            timediv (int):
+                The time division (year or other) to extract.
+            common_column (str):
+                The name of the common column (e.g., 'country').
+
+        Returns:
+            pd.DataFrame | None:
+                A subset DataFrame with the time division and common column,
+                or None if the time division is not within the valid range.
+        """
 
         if timediv in range(self.first_column_name, self.last_column_name + 1):
             df_timediv = self.data_frame[
@@ -275,18 +439,33 @@ class DataFrame:
                 cust_suffixed_string_to_float
             )
             
-            # if timediv == timediv_test_value():
-            #     print(f"SECOND IF ({self.short_name})")
-            #     print(df_timediv[df_timediv["country"].str.contains(target_test_value(), case=False, na=False)])
-            
-            
             return df_timediv
         
         return None
 
 
 class TimeDiv:
-    """DOCSTRING"""
+    """
+    Represents a specific time division for
+    data processing, merging, and analysis.
+
+    Attributes:
+        common_column (str):
+            The column common across all DataFrames,
+            used for merging (e.g., 'country').
+        df_dict (dict[str, pd.DataFrame]):
+            Dictionary containing the individual DataFrames
+            for data_x, data_y, etc.
+        div (int):
+            The specific division of time
+            (e.g., a year) this instance represents.
+        lin_reg_lin (LinReg | None):
+            Linear regression results for the linear scale.
+        lin_reg_log (LinReg | None):
+            Linear regression results for the logarithmic scale.
+        merged_data (pd.DataFrame | None):
+            The merged DataFrame combining all relevant data.
+    """
 
     def __init__(
         self,
@@ -294,7 +473,20 @@ class TimeDiv:
         common_column: str,
         div: int
     ):
-        """DOCSTRING"""
+        """
+        Initializes a TimeDiv object.
+
+        Parameters:
+            timediv_list (list[pd.DataFrame]):
+                A list of DataFrames for data_x, data_y, data_point_size,
+                extra_data_x, and extra_data_y.
+            common_column (str):
+                The column common to all DataFrames,
+                used for merging (e.g., 'country').
+            div (int):
+                The specific division of time (e.g., a year)
+                this instance represents.
+        """
 
         self.df_dict: dict[str, pd.DataFrame] = {
             "data_x": timediv_list[0],
@@ -311,7 +503,8 @@ class TimeDiv:
         self.lin_reg_lin: LinReg | None = None
 
     def show(self) -> None:
-        """DOCSTRING"""
+        """The class show method for a TimeDiv class object"""
+
 
         print("\n=== TimeDiv Details ===")
         print(f"Time Division: {self.div}")
@@ -327,7 +520,50 @@ class TimeDiv:
 
 
     def merge(self) -> None:
-        """DOCSTRING"""
+        """
+        Crucial step for this program, then long detailed docstring:
+        
+        Merges the DataFrames in `df_dict` into
+        a single unified DataFrame (`merged_data`),
+        retaining only rows with complete data across
+        all required DataFrames.
+
+        Steps:
+        1. **Validation**:
+            Ensures that essential DataFrames
+            (`data_x`, `data_y`, and `data_point_size`) 
+            exist in `df_dict`.
+            Raises a `ValueError` if any of them is missing.
+
+        2. **Index Alignment**:
+            Temporarily sets the `common_column` as the index
+            for key DataFrames to align data rows consistently.
+
+        3. **Filtering**:
+            Creates a mask to identify rows where all
+            essential DataFrames contain valid (non-null) data,
+            and applies this mask to filter out incomplete rows.
+
+        4. **Data Merging**:
+            Iteratively merges `data_x` with
+            other DataFrames (`data_y`, `data_point_size`, 
+            `extra_data_x`, `extra_data_y`) based on the `common_column`,
+            using an inner join to retain only 
+            rows present in all included DataFrames.
+
+        5. **Final Output**:
+            Resets the index of the merged DataFrame for
+            a clean result, ready for analysis.
+
+        The resulting `merged_data` contains only rows with consistent,
+        valid entries across the relevant DataFrames,
+        ensuring high-quality data for further processing.
+
+        Raises:
+            ValueError:
+                If any of the required DataFrames 
+                (`data_x`, `data_y`, `data_point_size`) is missing.
+        """
 
         for key in ['data_x', 'data_y', 'data_point_size']:
             if self.df_dict[key] is None:
@@ -345,18 +581,6 @@ class TimeDiv:
         for key in ['data_x', 'data_y', 'data_point_size']:
             self.df_dict[key] = self.df_dict[key].loc[mask.reindex(self.df_dict[key].index, fill_value=False)].reset_index()
 
-        # if self.div == timediv_test_value():
-        #     print(f"=== merge method for timediv in {self.div}: mask applied to each df ; before the pd.merge")
-        #     for key, value in self.df_dict.items():
-        #         if value is not None:
-        #             entry_data = value[value[self.common_column].str.contains(target_test_value(), case=False, na=False)]
-        #             if not entry_data.empty:
-        #                 print(f"In {key}:\n{entry_data}\n")
-        #             else:
-        #                 print(f"In {key}: '{target_test_value()}' is not here.\n")
-        #         else:
-        #             print(f"In {key}: DataFrame is None.\n")
-
         self.merged_data = self.df_dict['data_x']
         for key in ['data_y', 'data_point_size', 'extra_data_x', 'extra_data_y']:
             if self.df_dict[key] is not None:
@@ -370,7 +594,20 @@ class TimeDiv:
         self.merged_data.reset_index(drop=True, inplace=True)
 
     def harmonize_for_regression(self) -> tuple[np.ndarray]:
-        """DOCSTRING"""
+        """
+        Extracts and returns the x and y values
+        from `merged_data` as numpy arrays.
+
+        Returns:
+            tuple[np.ndarray]:
+                A tuple with x-axis (independent)
+                and y-axis (dependent) values.
+
+        Raises:
+            ValueError:
+                If `merged_data` is None,
+                meaning `merge` has not been called.
+        """
 
         if self.merged_data is None:
             raise ValueError(
@@ -386,7 +623,20 @@ class TimeDiv:
             self,
             log: bool
         ) -> LinReg:
-        """DOCSTRING"""
+        """
+        Performs linear regression on x and y data,
+        with an optional logarithmic transformation on x.
+
+        Args:
+            log (bool):
+                If True, applies a base-10 logarithmic
+                transformation to x-axis values.
+
+        Returns:
+            LinReg:
+                The regression result,
+                including predicted values, correlation, and p-value.
+        """
 
         data_x, data_y = self.harmonize_for_regression()
         
@@ -400,7 +650,12 @@ class TimeDiv:
         return LinReg(predicted, corr, pvalue)
 
     def linear_regressions(self) -> None:
-        """DOCSTRING"""
+        """
+        Computes and stores both logarithmic and
+        linear regressions for the data.
+
+        Saves the results in `lin_reg_log` and `lin_reg_lin`.
+        """
 
         self.lin_reg_log = self.calculate_linregr(log=True)
         self.lin_reg_lin = self.calculate_linregr(log=False)
@@ -1467,8 +1722,6 @@ class Day02Ex03:
         
         for key, df in self.data_frames.items():
             if df is not None:
-                # print(f"In {key} ({df.short_name}):\n{df.data_frame}")
-                
                 if self.common_column in df.data_frame.columns:
                     entry_data = df.data_frame[df.data_frame[self.common_column].str.contains(entry, case=False, na=False)]
                     if not entry_data.empty:
