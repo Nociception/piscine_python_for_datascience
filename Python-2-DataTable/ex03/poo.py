@@ -1335,19 +1335,23 @@ class Day02Ex03:
                         print(f"Warning: Failed to remove cursor on {name}: {e}")
 
                 for line in ax.get_lines():
-                    cursor = mplcursors.cursor(line, hover=True)
+                    
+                    # print(line)
+                    
+                    if "corr" in line.get_label():
+                        cursor = mplcursors.cursor(line, hover=True)
 
-                    @cursor.connect("add")
-                    def on_add(sel):
-                        x, y = sel.target
-                        sel.annotation.set(
-                            text=f"Year: {x:.0f}\nCorr: {y:.2f}",
-                            fontsize=10,
-                            fontweight="bold"
-                        )
-                        sel.annotation.get_bbox_patch().set(alpha=0.8, color="white")
+                        @cursor.connect("add")
+                        def on_add(sel):
+                            x, y = sel.target
+                            sel.annotation.set(
+                                text=f"Year: {x:.0f}\nCorr: {y:.2f}",
+                                fontsize=10,
+                                fontweight="bold"
+                            )
+                            sel.annotation.get_bbox_patch().set(alpha=0.8, color="white")
 
-                    self.correlation_cursor_container[name] = cursor
+                        self.correlation_cursor_container[name] = cursor
 
     def add_tracker(
         self,
@@ -1386,7 +1390,7 @@ class Day02Ex03:
         )
         ax.set_xlabel(self.timediv_type, labelpad=-27)
         ax.set_xlim(self.timediv_range.start, self.timediv_range.stop)
-        ax.set_ylabel("Correlation Coefficient", labelpad=-35, loc='top')
+        ax.set_ylabel("Corr. Coeff.", labelpad=-35, loc='top')
         ax.set_ylim(0, 1)
         ax.text(
             0.5,
@@ -1403,7 +1407,7 @@ class Day02Ex03:
         ax.legend()
         
         if label == "log":
-            ax.set_title(f"Correlation coefficient VS {self.timediv_type}")
+            ax.set_title(f"Corr. Coeff. VS {self.timediv_type}")
 
     def build_mpl_window(
         self,
