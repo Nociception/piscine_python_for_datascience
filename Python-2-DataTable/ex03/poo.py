@@ -166,11 +166,13 @@ class LinReg:
 
     def __init__(self,
                  predicted: np.ndarray,
-                 corr: float):
+                 corr: float,
+                 pvalue: float):
         """DOCSTRING"""
 
-        self.predicted = predicted
-        self.corr = corr
+        self.predicted: np.ndarray = predicted
+        self.corr:float = corr
+        self.pvalue: float = pvalue
 
     def show(self) -> None:
         """DOCSTRING"""
@@ -294,15 +296,15 @@ class TimeDiv:
     ):
         """DOCSTRING"""
 
-        self.df_dict = {
+        self.df_dict: dict[str, pd.DataFrame] = {
             "data_x": timediv_list[0],
             "data_y": timediv_list[1],
             "data_point_size": timediv_list[2],
             "extra_data_x": timediv_list[3],
             "extra_data_y": timediv_list[4]
         }
-        self.common_column = common_column
-        self.div = div
+        self.common_column: str = common_column
+        self.div: int = div
 
         self.merged_data: pd.DataFrame | None = None
         self.lin_reg_log: LinReg | None = None
@@ -390,11 +392,11 @@ class TimeDiv:
         if log:
             data_x = np.log10(data_x)
 
-        slope, intercept, corr, _, _ = linregress(data_x, data_y)
+        slope, intercept, corr, pvalue, _ = linregress(data_x, data_y)
         data_x_sorted = np.sort(data_x)
         predicted = slope * data_x_sorted + intercept
 
-        return LinReg(predicted, corr)
+        return LinReg(predicted, corr, pvalue)
 
     def linear_regressions(self) -> None:
         """DOCSTRING"""
@@ -475,7 +477,7 @@ class Day02Ex03:
         
         self.slider_title_text: str | None = None
         
-        self.first_running = False
+        self.first_running: bool = False
         
     def show(self):
         """DOCSTRING"""
