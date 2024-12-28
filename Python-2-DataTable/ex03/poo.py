@@ -369,7 +369,7 @@ class TimeDiv:
 
         self.merged_data.reset_index(drop=True, inplace=True)
 
-    def harmonize_for_regression(self) -> tuple[np.ndarray, np.ndarray]:
+    def harmonize_for_regression(self) -> tuple[np.ndarray]:
         """DOCSTRING"""
 
         if self.merged_data is None:
@@ -377,10 +377,10 @@ class TimeDiv:
                 "Merged data is not available. Did you call `merge()`?"
             )
 
-        data_x = self.merged_data.iloc[:, 1].to_numpy()
-        data_y = self.merged_data.iloc[:, 2].to_numpy()
-
-        return data_x, data_y
+        return (
+            self.merged_data.iloc[:, 1].to_numpy(),
+            self.merged_data.iloc[:, 2].to_numpy()
+        )
 
     def calculate_linregr(
             self,
@@ -389,6 +389,7 @@ class TimeDiv:
         """DOCSTRING"""
 
         data_x, data_y = self.harmonize_for_regression()
+        
         if log:
             data_x = np.log10(data_x)
 
@@ -478,6 +479,9 @@ class Day02Ex03:
         self.slider_title_text: str | None = None
         
         self.first_running: bool = False
+        
+        self.pvalue_log: list | np.ndarray = []
+        self.pvalue_lin: list | np.ndarray = []
         
     def show(self):
         """DOCSTRING"""
@@ -822,15 +826,21 @@ class Day02Ex03:
             timediv.linear_regressions()
                 
             self.precomputed_data[div] = timediv
+            
             self.corr_log.append(timediv.lin_reg_log.corr)
+            self.pvalue_log.append(timediv.lin_reg_log.pvalue)
             self.corr_lin.append(timediv.lin_reg_lin.corr)
+            self.pvalue_lin.append(timediv.lin_reg_lin.pvalue)
             
             # if div ==  timediv_test_value():
             #     print(f"==============={div}=================")
             #     timediv.show()
             
         self.corr_log = np.array(self.corr_log)
+        self.pvalue_log = np.array(self.pvalue_log)
+        
         self.corr_lin = np.array(self.corr_lin)
+        self.pvalue_lin = np.array(self.pvalue_lin)
 
     def build_fig_axes(self) -> None:
         """DOCSTRING"""
@@ -1393,7 +1403,7 @@ class Day02Ex03:
         ax.set_xlabel(self.timediv_type, labelpad=-27)
         ax.set_xlim(self.timediv_range.start, self.timediv_range.stop)
         ax.set_ylabel("Corr. Coeff.", labelpad=-35, loc='top')
-        ax.set_ylim(0, 1)
+        ax.set_ylim(-1, 1)
         ax.text(
             0.5,
             0.5,
@@ -1435,10 +1445,24 @@ class Day02Ex03:
             "red",
         )
         self.plot_corr_graph(
+            self.axes["corr_log"],
+            self.pvalue_log,
+            "log",
+            "purple",
+        )
+        
+        
+        self.plot_corr_graph(
             self.axes["corr_lin"],
             self.corr_lin,
             "lin",
             "green",
+        )
+        self.plot_corr_graph(
+            self.axes["corr_lin"],
+            self.pvalue_lin,
+            "lin",
+            "olive",
         )
 
     def pltshow(self) -> None:
