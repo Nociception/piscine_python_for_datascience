@@ -430,9 +430,11 @@ class Day02Ex03:
         self.corr_lin: list | np.ndarray = []
         self.correlation_cursor_container: dict[
             str, mplcursors.cursor.Cursor | None
-            ] = {
+        ] = {
             "corr_log": None,
-            "corr_lin": None
+            "pvalue_log": None,
+            "corr_lin": None,
+            "pvalue_lin": None,
         }
         self.cursor_container: dict[
             str, mplcursors.cursor.Cursor | None
@@ -1329,41 +1331,44 @@ class Day02Ex03:
         self.slider.set_val(frame)
         self.current_frame = frame
 
-    def add_curve_interactivity(
-        self,
-    ) -> None:
+    def add_right_side_graphs_cursors(self) -> None:
         """DOCSTRING"""
-
         
-        for name in ["corr_log", "corr_lin"]:
-            if name in self.axes:
-                ax = self.axes[name]
+        curve_labels = {
+            "corr_log": ["corr log", "pvalue log"],
+            "corr_lin": ["corr lin", "pvalue lin"],
+        }
 
-                if name in self.correlation_cursor_container and self.correlation_cursor_container[name]:
-                    try:
-                        self.correlation_cursor_container[name].remove()
-                        self.correlation_cursor_container[name] = None
-                    except Exception as e:
-                        print(f"Warning: Failed to remove cursor on {name}: {e}")
+        for ax_name, labels in curve_labels.items():
+            if ax_name in self.axes:
+                ax = self.axes[ax_name]
+                
+                for label in labels:
+                    if label in self.correlation_cursor_container and self.correlation_cursor_container[label]:
+                        try:
+                            self.correlation_cursor_container[label].remove()
+                            self.correlation_cursor_container[label] = None
+                        except Exception as e:
+                            print(f"Warning: Failed to remove cursor on {label}: {e}")
 
                 for line in ax.get_lines():
-                    
-                    # print(line)
-                    
-                    if "corr" in line.get_label():
+                    if line.get_label() in labels:
                         cursor = mplcursors.cursor(line, hover=True)
 
                         @cursor.connect("add")
-                        def on_add(sel):
+                        def on_add(sel, label=line.get_label()):
                             x, y = sel.target
+                            annotation = "Corr" if "corr" in label else "Pval"
                             sel.annotation.set(
-                                text=f"Year: {x:.0f}\nCorr: {y:.2f}",
+                                text=f"Year: {x:.0f}\n{annotation}: {y:.4f}",
                                 fontsize=10,
-                                fontweight="bold"
+                                fontweight="bold",
                             )
                             sel.annotation.get_bbox_patch().set(alpha=0.8, color="white")
 
-                        self.correlation_cursor_container[name] = cursor
+                        self.correlation_cursor_container[line.get_label()] = cursor
+
+
 
     def add_tracker(
         self,
@@ -1373,7 +1378,7 @@ class Day02Ex03:
         
         self.tracked_element = text.strip()
         self.update()
-        self.add_curve_interactivity()
+        self.add_right_side_graphs_cursors()
 
     def build_tracker(self) -> None:
         """DOCSTRING"""
@@ -1533,7 +1538,7 @@ def main() -> None:
         
         exo03.build_mpl_window()
         exo03.update()
-        exo03.add_curve_interactivity()
+        exo03.add_right_side_graphs_cursors()
         exo03.set_autoplay_at_start(False)
         
         exo03.pltshow()
