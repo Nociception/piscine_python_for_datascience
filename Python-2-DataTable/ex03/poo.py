@@ -1176,36 +1176,16 @@ class Day02Ex03:
 
         for corr_name, corr_ax in self.axes.items():
             if "corr" in corr_name:
-                corr_x = self.timediv_range
-                if "log" in corr_name:
-                    corr_y = self.corr_log
-                else:
-                    corr_y = self.corr_lin
-
-                index = self.slider.val - self.timediv_range.start
                 selected_x = self.slider.val
-                selected_y = corr_y[index]
 
                 if hasattr(self, f"{corr_name}_vline"):
                     getattr(self, f"{corr_name}_vline").remove()
-                if hasattr(self, f"{corr_name}_hline"):
-                    getattr(self, f"{corr_name}_hline").remove()
 
                 setattr(
                     self,
                     f"{corr_name}_vline",
                     corr_ax.axvline(
                         x=selected_x,
-                        color="orange",
-                        linestyle="--",
-                        linewidth=0.8
-                    )
-                )
-                setattr(
-                    self,
-                    f"{corr_name}_hline",
-                    corr_ax.axhline(
-                        y=selected_y,
                         color="orange",
                         linestyle="--",
                         linewidth=0.8
@@ -1344,12 +1324,18 @@ class Day02Ex03:
                 ax = self.axes[ax_name]
                 
                 for label in labels:
-                    if label in self.correlation_cursor_container and self.correlation_cursor_container[label]:
+                    if (
+                        label in self.correlation_cursor_container
+                        and self.correlation_cursor_container[label]
+                    ):
                         try:
                             self.correlation_cursor_container[label].remove()
                             self.correlation_cursor_container[label] = None
                         except Exception as e:
-                            print(f"Warning: Failed to remove cursor on {label}: {e}")
+                            print(
+                                f"Warning: Failed to remove"
+                                f" cursor on {label}: {e}"
+                            )
 
                 for line in ax.get_lines():
                     if line.get_label() in labels:
@@ -1358,17 +1344,22 @@ class Day02Ex03:
                         @cursor.connect("add")
                         def on_add(sel, label=line.get_label()):
                             x, y = sel.target
-                            annotation = "Corr" if "corr" in label else "Pval"
+                            annotation = (
+                                "Corr" if "corr" in label else "Pval"
+                            )
                             sel.annotation.set(
                                 text=f"Year: {x:.0f}\n{annotation}: {y:.4f}",
                                 fontsize=10,
                                 fontweight="bold",
                             )
-                            sel.annotation.get_bbox_patch().set(alpha=0.8, color="white")
+                            sel.annotation.get_bbox_patch().set(
+                                alpha=0.8,
+                                color="white"
+                            )
 
-                        self.correlation_cursor_container[line.get_label()] = cursor
-
-
+                        self.correlation_cursor_container[
+                            line.get_label()
+                        ] = cursor
 
     def add_tracker(
         self,
