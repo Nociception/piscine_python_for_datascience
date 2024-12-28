@@ -662,11 +662,89 @@ class TimeDiv:
 
 
 class Day02Ex03:
-    """DOCSTRING"""
+    """
+    Main class to manage data visualization for Day02 Exercise 03.
+
+    Attributes:
+        anim (FuncAnimation | None):
+            Animation instance for the visual updates.
+        ax_box_tracker (Axes | None):
+            Axes object for the text box tracker.
+        axes (dict[str, Axes] | None):
+            Dictionary of Axes for different plots.
+        cbar (Colorbar | None):
+            Colorbar instance for the scatter plot.
+        cmap_colors (list[str]):
+            Colors used for the colormap.
+        common_column (str | None):
+            Common column name shared across datasets.
+        corr_log (list | np.ndarray):
+            Correlation coefficients for logarithmic scale.
+        corr_lin (list | np.ndarray):
+            Correlation coefficients for linear scale.
+        correlation_cursor_container
+        (dict[str, mplcursors.cursor.Cursor | None]):
+            Cursors for interactive correlation plots.
+        current_frame (int | None):
+            Current frame value during animation.
+        cursor_container (dict[str, mplcursors.cursor.Cursor | None]):
+            Cursors for the main scatter plots.
+        data_frames (dict[str, pd.DataFrame | None]):
+            Dictionary storing loaded data.
+        data_point_size_divider (int):
+            Divider used to scale point sizes in scatter plots.
+        fig (Figure | None):
+            Matplotlib figure instance.
+        first_running (bool):
+            Indicates whether the animation is running for the first time.
+        init_value (int | None):
+            Initial value for the slider.
+        pause_ax (Axes | None):
+            Axes object for the pause button.
+        pause_button (Button | None):
+            Button widget for pausing the animation.
+        play_ax (Axes | None):
+            Axes object for the play button.
+        play_button (Button | None):
+            Button widget for starting the animation.
+        precomputed_data (dict[int | float, TimeDiv]):
+            Precomputed data for each time division.
+        pvalue_log (list | np.ndarray):
+            P-values for logarithmic regression.
+        pvalue_lin (list | np.ndarray):
+            P-values for linear regression.
+        running_mode (bool):
+            Indicates if the animation is running.
+        slider (Slider | None):
+            Slider widget for selecting time divisions.
+        slider_title_text (str | None):
+            Title text for the slider.
+        timediv_range (range | None):
+            Range of time divisions available in the data.
+        text_box_tracker (TextBox | None):
+            Text box for tracking user input.
+        timediv_type (str | None):
+            Type of time division (e.g., "year").
+        title (str | None):
+            Title of the visualization.
+        tracked_element (str):
+            Name of the tracked element in the visualization.
+        x_label (str | None):
+            Label for the x-axis.
+        x_unit (str | None):
+            Unit for the x-axis.
+        y_label (str | None):
+            Label for the y-axis.
+        y_unit (str | None):
+            Unit for the y-axis.
+        colored_extra_data (str):
+            Name of the extra data column used for coloring points.
+    """
 
     def __init__(self):
-        """DOCSTRING"""
+        """Initializes the Day02Ex03 object with default values."""
         
+        self.anim: FuncAnimation | None = None
         self.ax_box_tracker: Axes | None = None
         self.axes: dict[str, Axes] | None = None
         self.cbar: Colorbar | None = None
@@ -691,6 +769,7 @@ class Day02Ex03:
             "corr_lin": None,
             "pvalue_lin": None,
         }
+        self.current_frame: int | None = None
         self.cursor_container: dict[
             str, mplcursors.cursor.Cursor | None
             ] = {
@@ -706,8 +785,18 @@ class Day02Ex03:
         }
         self.data_point_size_divider: int = None
         self.fig: Figure | None = None
+        self.first_running: bool = False
+        self.init_value: int | None = None
+        self.pause_ax: Axes | None = None
+        self.pause_button: Button | None = None
+        self.play_ax: Axes | None = None
+        self.play_button: Button | None = None
         self.precomputed_data: dict[int | float, TimeDiv] = {}
+        self.pvalue_log: list | np.ndarray = []
+        self.pvalue_lin: list | np.ndarray = []
+        self.running_mode: bool = False
         self.slider: Slider | None = None
+        self.slider_title_text: str | None = None
         self.timediv_range: range | None = None
         self.text_box_tracker: TextBox | None = None
         self.timediv_type: str | None = None
@@ -721,27 +810,8 @@ class Day02Ex03:
         # definetly set that way (adjustable in future versions)
         self.colored_extra_data: str = "extra_data_x"
         
-        
-        self.init_value: int | None = None
-        self.current_frame: int | None = None
-        
-    
-        self.running_mode: bool = False
-        self.anim: FuncAnimation | None = None
-        self.play_ax: Axes | None = None
-        self.pause_ax: Axes | None = None
-        self.play_button: Button | None = None
-        self.pause_button: Button | None = None
-        
-        self.slider_title_text: str | None = None
-        
-        self.first_running: bool = False
-        
-        self.pvalue_log: list | np.ndarray = []
-        self.pvalue_lin: list | np.ndarray = []
-        
     def show(self):
-        """DOCSTRING"""
+        """The class show method for a Day02Ex03 class object"""
         
         print("\n=== Show Day02Ex03 object ===")
         print(f"title: {self.title}")
@@ -765,7 +835,22 @@ class Day02Ex03:
         data_type: str,
         short_name: str
     ) -> None:
-        """DOCSTRING"""
+        """
+        Adds a data path to the data_frames dictionary.
+
+        Args:
+            data_path (str):
+                Path to the dataset file.
+            data_type (str):
+                Type of the data (e.g., "data_x", "data_y").
+            short_name (str):
+                Shortened name for the dataset.
+
+        Raises:
+            ValueError:
+                If any argument is not a valid string or
+                `data_path` is too short.
+        """
         
         if (
             all(isinstance(arg, str) for arg in (
@@ -798,7 +883,19 @@ class Day02Ex03:
         x_label: str,
         x_unit: str
     ) -> None:
-        """DOCSTRING"""
+        """
+        Adds the X-axis dataset and related metadata.
+
+        Args:
+            data_x_path (str):
+                File path for the X-axis dataset.
+            short_name (str):
+                Abbreviated name for the dataset, used in legends or labels.
+            x_label (str):
+                Label for the X-axis.
+            x_unit (str):
+                Unit associated with the X-axis values.
+        """
 
         self.add_data_path(
             data_x_path,
@@ -816,7 +913,19 @@ class Day02Ex03:
         y_label: str,
         y_unit: str
     ) -> None:
-        """DOCSTRING"""
+        """
+        Adds the Y-axis dataset and related metadata.
+
+        Args:
+            data_y_path (str):
+                File path for the Y-axis dataset.
+            short_name (str):
+                Abbreviated name for the dataset, used in legends or labels.
+            y_label (str):
+                Label for the Y-axis.
+            y_unit (str):
+                Unit associated with the Y-axis values.
+        """
 
         self.add_data_path(
             data_y_path,
@@ -833,7 +942,17 @@ class Day02Ex03:
         short_name: str,
         divider: int | float
     ) -> None:
-        """DOCSTRING"""
+        """
+        Adds the dataset for determining the size of scatter plot points.
+
+        Args:
+            data_point_size_path (str):
+                File path for the dataset controlling point sizes.
+            short_name (str):
+                Abbreviated name for the dataset, used in legends or labels.
+            divider (int | float):
+                Scaling factor to adjust the point sizes.
+        """
 
         self.data_point_size_divider = divider
         self.add_data_path(
@@ -848,7 +967,16 @@ class Day02Ex03:
         extra_data_x_path: str,
         short_name: str
     ) -> None:
-        """DOCSTRING"""
+        """
+        Adds an additional dataset related to
+        the X-axis for coloring or metadata.
+
+        Args:
+            extra_data_x_path (str):
+                File path for the additional X-axis dataset.
+            short_name (str):
+                Abbreviated name for the dataset, used in legends or labels.
+        """
 
         self.add_data_path(
             extra_data_x_path,
@@ -862,7 +990,16 @@ class Day02Ex03:
         extra_data_y_path: str,
         short_name: str
     ) -> None:
-        """DOCSTRING"""
+        """
+        Adds an additional dataset related to
+        the Y-axis for coloring or metadata.
+
+        Args:
+            extra_data_y_path (str):
+                File path for the additional Y-axis dataset.
+            short_name (str):
+                Abbreviated name for the dataset, used in legends or labels.
+        """
 
         self.add_data_path(
             extra_data_y_path,
@@ -875,7 +1012,12 @@ class Day02Ex03:
         self,
         title: str
     ) -> None:
-        """DOCSTRING"""
+        """
+        Sets the title for the visualization.
+
+        Args:
+            title (str): The title of the visualization.
+        """
         
         self.title = title
 
@@ -887,7 +1029,19 @@ class Day02Ex03:
         init_value: int,
         type: str
     ) -> None:
-        """DOCSTRING"""
+        """
+        Defines the range of time divisions for the visualization.
+
+        Args:
+            start (int):
+                Starting value for the time division.
+            stop (int):
+                Ending value for the time division.
+            init_value (int):
+                Initial time division to be displayed.
+            type (str):
+                Label for the type of time division (e.g., "year").
+        """
         
         self.timediv_range = range(start, stop + 1)
         self.timediv_type = type
@@ -899,7 +1053,13 @@ class Day02Ex03:
         self,
         common_column: str
     ) -> None:
-        """DOCSTRING"""
+        """
+        Sets the common column name shared across datasets.
+
+        Args:
+            common_column (str):
+                Column name that links datasets together.
+        """
     
         self.common_column = common_column
 
@@ -908,12 +1068,27 @@ class Day02Ex03:
         self,
         autoplay_at_start:bool
     ) -> None :
-        """DOCSTRING"""
+        """
+        Configures whether the animation starts automatically.
+
+        Args:
+            autoplay_at_start (bool):
+                True to start the animation automatically; False otherwise.
+        """
         
         self.first_running = autoplay_at_start
 
     def clean_data_x(self) -> None:
-        """DOCSTRING"""
+        """
+        Cleans the DataFrame associated with `data_x`.
+
+        - Sorts the DataFrame by the `common_column`.
+        - Resets the index to ensure a clean sequential order.
+        - Marks the DataFrame as cleaned.
+
+        Raises:
+            ValueError: If `data_x` is not properly initialized.
+        """
 
         df = self.data_frames['data_x']
         if df is not None:
@@ -923,7 +1098,16 @@ class Day02Ex03:
             df.data_cleaned = True
 
     def clean_data_y(self) -> None:
-        """DOCSTRING"""
+        """
+        Cleans the DataFrame associated with `data_y`.
+
+        - Sorts the DataFrame by the `common_column`.
+        - Resets the index to ensure a clean sequential order.
+        - Marks the DataFrame as cleaned.
+
+        Raises:
+            ValueError: If `data_y` is not properly initialized.
+        """
 
         df = self.data_frames['data_y']
         if df is not None:
@@ -933,7 +1117,16 @@ class Day02Ex03:
             df.data_cleaned = True
 
     def clean_data_point_size(self) -> None:
-        """DOCSTRING"""
+        """
+        Cleans the DataFrame associated with `data_point_size`.
+
+        - Sorts the DataFrame by the `common_column`.
+        - Resets the index to ensure a clean sequential order.
+        - Marks the DataFrame as cleaned.
+
+        Raises:
+            ValueError: If `data_point_size` is not properly initialized.
+        """
 
         df = self.data_frames['data_point_size']
         if df is not None:
@@ -943,7 +1136,25 @@ class Day02Ex03:
             df.data_cleaned = True
 
     def clean_extra_data_x(self) -> None:
-        """DOCSTRING"""
+        """
+        Cleans the DataFrame associated with `extra_data_x`.
+
+        - Removes irrelevant columns such as
+        'Country Code', 'Indicator Name',
+        'Indicator Code', and 'Unnamed: 68'.
+        - Renames the 'Country Name' column to match `common_column`.
+        - Matches country names in `extra_data_x` with those in `data_x`,
+        using fuzzy matching to align similar names.
+        - Drops rows with unmatched or duplicate entries in `common_column`.
+        - Sorts the DataFrame by `common_column`.
+        - Marks the DataFrame as cleaned.
+
+        Raises:
+            ValueError: If `extra_data_x` is not properly initialized.
+
+        Notes:
+            - A match is considered valid if the similarity score is >= 80.
+        """
 
         if self.data_frames['extra_data_x'] is not None:
             df = self.data_frames['extra_data_x'].data_frame
@@ -988,13 +1199,34 @@ class Day02Ex03:
             self.data_frames['extra_data_x'].data_cleaned = True
             
     def clean_extra_data_y(self) -> None:
-        """DOCSTRING"""
-    
+        """
+        Marks the DataFrame associated with `extra_data_y` as cleaned.
+
+        - Simply sets the `data_cleaned` attribute to True, as no 
+        specific cleaning steps are defined for this DataFrame so far.
+
+        Raises:
+            ValueError: If `extra_data_y` is not properly initialized.
+        """
+
         if self.data_frames['extra_data_y'] is not None:
             self.data_frames['extra_data_y'].data_cleaned = True
 
     def clean_data_frames(self) -> None:
-        """DOCSTRING"""
+        """
+        Cleans all associated DataFrames in the `data_frames` attribute.
+
+        - Sequentially calls individual cleaning methods:
+            - `clean_data_x`
+            - `clean_data_y`
+            - `clean_data_point_size`
+            - `clean_extra_data_x`
+            - `clean_extra_data_y`
+
+        Raises:
+            ValueError:
+                If any DataFrame is missing or improperly initialized.
+        """
         
         self.clean_data_x()
         self.clean_data_y()
@@ -1003,7 +1235,18 @@ class Day02Ex03:
         self.clean_extra_data_y()
 
     def get_first_last_column_names(self) -> None:
-        """DOCSTRING"""
+        """
+        Retrieves and stores the first and
+        last column names for each DataFrame.
+
+        - Iterates over all DataFrames in `data_frames`.
+        - Checks if each DataFrame has been cleaned before proceeding.
+        - Calls the `get_first_last_column_names` method for each DataFrame.
+
+        Raises:
+            DataFrameNotCleanedException: If any DataFrame is not cleaned
+            before this operation.
+        """
 
         for key, data_frame in self.data_frames.items():
             if data_frame is None:
@@ -1013,6 +1256,8 @@ class Day02Ex03:
                     f"The DataFrame '{key}' has not been cleaned."
                 )
             data_frame.get_first_last_column_names()
+
+
 
     def subsets_timediv_extraction(
         self,
@@ -1698,6 +1943,15 @@ class Day02Ex03:
             
         self.set_and_plot_right_side_graph("log")
         self.set_and_plot_right_side_graph("lin")
+        
+        self.fig.canvas.manager.set_window_title(
+            f"{self.data_frames['data_x'].short_name} VS "
+            f"{self.data_frames['data_y'].short_name} for each "
+            f"{self.timediv_type} between "
+            f"{self.timediv_range.start} and "
+            f"{self.timediv_range.stop - 1}"
+        )
+
 
     def pltshow(self) -> None:
         """DOCSTRING"""
