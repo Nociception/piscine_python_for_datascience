@@ -1385,41 +1385,48 @@ class Day02Ex03:
         )
         self.text_box_tracker.on_submit(self.add_tracker)
 
-    def plot_corr_graph(
+    def set_and_plot_right_side_graph(
         self,
-        ax: Axes,
-        corr: np.ndarray[float],
-        label: str,
-        color: str
+        graph: str
     ) -> None:
         """DOCSTRING"""
-        
+
+        ax = self.axes["corr_" + graph]
+
         ax.plot(
             np.array(self.timediv_range),
-            corr,
-            label=f"{label} correlation",
-            color=color
+            self.corr_log if graph == "log" else self.corr_lin,
+            label="corr " + graph,
+            color="red" if graph == "log" else "green",
         )
+        ax.plot(
+            np.array(self.timediv_range),
+            self.pvalue_log if graph == "log" else self.pvalue_lin,
+            label="pvalue " + graph,
+            color="purple" if graph == "log" else "olive",
+        )
+        
         ax.set_xlabel(self.timediv_type, labelpad=-27)
         ax.set_xlim(self.timediv_range.start, self.timediv_range.stop)
-        ax.set_ylabel("Corr. Coeff.", labelpad=-35, loc='top')
+        ax.set_ylabel("Corr. Coeff. or Pvalue", labelpad=-30, loc="center")
         ax.set_ylim(-1, 1)
+        ax.set_yticks([-1, -0.75, 0.75, 1])
         ax.text(
             0.5,
             0.5,
-            label.upper(),
+            graph.upper(),
             transform=ax.transAxes,
             fontsize=30,
-            color=color,
+            color="red" if graph == "log" else "green",
             alpha=0.08,
             ha="center",
             va="center",
             weight="bold",
         )
         ax.legend()
-        
-        if label == "log":
-            ax.set_title(f"Corr. Coeff. VS {self.timediv_type}")
+
+        if graph == "log":
+            ax.set_title(f"Corr. Coeff. and Pvalue VS {self.timediv_type}")
 
     def build_mpl_window(
         self,
@@ -1438,32 +1445,8 @@ class Day02Ex03:
         
         self.build_tracker()
             
-        self.plot_corr_graph(
-            self.axes["corr_log"],
-            self.corr_log,
-            "log",
-            "red",
-        )
-        self.plot_corr_graph(
-            self.axes["corr_log"],
-            self.pvalue_log,
-            "log",
-            "purple",
-        )
-        
-        
-        self.plot_corr_graph(
-            self.axes["corr_lin"],
-            self.corr_lin,
-            "lin",
-            "green",
-        )
-        self.plot_corr_graph(
-            self.axes["corr_lin"],
-            self.pvalue_lin,
-            "lin",
-            "olive",
-        )
+        self.set_and_plot_right_side_graph("log")
+        self.set_and_plot_right_side_graph("lin")
 
     def pltshow(self) -> None:
         """DOCSTRING"""
