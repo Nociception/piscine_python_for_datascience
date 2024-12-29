@@ -17,7 +17,6 @@ by switching on 0 or 1 the second condition in the if
 (if debug and 1:)
 
 Still to do:
-- docstrings
 - readme
 - update show classes methods
 
@@ -1257,17 +1256,24 @@ class Day02Ex03:
                 )
             data_frame.get_first_last_column_names()
 
-
-
     def subsets_timediv_extraction(
         self,
         timediv: int,
     ) -> list[pd.DataFrame]:
-        """DOCSTRING"""
+        """
+        Extracts subsets of data for a given
+        time division across all DataFrames.
 
-        # if timediv == timediv_test_value() :
-        #     print("=== (class Day02Ex03) DEBUT SUBSETS_TIMEDIV_EXTRACTION ===")
-        #     print(f"timediv: {timediv}")
+        Args:
+            timediv (int):
+                The time division for which data should be extracted.
+
+        Returns:
+            list[pd.DataFrame]:
+                A list of DataFrames, one for each entry in `data_frames`.
+                If a DataFrame is `None`,
+                its corresponding subset will also be `None`.
+        """
 
         res = list()
         for df in self.data_frames.values():
@@ -1280,14 +1286,22 @@ class Day02Ex03:
                 )
             else:
                 res.append(None)
-        
-        # if timediv == timediv_test_value() :
-        #     print("=== (class Day02Ex03) FIN SUBSETS_TIMEDIV_EXTRACTION ===\n")
 
         return res
 
     def precompute_data(self):
-        """DOCSTRING"""
+        """
+        Precomputes and stores data for all time divisions.
+
+        Extracts subsets for each time division.
+        Merges the subsets into a single DataFrame for each division.
+        Calculates linear regressions for both logarithmic and linear scales.
+        Fills attributes for correlation coefficients and p-values over time.
+
+        Raises:
+            ValueError:
+                If the data is not properly cleaned or initialized.
+        """
 
         self.get_first_last_column_names()
         
@@ -1297,55 +1311,32 @@ class Day02Ex03:
                 self.common_column,
                 div
             )
-            
-            # if div == timediv_test_value():
-            #     print(f"=== precompute_data in {div} ; after the TimeDiv object build===")
-            #     for key, value in timediv.df_dict.items():
-            #         if value is not None:
-            #             entry_data = value[value[self.common_column].str.contains(target_test_value(), case=False, na=False)]
-            #             if not entry_data.empty:
-            #                 print(f"In {key}:\n{entry_data}\n")
-            #             else:
-            #                 print(f"In {key}: '{target_test_value()}' is not here.\n")
-            #         else:
-            #             print(f"In {key}: DataFrame is None.\n")
-            
             timediv.merge()
-            
-            # if div == timediv_test_value():
-            #     print(f"=== precompute_data in {div} ; after the TimeDiv merge method===")
-            #     for key, value in timediv.df_dict.items():
-            #         if value is not None:
-            #             entry_data = value[value[self.common_column].str.contains(target_test_value(), case=False, na=False)]
-            #             if not entry_data.empty:
-            #                 print(f"In {key}:\n{entry_data}\n")
-            #             else:
-            #                 print(f"In {key}: '{target_test_value()}' is not here.\n")
-            #         else:
-            #             print(f"In {key}: DataFrame is None.\n")
-                        
-            
             timediv.linear_regressions()
                 
             self.precomputed_data[div] = timediv
-            
             self.corr_log.append(timediv.lin_reg_log.corr)
             self.pvalue_log.append(timediv.lin_reg_log.pvalue)
             self.corr_lin.append(timediv.lin_reg_lin.corr)
             self.pvalue_lin.append(timediv.lin_reg_lin.pvalue)
             
-            # if div ==  timediv_test_value():
-            #     print(f"==============={div}=================")
-            #     timediv.show()
-            
         self.corr_log = np.array(self.corr_log)
         self.pvalue_log = np.array(self.pvalue_log)
-        
         self.corr_lin = np.array(self.corr_lin)
         self.pvalue_lin = np.array(self.pvalue_lin)
 
     def build_fig_axes(self) -> None:
-        """DOCSTRING"""
+        """
+        Sets up the main figure and axes for visualization.
+
+        - Creates a mosaic layout with two scatter plots (log and linear)
+        and two correlation graphs.
+        - Adjusts spacing dynamically based on the figure size.
+        - Connects a resize event to maintain responsiveness.
+
+        Notes:
+            Adjustments are tailored for a default figure size of (10, 6).
+        """
 
         fig_w, fig_h = 10, 6
 
@@ -1386,7 +1377,19 @@ class Day02Ex03:
         ax: Axes,
         extra_data: DataFrame,
     ) -> None:
-        """DOCSTRING"""
+        """
+        Adds a colorbar to the specified axis based on extra data.
+
+        Args:
+            ax (Axes):
+                The axis to which the colorbar will be added.
+            extra_data (DataFrame):
+                The data to use for determining color scaling.
+
+        Notes:
+            - The colorbar is based on a linear segmented colormap.
+            - The default range for values is 0 to 100.
+        """
         
         vmin: float = 0
         vmax: float = 100
@@ -1425,7 +1428,17 @@ class Day02Ex03:
         self,
         data: pd.DataFrame
     ) -> list[str]:
-        """DOCSTRING"""
+        """
+        Determines the colors for scatter plot points based on extra data.
+
+        Args:
+            data (pd.DataFrame):
+                The data for which colors need to be assigned.
+
+        Returns:
+            list[str]: A list of RGBA tuples for each data point.
+            Points without extra data are assigned a default blue color.
+        """
 
         extra_data_colored_name = self.data_frames[
             self.colored_extra_data].data_name
@@ -1455,7 +1468,26 @@ class Day02Ex03:
         data: pd.DataFrame,
         points_color: list[str],
     ) -> mplcollec.PathCollection:
-        """DOCSTRING"""
+        """
+        Plots a scatter graph with optional
+        highlighting of a tracked element.
+
+        Args:
+            ax (Axes):
+                The axis on which to plot the scatter graph.
+            data (pd.DataFrame):
+                The data to plot.
+            points_color (list[str]):
+                The color of each point.
+
+        Returns:
+            mplcollec.PathCollection:
+                The collection of scatter plot points.
+
+        Highlights:
+            - Uses circle sizes proportional to the `data_point_size`.
+            - Highlights the tracked element in cyan if specified.
+        """
 
         pt_size_s_name = self.data_frames["data_point_size"].short_name
         scatter = ax.scatter(
@@ -1497,7 +1529,24 @@ class Day02Ex03:
             ax: Axes,
             color: str            
     ) -> None:
-        """DOCSTRING"""
+        """
+        Plots the regression line on the specified axis.
+
+        Args:
+            timediv (TimeDiv):
+                The time division containing regression data.
+            is_log_scale (bool):
+                Whether the regression is log-scaled.
+            ax (Axes):
+                The axis on which to plot the regression line.
+            color (str):
+                The color of the regression line.
+
+        Notes:
+            - The regression line is dashed and
+            annotated with its correlation coefficient.
+            - Points with NaN values are filtered out before plotting.
+        """
 
         x = np.sort(
                 timediv.merged_data[self.data_frames["data_x"].data_name])
@@ -1529,8 +1578,23 @@ class Day02Ex03:
         ax: Axes,
         color: str
     ) -> None:
-        """DOCSTRING"""
+        """
+        Sets metadata (titles, labels, scales) for a scatter plot.
 
+        Args:
+            timediv (TimeDiv):
+                The time division for which the graph is being set.
+            is_log_scale (bool):
+                Whether the graph is log-scaled.
+            ax (Axes):
+                The axis to set metadata for.
+            color (str):
+                The highlight color for text annotations.
+
+        Notes:
+            - Adds bold watermark text indicating "LOG" or "LINEAR" scaling.
+            - Titles and labels are set dynamically based on the scale type.
+        """
 
         if is_log_scale:
             ax.set_xscale('log')
@@ -1563,7 +1627,21 @@ class Day02Ex03:
         scatter: PathCollection,
         data: pd.DataFrame
     ) -> None:
-        """DOCSTRING"""
+        """
+        Adds interactivity with a cursor to a scatter plot.
+
+        Args:
+            ax_name (str):
+                Name of the axis.
+            scatter (PathCollection):
+                The scatter plot collection.
+            data (pd.DataFrame):
+                The data corresponding to the scatter plot.
+
+        Notes:
+            - Annotations display detailed information for each point.
+            - Removes existing cursors on the axis before adding a new one.
+        """
         
         if (
             ax_name in self.cursor_container
@@ -1630,7 +1708,20 @@ class Day02Ex03:
         ax_name: str,
         color: str
     ) -> None:
-        """DOCSTRING"""
+        """
+        Plots a scatter graph, regression line, and adds interactivity.
+
+        Args:
+            timediv (TimeDiv): The time division data to plot.
+            ax (Axes): The axis to plot on.
+            is_log_scale (bool): Whether the graph uses a log scale.
+            ax_name (str): The name of the axis.
+            color (str): The highlight color for the regression line.
+
+        Notes:
+            - Combines scatter plots,
+            regression lines, and cursor interactivity.
+        """
 
         data = timediv.merged_data
         points_color = self.get_points_color(data)
@@ -1661,7 +1752,18 @@ class Day02Ex03:
         self,
         timediv: TimeDiv
     ) -> None:
-        """DOCSTRING"""
+        """
+        Updates the visibility of the colorbar
+        based on the presence of extra data.
+
+        Args:
+            timediv (TimeDiv):
+                The current time division data.
+
+        Notes:
+            - Hides or shows the colorbar dynamically
+            depending on whether extra data is available.
+        """
 
         extra_data_x_name = self.data_frames["extra_data_x"].data_name
         if extra_data_x_name in timediv.merged_data.columns:
@@ -1672,7 +1774,14 @@ class Day02Ex03:
                 self.cbar.ax.set_visible(False)
 
     def update_corr_graphs(self) -> None:
-        """DOCSTRING"""
+        """
+        Updates the correlation graphs with a vertical line
+        indicating the current slider value.
+
+        Notes:
+            - Removes any existing vertical lines before adding a new one.
+            - The vertical line highlights the selected year on the graph.
+        """
 
         for corr_name, corr_ax in self.axes.items():
             if "corr" in corr_name:
@@ -1696,7 +1805,19 @@ class Day02Ex03:
         self,
         slider_val=None
     ) -> None:
-        """DOCSTRING"""
+        """
+        Updates the main plots (scatter and correlation graphs)
+        based on the slider value.
+
+        Args:
+            slider_val (int, optional):
+                The current value of the slider. Defaults to None.
+
+        Notes:
+            - Replots scatter graphs with updated data.
+            - Updates regression lines and correlation graphs.
+            - Adjusts colorbar visibility and correlation graph indicators.
+        """
 
         self.axes["log"].cla()
         self.axes["lin"].cla()
@@ -1731,7 +1852,16 @@ class Day02Ex03:
         self,
         val:int
     ) -> None:
-        """DOCSTRING"""
+        """
+        Updates the title text of the slider to reflect the current year.
+
+        Args:
+            val (int):
+                The current slider value.
+
+        Notes:
+            - Dynamically updates the displayed text with the current year.
+        """
 
         self.slider_title_text.set_text(
             f"{self.timediv_type.title()}: {int(val)}"
@@ -1771,12 +1901,24 @@ class Day02Ex03:
         self.pause_ax = self.fig.add_axes([0.6, 0.01, 0.03, 0.03])
         self.pause_button = Button(self.pause_ax, r'$\mathbf{| |}$')
         self.pause_button.on_clicked(self.stop_animation)
-        
+
     def start_animation(
         self,
         event=None
     ) -> None:
-        """DOCSTRING"""
+        """
+        Starts the animation of the slider and associated plots.
+
+        Args:
+            event (optional):
+                The triggering event, typically from a UI interaction.
+
+        Notes:
+            - If the animation is already running
+            (`self.running_mode` is True), the method does nothing.
+            - The animation iterates over frames
+            starting from the current slider value.
+        """
 
         if self.running_mode and not self.first_running:
             return
@@ -1796,23 +1938,49 @@ class Day02Ex03:
         self,
         event=None
     ) -> None:
-        """DOCSTRING"""
+        """
+        Stops the animation of the slider.
 
+        Args:
+            event (optional):
+                The triggering event, typically from a UI interaction.
+
+        Notes:
+            - If the animation is not running, the method does nothing.
+        """
         if not self.running_mode:
             return
         self.running_mode = False
         if self.anim is not None:
             self.anim.pause()
-            # self.anim = None
 
     def update_slider(self, frame):
-        """DOCSTRING"""
+        """
+        Updates the slider value and the current frame
+        during the animation.
+
+        Args:
+            frame (int):
+                The current frame value.
+
+        Notes:
+            - Updates the slider's position
+            and stores the current frame value.
+        """
 
         self.slider.set_val(frame)
         self.current_frame = frame
 
-    def add_right_side_graphs_cursors(self) -> None:
-        """DOCSTRING"""
+    def set_right_side_graphs_cursors(self) -> None:
+        """
+        Adds interactivity (cursors) to the curves
+        in the correlation and p-value graphs.
+
+        Notes:
+            - Cursors provide hover annotations for
+            correlation and p-value graphs.
+            - Existing cursors are removed before new ones are added.
+        """
         
         curve_labels = {
             "corr_log": ["corr log", "pvalue log"],
@@ -1865,14 +2033,32 @@ class Day02Ex03:
         self,
         text: str
     ) -> None:
-        """DOCSTRING"""
+        """
+        Adds or updates a tracked element to be highlighted in the plots.
+
+        Args:
+            text (str):
+                The name of the element to track.
+
+        Notes:
+            - Updates the main plots to reflect the tracked element.
+            - Resets and re-applies cursors to the right-side graphs.
+        """
         
         self.tracked_element = text.strip()
         self.update()
-        self.add_right_side_graphs_cursors()
+        self.set_right_side_graphs_cursors()
 
     def build_tracker(self) -> None:
-        """DOCSTRING"""
+        """
+        Builds a text box for tracking a specific element in the plots.
+
+        Notes:
+            - Adds a text box UI element for user input to
+            track a specific data element.
+            - Associates the text box with the `add_tracker`
+            method for interactivity.
+        """
         
         self.ax_box_tracker = self.fig.add_axes([0.81, 0.005, 0.18, 0.05])
         self.text_box_tracker = TextBox(
@@ -1885,7 +2071,18 @@ class Day02Ex03:
         self,
         graph: str
     ) -> None:
-        """DOCSTRING"""
+        """
+        Plots and configures the correlation and
+        p-value graph for a given axis.
+
+        Args:
+            graph (str):
+                The name of the graph, either "log" or "lin".
+
+        Notes:
+            - Configures axis labels, legends, and titles dynamically.
+            - Adds correlation and p-value curves to the specified graph.
+        """
 
         ax = self.axes["corr_" + graph]
 
@@ -1927,7 +2124,14 @@ class Day02Ex03:
     def build_mpl_window(
         self,
     ) -> None:
-        """DOCSTRING"""
+        """
+        Builds the matplotlib window with all elements,
+        including graphs, sliders, and trackers.
+
+        Notes:
+            - Sets up axes, colorbars, sliders, and right-side graphs.
+            - Configures dynamic window resizing and graph adjustments.
+        """
         
         self.build_fig_axes()
         
@@ -1952,9 +2156,17 @@ class Day02Ex03:
             f"{self.timediv_range.stop - 1}"
         )
 
-
     def pltshow(self) -> None:
-        """DOCSTRING"""
+        """
+        Displays the matplotlib window and starts the animation if enabled.
+
+        Raises:
+            RuntimeError:
+                If the figure is not initialized before calling this method.
+
+        Notes:
+            - Ensures the animation starts if `first_running` is True.
+        """
 
         if self.fig is not None:
             if self.first_running:
@@ -1966,28 +2178,20 @@ class Day02Ex03:
                 "Make sure build_figure_axes Day02Ex03"
                 "method has beed called before."
             )
-
-    @debug_decorator
-    def check_entry_dataframe(
-        self,
-        entry: str
-    ) -> None:
-        """DOCSTRING"""
-        
-        for key, df in self.data_frames.items():
-            if df is not None:
-                if self.common_column in df.data_frame.columns:
-                    entry_data = df.data_frame[df.data_frame[self.common_column].str.contains(entry, case=False, na=False)]
-                    if not entry_data.empty:
-                        print(f"In {key} ({df.short_name}):\n{entry_data}")
-                    else:
-                        print(f"In {key} ({df.short_name}): '{entry}' is not in there.")
-                else:
-                    print(f"In {key} ({df.short_name}): Column '{self.common_column}' is not there.")
-                
+   
 
 def main() -> None:
-    """DOCSTRING"""
+    """
+    Main function to set up and execute the Day02Ex03 application.
+
+    Workflow:
+        - Initializes the `Day02Ex03` object.
+        - Adds paths for data and metadata.
+        - Cleans and precomputes data.
+        - Configures the matplotlib window and its elements.
+        - Optionally enables autoplay.
+        - Displays the application window.
+    """
     
     try:
         exo03 = Day02Ex03()
@@ -2036,19 +2240,17 @@ def main() -> None:
         
         exo03.build_mpl_window()
         exo03.update()
-        exo03.add_right_side_graphs_cursors()
+        exo03.set_right_side_graphs_cursors()
         exo03.set_autoplay_at_start(False)
         
         exo03.pltshow()
         
-    # except ValueError as error:
-    #     print(f"{type(error).__name__}: {error}")
-    # except typeguard.TypeCheckError as error:
-    #     print(f"{type(error).__name__}: {error}")
-    # except Exception as error:
-    #     print(f"An unexpected error occurred: {error}")
-    finally:
-        pass
+    except ValueError as error:
+        print(f"{type(error).__name__}: {error}")
+    except typeguard.TypeCheckError as error:
+        print(f"{type(error).__name__}: {error}")
+    except Exception as error:
+        print(f"An unexpected error occurred: {error}")
     
 
 if __name__ == "__main__":
