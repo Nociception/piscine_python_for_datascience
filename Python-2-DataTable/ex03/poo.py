@@ -20,10 +20,6 @@ Still to do:
 - readme
 - video
 - LinkedIn presentation
-
-Upgrade projects :
-- world events
-- fluid transition between two years
 """
 
 from functools import wraps
