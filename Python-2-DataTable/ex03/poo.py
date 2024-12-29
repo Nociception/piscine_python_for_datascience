@@ -21,6 +21,7 @@ Still to do:
 - video
 - LinkedIn presentation
 - norm
+- docstrings for inner functions
 
 Upgrade projects :
 - world events
@@ -55,13 +56,13 @@ if matplotlib.get_backend() != 'TkAgg':
 
 def debug(
     function_name: str,
-    debug:int,
-    step = "START"
+    debug: int,
+    step="START"
 ) -> None:
     """
     Prints debug information for a function,
     including its name and the current step (if written).
-    
+
     Usage:
         Copy the line below the if 0 into any function
         for debugging.
@@ -70,14 +71,18 @@ def debug(
         instructions.
 
     Parameters:
-        function_name (str): The name of the function to debug.
-        debug (int): The debug level. If non-zero, the debug information is printed.
-        step (str): The current step in the function's execution (e.g., "START" or "END").
+        function_name (str):
+            The name of the function to debug.
+        debug (int):
+            The debug level. If non-zero, the debug information is printed.
+        step (str):
+            The current step in the function's execution
+            (e.g., "START" or "END").
     """
 
     if 0:  # Do not switch to 1.
-        debug(inspect.currentframe().f_code.co_name, 1) #  copy this line
-    
+        debug(inspect.currentframe().f_code.co_name, 1)  # copy this line
+
     if debug and 1:
         print(f"DEBUG: {step} current function -> {function_name}")
 
@@ -89,7 +94,7 @@ def debug_decorator(func: Callable) -> Callable:
 
     Parameters:
         func (Callable): The function to wrap with debug logging.
-        
+
     Usage:
         Copy that:
             @debug_decorator
@@ -98,7 +103,7 @@ def debug_decorator(func: Callable) -> Callable:
     Returns:
         Callable: The wrapped function with debug logging enabled.
     """
-    
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         function_name = func.__name__
@@ -117,7 +122,7 @@ def timediv_test_value():
     As we were told not to use any global variable,
     here is this "function" useful for debug.
     """
-    
+
     return 1800
 
 
@@ -156,8 +161,8 @@ def cust_suffixed_string_to_float(value) -> float:
 def dict_printer(
     d: dict,
     values_type: str,
-    head_value: int=5
-    ) -> None:
+    head_value: int = 5
+) -> None:
     """
     Prints the contents of a dictionary based on the type of its values.
 
@@ -171,7 +176,7 @@ def dict_printer(
             For DataFrame values, the number of rows to display.
             Must be greater than 0.
     """
-    
+
     if d is None:
         print("The dictionnary does not exist.")
         return None
@@ -234,7 +239,7 @@ def put_kmb_suffix(val: float) -> str:
 def var_print_str(
     var_name: str,
     var_value
-    ) -> str:
+) -> str:
     """
     Formats a variable's name and value as a string, including its type.
 
@@ -281,22 +286,22 @@ class LinReg:
         """
 
         self.predicted: np.ndarray = predicted
-        self.corr:float = corr
+        self.corr: float = corr
         self.pvalue: float = pvalue
 
     def show(self) -> None:
         """The class show method for a LinReg class object"""
 
         print("\n=== SHOW LinReg class object (START) ===")
-    
+
         print(f"Correlation Coefficient (corr): {self.corr:.4f}")
         print(f"P-Value (pvalue): {self.pvalue:.4e}")
-        
+
         print("\nPredicted Values (predicted):")
         print(self.predicted)
-        
+
         print("\n=== SHOW LinReg class object (END) ===")
-        
+
 
 class DataFrame:
     """
@@ -349,7 +354,7 @@ class DataFrame:
                 data_type,
                 file_path,
                 short_name)
-            ):
+        ):
             self.data_type: str = data_type
             self.file_path: str = file_path
             self.data_name: str = get_data_name(file_path)
@@ -370,7 +375,7 @@ class DataFrame:
         """The class show method for a DataFrame class object"""
 
         print("\n=== SHOW DataFrame class object (START) ===")
-    
+
         print("\n--- General Information ---")
         print(f"Data Type: {self.data_type}")
         print(f"File Path: {self.file_path}")
@@ -394,7 +399,7 @@ class DataFrame:
         A base exception class for errors related to the DataFrame class.
         """
         pass
-    
+
     class DataFrameNotCleanedException(DataFrameException):
         """
         Exception raised when an operation requiring
@@ -406,25 +411,24 @@ class DataFrame:
 
         def __init__(
             self,
-            msg="DataFrame object still not cleaned.\n"\
-                "This exception appears because something has been"\
-                " attempted which needs the DataFrame to be cleaned"\
+            msg="DataFrame object still not cleaned.\n"
+                "This exception appears because something has been"
+                " attempted which needs the DataFrame to be cleaned"
                 " before."
         ):
             """DOCSTRING"""
 
             super().__init__(msg)
 
-
     def get_first_last_column_names(self) -> None:
         """
         Extracts and sets the first and last
         column names as integer or float values.
         """
-        
+
         self.first_column_name = int(self.data_frame.columns[1])
         self.last_column_name = int(self.data_frame.columns[-1])
-    
+
     def subset_timediv_extraction(
         self,
         timediv: int,
@@ -452,9 +456,9 @@ class DataFrame:
             df_timediv[self.data_name] = df_timediv[self.data_name].apply(
                 cust_suffixed_string_to_float
             )
-            
+
             return df_timediv
-        
+
         return None
 
 
@@ -518,12 +522,12 @@ class TimeDiv:
 
     def show(
         self,
-        head_value: int=5
+        head_value: int = 5
     ) -> None:
         """The class show method for a TimeDiv class object"""
 
         print("\n=== SHOW TimeDiv class object (START) ===")
-        
+
         print("\n--- General Information ---")
         print(f"Time Division: {self.div}")
         print(f"Common Column: {self.common_column}")
@@ -548,7 +552,7 @@ class TimeDiv:
             self.lin_reg_log.show()
         else:
             print("No logarithmic regression available.")
-        
+
         if self.lin_reg_lin:
             print("\nLinear Scale Regression:")
             self.lin_reg_lin.show()
@@ -557,11 +561,10 @@ class TimeDiv:
 
         print("\n=== SHOW TimeDiv class object (END) ===")
 
-
     def merge(self) -> None:
         """
         Crucial step for this program, then long detailed docstring:
-        
+
         Merges the DataFrames in `df_dict` into
         a single unified DataFrame (`merged_data`),
         retaining only rows with complete data across
@@ -570,7 +573,7 @@ class TimeDiv:
         Steps:
         1. **Validation**:
             Ensures that essential DataFrames
-            (`data_x`, `data_y`, and `data_point_size`) 
+            (`data_x`, `data_y`, and `data_point_size`)
             exist in `df_dict`.
             Raises a `ValueError` if any of them is missing.
 
@@ -585,9 +588,9 @@ class TimeDiv:
 
         4. **Data Merging**:
             Iteratively merges `data_x` with
-            other DataFrames (`data_y`, `data_point_size`, 
+            other DataFrames (`data_y`, `data_point_size`,
             `extra_data_x`, `extra_data_y`) based on the `common_column`,
-            using an inner join to retain only 
+            using an inner join to retain only
             rows present in all included DataFrames.
 
         5. **Final Output**:
@@ -600,7 +603,7 @@ class TimeDiv:
 
         Raises:
             ValueError:
-                If any of the required DataFrames 
+                If any of the required DataFrames
                 (`data_x`, `data_y`, `data_point_size`) is missing.
         """
 
@@ -618,10 +621,17 @@ class TimeDiv:
         )
 
         for key in ['data_x', 'data_y', 'data_point_size']:
-            self.df_dict[key] = self.df_dict[key].loc[mask.reindex(self.df_dict[key].index, fill_value=False)].reset_index()
+            self.df_dict[key] = self.df_dict[key].loc[
+                mask.reindex(self.df_dict[key].index, fill_value=False)
+                ].reset_index()
 
         self.merged_data = self.df_dict['data_x']
-        for key in ['data_y', 'data_point_size', 'extra_data_x', 'extra_data_y']:
+        for key in [
+            'data_y',
+            'data_point_size',
+            'extra_data_x',
+            'extra_data_y'
+        ]:
             if self.df_dict[key] is not None:
                 self.merged_data = pd.merge(
                     self.merged_data,
@@ -661,7 +671,7 @@ class TimeDiv:
     def calculate_linregr(
             self,
             log: bool
-        ) -> LinReg:
+    ) -> LinReg:
         """
         Performs linear regression on x and y data,
         with an optional logarithmic transformation on x.
@@ -678,7 +688,7 @@ class TimeDiv:
         """
 
         data_x, data_y = self.harmonize_for_regression()
-        
+
         if log:
             data_x = np.log10(data_x)
 
@@ -782,7 +792,7 @@ class Day02Ex03:
 
     def __init__(self):
         """Initializes the Day02Ex03 object with default values."""
-        
+
         self.anim: FuncAnimation | None = None
         self.ax_box_tracker: Axes | None = None
         self.axes: dict[str, Axes] | None = None
@@ -845,13 +855,13 @@ class Day02Ex03:
         self.x_unit: str | None = None
         self.y_label: str | None = None
         self.y_unit: str | None = None
-        
+
         # definetly set that way (adjustable in future versions)
         self.colored_extra_data: str = "extra_data_x"
-        
+
     def show(self):
         """The class show method for a Day02Ex03 class object"""
-        
+
         print("\n=== SHOW Day02Ex03 object (START) ===")
 
         print("\n--- General Settings ---")
@@ -898,7 +908,6 @@ class Day02Ex03:
 
         print("\n=== SHOW Day02Ex03 object (END) ===\n")
 
-
     def add_data_path(
         self,
         data_path: str,
@@ -921,9 +930,10 @@ class Day02Ex03:
                 If any argument is not a valid string or
                 `data_path` is too short.
         """
-        
+
         if (
-            all(isinstance(arg, str) for arg in (
+            all(
+                isinstance(arg, str) for arg in (
                 data_path,
                 data_type,
                 short_name
@@ -1088,7 +1098,7 @@ class Day02Ex03:
         Args:
             title (str): The title of the visualization.
         """
-        
+
         self.title = title
 
     @typeguard.typechecked
@@ -1112,7 +1122,7 @@ class Day02Ex03:
             type (str):
                 Label for the type of time division (e.g., "year").
         """
-        
+
         self.timediv_range = range(start, stop + 1)
         self.timediv_type = type
         self.init_value = init_value
@@ -1130,14 +1140,14 @@ class Day02Ex03:
             common_column (str):
                 Column name that links datasets together.
         """
-    
+
         self.common_column = common_column
 
     @typeguard.typechecked
     def set_autoplay_at_start(
         self,
-        autoplay_at_start:bool
-    ) -> None :
+        autoplay_at_start: bool
+    ) -> None:
         """
         Configures whether the animation starts automatically.
 
@@ -1145,7 +1155,7 @@ class Day02Ex03:
             autoplay_at_start (bool):
                 True to start the animation automatically; False otherwise.
         """
-        
+
         self.first_running = autoplay_at_start
 
     def clean_data_x(self) -> None:
@@ -1244,12 +1254,10 @@ class Day02Ex03:
             data_y_countries = self.data_frames[
                 'data_x'
                 ].data_frame[self.common_column].unique()
-            
+
             def match_country_name(country):
                 """DOCSTRING"""
-        
 
-                
                 match, score = process.extractOne(country, data_y_countries)
                 return match if score >= 80 else None
 
@@ -1264,15 +1272,15 @@ class Day02Ex03:
             )
             df = df.sort_values(
                 by=self.common_column).reset_index(drop=True)
-            
+
             self.data_frames['extra_data_x'].data_frame = df
             self.data_frames['extra_data_x'].data_cleaned = True
-            
+
     def clean_extra_data_y(self) -> None:
         """
         Marks the DataFrame associated with `extra_data_y` as cleaned.
 
-        - Simply sets the `data_cleaned` attribute to True, as no 
+        - Simply sets the `data_cleaned` attribute to True, as no
         specific cleaning steps are defined for this DataFrame so far.
 
         Raises:
@@ -1297,7 +1305,7 @@ class Day02Ex03:
             ValueError:
                 If any DataFrame is missing or improperly initialized.
         """
-        
+
         self.clean_data_x()
         self.clean_data_y()
         self.clean_data_point_size()
@@ -1375,7 +1383,7 @@ class Day02Ex03:
         """
 
         self.get_first_last_column_names()
-        
+
         for div in self.timediv_range:
             timediv = TimeDiv(
                 self.subsets_timediv_extraction(div),
@@ -1384,13 +1392,13 @@ class Day02Ex03:
             )
             timediv.merge()
             timediv.linear_regressions()
-                
+
             self.precomputed_data[div] = timediv
             self.corr_log.append(timediv.lin_reg_log.corr)
             self.pvalue_log.append(timediv.lin_reg_log.pvalue)
             self.corr_lin.append(timediv.lin_reg_lin.corr)
             self.pvalue_lin.append(timediv.lin_reg_lin.pvalue)
-            
+
         self.corr_log = np.array(self.corr_log)
         self.pvalue_log = np.array(self.pvalue_log)
         self.corr_lin = np.array(self.corr_lin)
@@ -1418,10 +1426,10 @@ class Day02Ex03:
             ],
             figsize=(fig_w, fig_h)
         )
-        
+
         def on_resize(event):
             fig_width, fig_height = self.fig.get_size_inches()
-            scale = min(fig_width / fig_w, fig_height /fig_h)
+            scale = min(fig_width / fig_w, fig_height / fig_h)
             self.fig.subplots_adjust(
                 top=0.96,
                 bottom=0.1,
@@ -1431,9 +1439,9 @@ class Day02Ex03:
                 wspace=0.2 * scale
             )
             plt.draw()
-            
+
         self.fig.canvas.mpl_connect('resize_event', on_resize)
-        
+
         self.fig.subplots_adjust(
             top=0.96,
             bottom=0.1,
@@ -1461,7 +1469,7 @@ class Day02Ex03:
             - The colorbar is based on a linear segmented colormap.
             - The default range for values is 0 to 100.
         """
-        
+
         vmin: float = 0
         vmax: float = 100
         orientation: str = "vertical"
@@ -1571,7 +1579,7 @@ class Day02Ex03:
             alpha=0.7,
             label=f"{self.common_column.title()} ({pt_size_s_name}-sized)"
         )
-        
+
         if self.tracked_element:
             highlighted = data[
                 data[self.common_column].str.contains(
@@ -1590,7 +1598,7 @@ class Day02Ex03:
                     color='cyan',
                     label=f"Tracked: {self.tracked_element}",
                     edgecolor='black'
-            )
+                )
         return scatter
 
     def plot_regressline(
@@ -1598,7 +1606,7 @@ class Day02Ex03:
             timediv: TimeDiv,
             is_log_scale: bool,
             ax: Axes,
-            color: str            
+            color: str
     ) -> None:
         """
         Plots the regression line on the specified axis.
@@ -1631,7 +1639,7 @@ class Day02Ex03:
         mask = ~np.isnan(x) & ~np.isnan(y)
         x_cleaned = x[mask]
         y_cleaned = y[mask]
-        
+
         reg_line_type = 'log-linear' if is_log_scale else 'linear'
         ax.plot(
             x_cleaned,
@@ -1713,7 +1721,7 @@ class Day02Ex03:
             - Annotations display detailed information for each point.
             - Removes existing cursors on the axis before adding a new one.
         """
-        
+
         if (
             ax_name in self.cursor_container
             and self.cursor_container[ax_name]
@@ -1726,7 +1734,7 @@ class Day02Ex03:
                     f"Warning: Failed to remove cursor on "
                     f"{ax_name}: {e}"
                 )
-                
+
         cursor = mplcursors.cursor(
             scatter,
             hover=True
@@ -1740,11 +1748,16 @@ class Day02Ex03:
                 row = data.iloc[idx]
                 data_x_name = self.data_frames["data_x"].data_name
                 data_y_name = self.data_frames["data_y"].data_name
-                data_point_size_name = self.data_frames["data_point_size"].data_name
+                data_point_size_name = self.data_frames[
+                    "data_point_size"].data_name
                 extra_data_x_text = 'N/A'
-                extra_data_x_name = self.data_frames["extra_data_x"].data_name
+                extra_data_x_name = self.data_frames[
+                    "extra_data_x"].data_name
 
-                if extra_data_x_name in row.index and pd.notna(row[extra_data_x_name]):
+                if (
+                    extra_data_x_name in row.index
+                    and pd.notna(row[extra_data_x_name])
+                ):
                     extra_data_x_text = f"{row[extra_data_x_name]:.2f}"
 
                 sel.annotation.set(
@@ -1921,7 +1934,7 @@ class Day02Ex03:
 
     def update_slider_title(
         self,
-        val:int
+        val: int
     ) -> None:
         """
         Updates the title text of the slider to reflect the current year.
@@ -1964,11 +1977,11 @@ class Day02Ex03:
         )
         self.slider.on_changed(self.update_slider_title)
         self.slider.on_changed(update_callback_function)
-        
+
         self.play_ax = self.fig.add_axes([0.56, 0.01, 0.03, 0.03])
         self.play_button = Button(self.play_ax, '\u25B6')
         self.play_button.on_clicked(self.start_animation)
-        
+
         self.pause_ax = self.fig.add_axes([0.6, 0.01, 0.03, 0.03])
         self.pause_button = Button(self.pause_ax, r'$\mathbf{| |}$')
         self.pause_button.on_clicked(self.stop_animation)
@@ -1993,7 +2006,7 @@ class Day02Ex03:
 
         if self.running_mode and not self.first_running:
             return
-        
+
         self.first_running = False
         self.running_mode = True
         self.anim = FuncAnimation(
@@ -2052,7 +2065,7 @@ class Day02Ex03:
             correlation and p-value graphs.
             - Existing cursors are removed before new ones are added.
         """
-        
+
         curve_labels = {
             "corr_log": ["corr log", "pvalue log"],
             "corr_lin": ["corr lin", "pvalue lin"],
@@ -2061,7 +2074,7 @@ class Day02Ex03:
         for ax_name, labels in curve_labels.items():
             if ax_name in self.axes:
                 ax = self.axes[ax_name]
-                
+
                 for label in labels:
                     if (
                         label in self.correlation_cursor_container
@@ -2115,7 +2128,7 @@ class Day02Ex03:
             - Updates the main plots to reflect the tracked element.
             - Resets and re-applies cursors to the right-side graphs.
         """
-        
+
         self.tracked_element = text.strip()
         self.update()
         self.set_right_side_graphs_cursors()
@@ -2130,7 +2143,7 @@ class Day02Ex03:
             - Associates the text box with the `add_tracker`
             method for interactivity.
         """
-        
+
         self.ax_box_tracker = self.fig.add_axes([0.81, 0.005, 0.18, 0.05])
         self.text_box_tracker = TextBox(
             self.ax_box_tracker,
@@ -2169,7 +2182,7 @@ class Day02Ex03:
             label="pvalue " + graph,
             color="purple" if graph == "log" else "olive",
         )
-        
+
         ax.set_xlabel(self.timediv_type, labelpad=-27)
         ax.set_xlim(self.timediv_range.start, self.timediv_range.stop)
         ax.set_ylabel("Corr. Coeff. or Pvalue", labelpad=-30, loc="center")
@@ -2203,9 +2216,9 @@ class Day02Ex03:
             - Sets up axes, colorbars, sliders, and right-side graphs.
             - Configures dynamic window resizing and graph adjustments.
         """
-        
+
         self.build_fig_axes()
-        
+
         self.build_colorbar(
             ax=self.axes["log"],
             extra_data=self.data_frames['extra_data_x']
@@ -2213,12 +2226,12 @@ class Day02Ex03:
 
         self.build_slider(
             update_callback_function=self.update)
-        
+
         self.build_tracker()
-            
+
         self.set_and_plot_right_side_graph("log")
         self.set_and_plot_right_side_graph("lin")
-        
+
         self.fig.canvas.manager.set_window_title(
             f"{self.data_frames['data_x'].short_name} VS "
             f"{self.data_frames['data_y'].short_name} for each "
@@ -2249,7 +2262,7 @@ class Day02Ex03:
                 "Make sure build_figure_axes Day02Ex03"
                 "method has beed called before."
             )
-   
+
 
 def main() -> None:
     """
@@ -2263,10 +2276,10 @@ def main() -> None:
         - Optionally enables autoplay.
         - Displays the application window.
     """
-    
+
     try:
         exo03 = Day02Ex03()
-    
+
         exo03.add_data_x_path(
             "income_per_person_gdppercapita_ppp_inflation_adjusted.csv",
             short_name="GDP per capita",
@@ -2293,38 +2306,36 @@ def main() -> None:
         #     short_name=""
         # )
         exo03.add_title(
-            "Life Expectancy"\
-            " VS "\
-            "Inflation-adjusted GDP per capita "\
+            "Life Expectancy"
+            " VS "
+            "Inflation-adjusted GDP per capita "
             "at purchasing power parity (PPP)"
         )
         exo03.add_timediv_range(
             start=1800,
             stop=2050,
-            init_value = 1900,
+            init_value=1900,
             type="year",
         )
         exo03.add_common_column('country')
 
         exo03.clean_data_frames()
         exo03.precompute_data()
-        
+
         exo03.build_mpl_window()
         exo03.update()
         exo03.set_right_side_graphs_cursors()
         exo03.set_autoplay_at_start(False)
-        
-        exo03.show()
-        
+
         exo03.pltshow()
-        
+
     except ValueError as error:
         print(f"{type(error).__name__}: {error}")
     except typeguard.TypeCheckError as error:
         print(f"{type(error).__name__}: {error}")
     except Exception as error:
         print(f"An unexpected error occurred: {error}")
-    
+
 
 if __name__ == "__main__":
     main()
