@@ -87,8 +87,8 @@ class Character(ABC):
         """
         By the way, simpler way to check parameters types:
         pip install typeguard
-        from typeguard import typechecked
-        Write @typechecked above the __init__ definition
+        import typeguard
+        Write @typeguard.typechecked above the __init__ definition
         """
 
         self.first_name = first_name

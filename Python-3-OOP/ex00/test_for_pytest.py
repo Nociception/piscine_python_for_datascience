@@ -1,6 +1,13 @@
 import pytest
 from S1E9 import Character, Stark
 
+"""
+This file is named in order to be detected by pytest.
+Just type pytest in the shell, and this file will be
+treated with pytest.
+Functions are named according to the same logic.
+"""
+
 
 def test_default_values():
     jon = Stark("Jon")
@@ -13,7 +20,6 @@ def test_die_method():
 
     arya.die()
     assert arya.is_alive is False
-
     
     arya.die()
     assert arya.is_alive is False
@@ -33,7 +39,9 @@ def test_invalid_subclass():
     with pytest.raises(TypeError) as excinfo:
         fake = FakeCharacter("Fake")
         fake.die()
-    assert "Can't instantiate abstract class FakeCharacter" in str(excinfo.value)
+    assert (
+        "Can't instantiate abstract class FakeCharacter" in str(excinfo.value)
+    )
 
 
 def test_invalid_arguments():
