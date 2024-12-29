@@ -830,6 +830,7 @@ class Day02Ex03:
         self.fig: Figure | None = None
         self.first_running: bool = False
         self.init_value: int | None = None
+        self.interval_between_two_frames: int = 100
         self.pause_ax: Axes | None = None
         self.pause_button: Button | None = None
         self.play_ax: Axes | None = None
@@ -2029,7 +2030,7 @@ class Day02Ex03:
             self.update_slider,
             frames=range(self.slider.val, self.timediv_range.stop),
             repeat=True,
-            interval=100,
+            interval=self.interval_between_two_frames,
         )
         plt.draw()
 
@@ -2301,6 +2302,23 @@ class Day02Ex03:
                 "method has beed called before."
             )
 
+    @typeguard.typechecked
+    def set_interval_between_two_frames(
+        self,
+        interval: int = 100
+    ) -> None:
+        """
+        Sets the time interval between two frames during the animation.
+
+        Args:
+            interval (int): the interval, in ms, between two frames.
+
+        Notes:
+            - A big interval will make the animation slower.
+        """
+
+        self.interval_between_two_frames = interval
+
 
 def main() -> None:
     """
@@ -2363,7 +2381,8 @@ def main() -> None:
         exo03.build_mpl_window()
         exo03.update()
         exo03.set_right_side_graphs_cursors()
-        exo03.set_autoplay_at_start(False)
+        exo03.set_autoplay_at_start(True)
+        exo03.set_interval_between_two_frames(200)
 
         exo03.pltshow()
 

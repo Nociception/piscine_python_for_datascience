@@ -8,9 +8,13 @@ This file contains two part:
     - first: uncommented run-ready code,
     designed to fullfill the subject requirement.
     - second: commented code, for two files (separated with a big blank):
-        They are separated with block a # lines such as:
-        ################################################
-        
+        They are separated with block a @ lines such as:
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        @@@@@@@@@@@@@@@@@@@ file_name.py @@@@@@@@@@@@@@@@@@@@
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
         - explained.py: an explained code file.
         Contains the mandatory part,
         and a personnal bonus (as the subject does not contain
@@ -23,7 +27,7 @@ This file contains two part:
         The population dataset from previous exercise is also used.
         An extra data set must be download here :
         https://data.worldbank.org/indicator/SI.POV.GINI
-        
+
         Copy paste in a new file the commented code, and then
         uncomment it in the new file.
 """
@@ -173,11 +177,12 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 
-###############################################################
-###############################################################
-########################## explained.py #######################
-###############################################################
-###############################################################
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# @@@@@@@@@@@@@@@@@@@@@@@@ explained.py @@@@@@@@@@@@@@@@@@@@@@@
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 # """
 # Many MULTILINE STRINGS in this file.
 # Once you read one (or not), remind to FOLD it in order to avoid
@@ -675,11 +680,11 @@ if __name__ == "__main__":
 # if __name__ == "__main__":
 #     main()
 
-###############################################################
-###############################################################
-########################## poo.py #############################
-###############################################################
-###############################################################
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# @@@@@@@@@@@@@@@@@@@@@@@@ poo.py @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # """
 # Long file here. Here are some tips:
 # - It is highly recommanded to use a code editor which allows
@@ -1518,6 +1523,7 @@ if __name__ == "__main__":
 #         self.fig: Figure | None = None
 #         self.first_running: bool = False
 #         self.init_value: int | None = None
+#         self.interval_between_two_frames: int = 100
 #         self.pause_ax: Axes | None = None
 #         self.pause_button: Button | None = None
 #         self.play_ax: Axes | None = None
@@ -2717,7 +2723,7 @@ if __name__ == "__main__":
 #             self.update_slider,
 #             frames=range(self.slider.val, self.timediv_range.stop),
 #             repeat=True,
-#             interval=100,
+#             interval=self.interval_between_two_frames,
 #         )
 #         plt.draw()
 
@@ -2989,6 +2995,23 @@ if __name__ == "__main__":
 #                 "method has beed called before."
 #             )
 
+#     @typeguard.typechecked
+#     def set_interval_between_two_frames(
+#         self,
+#         interval: int = 100
+#     ) -> None:
+#         """
+#         Sets the time interval between two frames during the animation.
+
+#         Args:
+#             interval (int): the interval, in ms, between two frames.
+
+#         Notes:
+#             - A big interval will make the animation slower.
+#         """
+
+#         self.interval_between_two_frames = interval
+
 
 # def main() -> None:
 #     """
@@ -3051,7 +3074,8 @@ if __name__ == "__main__":
 #         exo03.build_mpl_window()
 #         exo03.update()
 #         exo03.set_right_side_graphs_cursors()
-#         exo03.set_autoplay_at_start(False)
+#         exo03.set_autoplay_at_start(True)
+#         exo03.set_interval_between_two_frames(200)
 
 #         exo03.pltshow()
 
