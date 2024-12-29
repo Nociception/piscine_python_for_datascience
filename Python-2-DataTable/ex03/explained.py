@@ -14,26 +14,6 @@ As this file is explained, many text written can flood
 and make your reading experience painful.
 """
 
-# Subject
-"""
-Exercice 03: draw my year
-Turn-in directory : ex03/
-Files to turn in : load_csv.py, projection_life.py
-Allowed functions : matplotlib, seaborn or any lib for Data Visualization and
-your lib of ex00
-
-Create a program that calls the load function from the first exercise,
-loads the files "income_per_person_gdppercapita_ppp_inflation_adjusted.csv"
-and "life_expectancy_years.csv", and displays the projection of
-life expectancy in relation to the gross national product of
-the year 1900 for each country.
-Your graph must have a title,
-a legend for each axis and a legend for each graph.
-You must display the year 1900.
-
-See the expected.jpg file in the github repo.
-"""
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import mplcursors
@@ -72,8 +52,8 @@ def main() -> None:
         - Catches and prints unexpected errors.
     """
 
-    BONUS = 1  #switch it between 0 or 1 to enable the bonus part.
-    
+    BONUS = 1  # switch it between 0 or 1 to enable the bonus part.
+
     DEBUG = 0
     DEBUG_BEACON = 1
     """
@@ -253,9 +233,9 @@ def main() -> None:
         DEBUG_BEACON = 1
         if DEBUG and DEBUG_BEACON:
             print(f"merged_data.head():\n{merged_data.head()}\n")
-       
+
         # ===== matplotlib settings start from here =====
-        fig, ax = plt.subplots(figsize=(10,6))
+        fig, ax = plt.subplots(figsize=(10, 6))
         """
         plt.subplots() returns two objects :
         - a Figure object, which contains everything, like a canvas;
@@ -312,12 +292,12 @@ def main() -> None:
             x = np.log10(merged_data['gdp'])
             y = merged_data['life_expectancy']
             n = shape[1] (186: nb of countries with data in 1900)
-            linregress returns three key values among others: 
+            linregress returns three key values among others:
             - slope: the slope of the regression line.
             slope = Cov(x,y)/Var(x)
             Cov stands for covariance:
             Cov(x,y) = (1/n) * sum[i=1 to n]((x_i-mean(x)) * (y_i-mean(y)))
-            
+
             Var for variance:
             Var(x) = (1/n) * sum[i=1 to n]((x_i-mean(x))**2)
             - intercept: the y-intercept of this line.
