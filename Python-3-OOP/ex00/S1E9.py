@@ -59,6 +59,7 @@ $>
 
 from abc import ABC, abstractmethod
 
+
 class Character(ABC):
     """
     Abstract class Character, which inherits from ABC (abc module).
@@ -103,8 +104,8 @@ class Character(ABC):
         in any inherited class from this one (Chararter).
         """
 
-        pass        
-    
+        pass
+
 
 class Stark(Character):
     """

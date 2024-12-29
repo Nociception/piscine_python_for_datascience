@@ -1,5 +1,6 @@
 from S1E9 import Character, Stark
 
+
 def main() -> None:
     """DOCSTRING"""
 
@@ -11,16 +12,17 @@ def main() -> None:
     print(Ned.__doc__)
     print(Ned.__init__.__doc__)
     print(Ned.die.__doc__)
-    
+
     print("---")
     Lyanna = Stark("Lyanna", False)
     print(Lyanna.__dict__)
-    
+
     try:
         hodor = Character("hodor")
         hodor.die()
     except TypeError as e:
         print(e)
+
 
 if __name__ == "__main__":
     main()

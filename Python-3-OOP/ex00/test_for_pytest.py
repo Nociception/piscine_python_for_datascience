@@ -20,7 +20,7 @@ def test_die_method():
 
     arya.die()
     assert arya.is_alive is False
-    
+
     arya.die()
     assert arya.is_alive is False
 
@@ -50,7 +50,7 @@ def test_invalid_arguments():
         invalid_stark.die()
 
     with pytest.raises(TypeError):
-        invalid_stark = Stark("Robb", "alive")  
+        invalid_stark = Stark("Robb", "alive")
 
 
 def test_docstrings():
@@ -78,12 +78,13 @@ def test_multiple_instances():
 
     ned.die()
     assert ned.is_alive is False
-    assert arya.is_alive is False  
+    assert arya.is_alive is False
 
 
 def test_many_instances():
     starks = [Stark(f"Stark_{i}") for i in range(1000)]
     assert all(stark.is_alive for stark in starks)
+
 
 if __name__ == "__main__":
     pytest.main()
