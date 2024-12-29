@@ -18,7 +18,9 @@ by switching on 0 or 1 the second condition in the if
 
 Still to do:
 - readme
-- update show classes methods
+- video
+- LinkedIn presentation
+- norm
 
 Upgrade projects :
 - world events
@@ -49,7 +51,6 @@ import typeguard
 
 if matplotlib.get_backend() != 'TkAgg':
     matplotlib.use('TkAgg')
-
 
 
 def debug(
@@ -851,20 +852,51 @@ class Day02Ex03:
     def show(self):
         """The class show method for a Day02Ex03 class object"""
         
-        print("\n=== Show Day02Ex03 object ===")
-        print(f"title: {self.title}")
-        print(f"data_point_size_divider: {self.data_point_size_divider}")
-        print(f"timediv_range: {self.timediv_range}")
-        print(f"x_label: {self.x_label}")
-        print(f"y_label: {self.y_label}")
-        print(f"y_unit: {self.y_unit}")
-        print(f"common_column: {self.common_column}")
-        print(f"corr_log: {self.corr_log}")
-        print(f"corr_lin: {self.corr_lin}")
-        print(f"tracked_element: {self.tracked_element}")
-        print("data_frames:")
-        dict_printer(self.data_frames, "cust class")
-        print("=== END Show Day02Ex03 object END ===\n")
+        print("\n=== SHOW Day02Ex03 object (START) ===")
+
+        print("\n--- General Settings ---")
+        print(f"Title: {self.title}")
+        print(f"Timediv Range: {self.timediv_range}")
+        print(f"Timediv Type: {self.timediv_type}")
+        print(f"Initial Value: {self.init_value}")
+        print(f"Running Mode: {self.running_mode}")
+        print(f"First Running: {self.first_running}")
+
+        print("\n--- Labels and Units ---")
+        print(f"X Label: {self.x_label}")
+        print(f"X Unit: {self.x_unit}")
+        print(f"Y Label: {self.y_label}")
+        print(f"Y Unit: {self.y_unit}")
+
+        print("\n--- Correlation and P-Values ---")
+        print(f"Correlation (Log): {self.corr_log}")
+        print(f"P-Values (Log): {self.pvalue_log}")
+        print(f"Correlation (Lin): {self.corr_lin}")
+        print(f"P-Values (Lin): {self.pvalue_lin}")
+
+        print("\n--- Tracking ---")
+        print(f"Tracked Element: {self.tracked_element}")
+
+        print("\n--- Data Frames ---")
+        dict_printer(self.data_frames, values_type="cust class")
+
+        print("\n--- Color Map and Color Bar ---")
+        print(f"Color Map Colors: {self.cmap_colors}")
+        print(f"Colored Extra Data: {self.colored_extra_data}")
+        print(f"Color Bar: {self.cbar}")
+
+        print("\n--- Interactive Elements ---")
+        print(f"Slider: {self.slider}")
+        print(f"Slider Title Text: {self.slider_title_text}")
+        print(f"Play Button: {self.play_button}")
+        print(f"Pause Button: {self.pause_button}")
+        print(f"Tracker Text Box: {self.text_box_tracker}")
+
+        print("\n--- Axes and Figures ---")
+        print(f"Figure: {self.fig}")
+        print(f"Axes: {self.axes}")
+
+        print("\n=== SHOW Day02Ex03 object (END) ===\n")
 
 
     def add_data_path(
@@ -2281,6 +2313,8 @@ def main() -> None:
         exo03.update()
         exo03.set_right_side_graphs_cursors()
         exo03.set_autoplay_at_start(False)
+        
+        exo03.show()
         
         exo03.pltshow()
         
