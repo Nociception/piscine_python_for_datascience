@@ -20,8 +20,6 @@ Still to do:
 - readme
 - video
 - LinkedIn presentation
-- norm
-- docstrings for inner functions
 
 Upgrade projects :
 - world events
@@ -1742,6 +1740,27 @@ class Day02Ex03:
 
         @cursor.connect("add")
         def on_add(sel):
+            """
+            Handles the addition of cursor annotations for scatter plots.
+
+            Args:
+                sel (mplcursors.Selection):
+                    The selection object for the hovered data point.
+
+            Functionality:
+                - Retrieves the index and data of the selected point.
+                - Formats and displays an annotation with relevant details:
+                x-value, y-value, point size, and extra data (if available).
+                - Styles the annotation box for clarity.
+                - Ensures robust handling of missing or invalid data.
+
+            Raises:
+                KeyError:
+                    If a required column is missing in the DataFrame.
+                Exception:
+                    For unexpected errors during the annotation process.
+            """
+
             idx = sel.index
 
             try:
@@ -2095,6 +2114,29 @@ class Day02Ex03:
 
                         @cursor.connect("add")
                         def on_add(sel, label=line.get_label()):
+                            """
+                            Callback function to handle hover events
+                            on correlation and p-value curves.
+
+                            Args:
+                                sel:
+                                    The mplcursors selection object,
+                                    providing details about
+                                    the hovered point.
+                                label (str):
+                                    The label of the curve being annotated,
+                                    used to distinguish between correlation
+                                    and p-value curves.
+
+                            Functionality:
+                                - Retrieves the year (x) and
+                                the curve value (y) of the hovered point.
+                                - Sets an annotation displaying the year
+                                and the value with a prefix
+                                ('Corr' or 'Pval') based on the curve type.
+                                - Styles the annotation for better
+                                visibility and clarity.
+                            """
                             x, y = sel.target
                             annotation = (
                                 "Corr" if "corr" in label else "Pval"
