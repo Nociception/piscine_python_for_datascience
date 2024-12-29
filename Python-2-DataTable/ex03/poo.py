@@ -286,10 +286,15 @@ class LinReg:
     def show(self) -> None:
         """The class show method for a LinReg class object"""
 
-        print("\n=== SHOW LinReg object ===")
-        print(f"self.predicted:\n{self.predicted}")
-        print(f"self.corr:\n{self.corr}")
-        print("=== SHOW LinReg object FIN\n===")
+        print("\n=== SHOW LinReg class object (START) ===")
+    
+        print(f"Correlation Coefficient (corr): {self.corr:.4f}")
+        print(f"P-Value (pvalue): {self.pvalue:.4e}")
+        
+        print("\nPredicted Values (predicted):")
+        print(self.predicted)
+        
+        print("\n=== SHOW LinReg class object (END) ===")
         
 
 class DataFrame:
@@ -363,16 +368,25 @@ class DataFrame:
     def show(self) -> None:
         """The class show method for a DataFrame class object"""
 
-        print("\n===== Show Data_Frame object =====")
-        print(f"data_type: {self.data_type}")
-        print(f"file_path: {self.file_path}")
-        print(f"data_name: {self.data_name}")
-        print(f"short_name: {self.short_name}")
-        print(f"first_column_name: {self.first_column_name}")
-        print(f"last_column_name: {self.last_column_name}")
-        print(f"data_cleaned: {self.data_cleaned}")
-        print(f"data_frame:\n{self.data_frame}")
-        print("===== END Show Data_Frame object END =====\n")
+        print("\n=== SHOW DataFrame class object (START) ===")
+    
+        print("\n--- General Information ---")
+        print(f"Data Type: {self.data_type}")
+        print(f"File Path: {self.file_path}")
+        print(f"Data Name: {self.data_name}")
+        print(f"Short Name: {self.short_name}")
+
+        print("\n--- Column Information ---")
+        print(f"First Column Name: {self.first_column_name}")
+        print(f"Last Column Name: {self.last_column_name}")
+
+        print("\n--- Data Cleaning Status ---")
+        print(f"Data Cleaned: {self.data_cleaned}")
+
+        print("\n--- DataFrame Content ---")
+        print(self.data_frame)
+
+        print("\n=== SHOW DataFrame class object (END) ===")
 
     class DataFrameException(Exception):
         """
@@ -501,21 +515,46 @@ class TimeDiv:
         self.lin_reg_log: LinReg | None = None
         self.lin_reg_lin: LinReg | None = None
 
-    def show(self) -> None:
+    def show(
+        self,
+        head_value: int=5
+    ) -> None:
         """The class show method for a TimeDiv class object"""
 
-
-        print("\n=== TimeDiv Details ===")
+        print("\n=== SHOW TimeDiv class object (START) ===")
+        
+        print("\n--- General Information ---")
         print(f"Time Division: {self.div}")
         print(f"Common Column: {self.common_column}")
-        print(f"Merged Data:\n{self.merged_data}")
+
+        print("\n--- DataFrames Dictionary (df_dict) ---")
+        for key, df in self.df_dict.items():
+            print(f"{key}:")
+            if df is not None:
+                print(df.head(head_value))
+            else:
+                print("None")
+
+        print("\n--- Merged Data ---")
+        if self.merged_data is not None:
+            print(self.merged_data.head(head_value))
+        else:
+            print("No merged data available.")
+
+        print("\n--- Linear Regression Results ---")
         if self.lin_reg_log:
-            print("Linear Regression (Log):")
+            print("\nLogarithmic Scale Regression:")
             self.lin_reg_log.show()
+        else:
+            print("No logarithmic regression available.")
+        
         if self.lin_reg_lin:
-            print("Linear Regression (Linear):")
+            print("\nLinear Scale Regression:")
             self.lin_reg_lin.show()
-        print("========================\n")
+        else:
+            print("No linear regression available.")
+
+        print("\n=== SHOW TimeDiv class object (END) ===")
 
 
     def merge(self) -> None:
