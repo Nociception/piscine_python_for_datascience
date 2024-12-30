@@ -59,6 +59,7 @@ $>
 
 from abc import ABC, abstractmethod
 
+
 class Character(ABC):
     """
     Abstract class Character, which inherits from ABC (abc module).
@@ -97,7 +98,7 @@ class Character(ABC):
     @classmethod
     def get_class_attributes(cls):
         """DCOSTRING"""
-        
+
         return {
             attr for attr in cls.__dict__.keys()
             if not attr.startswith("__")
@@ -112,8 +113,8 @@ class Character(ABC):
         in any inherited class from this one (Chararter).
         """
 
-        pass        
-    
+        pass
+
 
 class Stark(Character):
     """
