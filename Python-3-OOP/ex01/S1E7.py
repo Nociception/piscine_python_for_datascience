@@ -1,4 +1,5 @@
 from S1E9 import Character
+from typing import Any
 
 # SUBJECT
 """
@@ -69,6 +70,36 @@ $>
 """
 
 
+class Dummy_Character(Character):
+    """DO NOT USE, except for get_class_specific_attributes"""
+
+    def die():
+        pass
+
+def get_class_specific_attributes(
+    obj: object,
+    parent_obj: object
+) -> dict[str, Any]:
+
+    instance_attributes = obj.__dict__.keys()
+    
+    parent_class_attributes = parent_obj.__dict__.keys()
+
+    specific_attributes = set(instance_attributes) - set(parent_class_attributes)
+    
+    # print(f"instance_attributes : {instance_attributes}")
+    # print(f"parent_class_attributes : {parent_class_attributes}")
+    # print(f"specific_attributes : {specific_attributes}")
+    # print()
+
+    return {
+        attr: getattr(obj, attr)
+        for attr in specific_attributes
+    }
+
+
+
+
 class Baratheon(Character):
     """DOCSTRING"""
 
@@ -99,10 +130,33 @@ class Baratheon(Character):
         if self.is_alive:
             self.is_alive = False
 
-    def __str__(self) -> str:
-        """DOCSTRING"""
+        
+    def __repr__(self):
+        """
+        __repr__ Bratheon overload of the native __repr__ class method.
+        This method is called if the code contains such instructions:
+        - repr(obj)
+        - obj
+        (With obj as a custom class object
+        (for instance here, a Baratheon class object))
+        """
 
+        spec_attrs = get_class_specific_attributes(
+            self,
+            Dummy_Character("Dummy")
+        )
+        return f"Vector: ({', '.join(str(v) for v in sorted(spec_attrs.values()))})"
+
+
+    def __str__(self) -> str:
+        """
+        __str__ Bratheon overload of the native __str__ class method.
+        This method is called if the code contains such instructions:
+        - str(obj)
+        - print(obj)
+        (With obj as a custom class object
+        (for instance here, a Baratheon class object))
+        """
+        return self.__repr__()
 
     # DEF CHAIN CHARACTER_CREATION
-
-        return 

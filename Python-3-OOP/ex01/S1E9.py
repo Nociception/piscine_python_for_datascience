@@ -94,6 +94,15 @@ class Character(ABC):
         self.first_name = first_name
         self.is_alive = is_alive
 
+    @classmethod
+    def get_class_attributes(cls):
+        """DCOSTRING"""
+        
+        return {
+            attr for attr in cls.__dict__.keys()
+            if not attr.startswith("__")
+        }
+
     @abstractmethod
     def die(self) -> None:
         """
