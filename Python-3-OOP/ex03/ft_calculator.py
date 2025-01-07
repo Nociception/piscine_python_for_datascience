@@ -4,8 +4,10 @@ Exercice 03: Calculate my vector
 Turn-in directory : ex03/
 Files to turn in : ft_calculator.py
 Allowed functions : None
+
 Write a calculator class that is able to do calculations
 (addition, multiplication, subtraction, division) of vector with a scalar.
+
 The prototype of Class is:
 class calculator:
 #your code here
