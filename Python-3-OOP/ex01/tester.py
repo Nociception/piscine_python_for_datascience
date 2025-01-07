@@ -1,6 +1,6 @@
 from S1E7 import Baratheon, Lannister
 
-# Subject exerpt concerning the tester
+# Subject excerpt concerning the tester
 """
 Your tester.py:
 from S1E7 import Baratheon, Lannister
