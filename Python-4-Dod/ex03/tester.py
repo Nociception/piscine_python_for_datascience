@@ -6,7 +6,13 @@ student = Student(name = "Edward", surname = "agle")
 print(student)
 Expected output: (id is random)
 $> python tester.py
-Student(name='Edward', surname='agle', active=True, login='Eagle', id='trannxhndgtolvh')
+Student(
+    name='Edward',
+    surname='agle',
+    active=True,
+    login='Eagle',
+    id='trannxhndgtolvh'
+)
 $>
 10
 Training Piscine Python for datascience - 4 Data Oriented Design
@@ -25,10 +31,17 @@ $>
 
 from new_student import Student
 
-student = Student(name = "Edward", surname = "agle")
+student = Student(name="Edward", surname="agle")
 print(student)
 
-try :
-    student = Student(name = "Edward", surname = "agle", id = "toto")
+try:
+    student = Student(name="Edward", surname="agle", id="toto")
     print(student)
-except TypeError
+except TypeError as error:
+    print(error)
+
+try:
+    student = Student(name="Edward", surname="agle", login="lol")
+    print(student)
+except TypeError as error:
+    print(error)

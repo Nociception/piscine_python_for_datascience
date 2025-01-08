@@ -26,10 +26,12 @@ import random
 import string
 from dataclasses import dataclass, field
 
+
 def generate_id() -> str:
     """Generates a random ID with 15 lower letters"""
 
-    return "".join(random.choices(string.ascii_lowercase, k = 15))
+    return "".join(random.choices(string.ascii_lowercase, k=15))
+
 
 @dataclass
 class Student:
@@ -41,20 +43,20 @@ class Student:
         - __repr__ already prints properly all attributes
         - __eq__ allows to compare two instances of the same class,
         according to their attributes
-    
+
     __post_init__ allows to run a customized logic after initialization.
-    
+
     field allows to set:
     - if an attribute is definable or not by the user
     - a value handled with a specific function
     """
-    
+
     name: str
     surname: str
     active: bool = True
     login: str = field(init=False)
     id: str = field(init=False, default_factory=generate_id)
-    
+
     def __post_init__(self):
         """Magic dataclass method, run just after the initialization"""
 
