@@ -81,7 +81,7 @@ def main():
         # print(list(
         #     ft_filter(lambda x: len(x) >= length_minimum, text.split())))
         filtered_words = [word for word in ft_filter(
-            lambda x: len(x) >= length_minimum, text.split())]
+            lambda x: len(x) > length_minimum, text.split())]
         print(filtered_words)
 
     except AssertionError as error:
