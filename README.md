@@ -96,6 +96,7 @@ The subject provides minimal tests, and encourages us to write better ones.
 To do so, I tried to create a tester machine to avoid redundant code:
 - [general_function_tester.py](general_function_tester.py) for functions
 - [general_tester.py](general_tester.py) for programs
+
 Eventually, I prefered the pytest way.
 
 ---
