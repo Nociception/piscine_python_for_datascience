@@ -3,8 +3,11 @@ import os
 
 
 def tests_dict() -> dict:
-    """Return only the tests_dict
-    First element of each list is the expected result"""
+    """
+    Returns only the tests_dict
+    First element of each list is the expected result
+    """
+
     tests = {
         "simple_word": ["... --- ...", "sos"],
         "phrase_with_spaces": [".- / -... --- -.-", '"a bok"'],

@@ -37,7 +37,8 @@ import sys
 
 
 def main() -> None:
-    """Receives args from the CLI : python3 whatis.py arg1 arg2 arg...
+    """
+    Receives args from the CLI : python3 whatis.py arg1 arg2 arg...
     No arg does nothing, and gives back the prompt.
     More than one arg raises an AssertionError.
     Exactly one arg :
@@ -47,7 +48,8 @@ def main() -> None:
 
     Usage:
     $> python whatis.py 14
-    I'm Even."""
+    I'm Even.
+    """
 
     def parsing(argv: list) -> int:
         """Checks if exactly one argument is received,

@@ -2,6 +2,10 @@ import sys
 
 
 def main():
+    """
+    Gather many testcases to understand better how does yield work.
+    """
+
     def simple_generator():
         yield 1
         yield 2
@@ -11,7 +15,8 @@ def main():
     print("# Print the function (which became a generator)")
     for k in range(3):
         print(simple_generator())
-    """python3 training_yield.py
+    """
+    python3 training_yield.py
     <generator object simple_generator at 0x7f55135b6030>
     <generator object simple_generator at 0x7f55135b6030>
     <generator object simple_generator at 0x7f55135b6030>
@@ -22,7 +27,8 @@ def main():
     print("# Getting the generator's value through iterating the function")
     for value in simple_generator():
         print(value)
-    """python3 training_yield.py
+    """
+    python3 training_yield.py
     1
     2
     3
@@ -41,7 +47,8 @@ def main():
         print("Unreachable print")
     except StopIteration as error:
         print(f"{type(error).__name__}: {error}", file=sys.stderr)
-    """python3 training_yield.py
+    """
+    python3 training_yield.py
     1
     2
     3
@@ -77,7 +84,8 @@ def main():
               " of simple_generator.")
     except StopIteration as error:
         print(f"{type(error).__name__}: {error}", file=sys.stderr)
-    """Generator exhaustion and for loops
+    """
+    Generator exhaustion and for loops
     Let's iterate gen1 a first time
     1
     2
@@ -97,7 +105,8 @@ def main():
 
     End of try bloc, no exception raised
     gen1 and gen2 are two indepedant one-use instances
-    of simple_generator."""
+    of simple_generator.
+    """
     print()
 
     # Repeated for loops on the original generator instance
@@ -134,6 +143,11 @@ def main():
     print("# Interactive generators, with the send method")
 
     def interactive_generator():
+        """
+        An interactive generator that accepts and
+        yields values dynamically.
+        """
+
         a = yield "First value (starting the generator)"
         b = yield f"Value sent to the interactive_generator : {a}"
         c = yield f"Value sent to the interactive_generator : {b}"
@@ -141,6 +155,7 @@ def main():
         e = yield f"Value sent to the interactive_generator : {d}"
         f = yield f"Value sent to the interactive_generator : {e}"
         yield f"Final Result : f={f}"
+
     gen = interactive_generator()
     print(next(gen))
     print(gen.send(1))
@@ -153,8 +168,14 @@ def main():
     print("\nAnother example:")
 
     def simple_send_example():
+        """
+        A simple example to demonstrate
+        the send method with generators.
+        """
+
         val = yield "Start"
         yield f"Received : {val}"
+
     gen = simple_send_example()
     print(next(gen))
     print(gen.send("Test"))
@@ -166,10 +187,12 @@ def main():
     print("\nCountdown")
 
     def countdown(n):
-        """Génère un compte à rebours de n à 0."""
+        """Generates a countdown from n to 0."""
+
         while n >= 0:
             yield n
             n -= 1
+
     for number in countdown(5):
         print(number)
 
@@ -177,6 +200,11 @@ def main():
     print("\nLinear progression")
 
     def linear_progression(steps):
+        """
+        Generates percentages for a linear progression
+        in specified steps.
+        """
+
         for i in range(steps + 1):
             yield int((i / steps) * 100)
     for percent in linear_progression(10):

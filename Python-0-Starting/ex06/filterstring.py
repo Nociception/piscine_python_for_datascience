@@ -4,7 +4,8 @@ import sys
 from ft_filter import ft_filter
 
 # Subject
-"""Exercice 06:
+"""
+Exercice 06:
 Turn-in directory : ex06/
 Files to turn in : ft_filter.py, filterstring.py
 Allowed functions : sys or any other library that allows to receive the args
@@ -38,7 +39,8 @@ $>
 
 
 def main():
-    """Receive two argument from the CLI, in the following order:
+    """
+    Receives two argument from the CLI, in the following order:
     - a string with word(s), space separated,
     (use " for your "string" in the CLI)
     which contains no punction marks character, nor invisible characters
@@ -51,7 +53,8 @@ def main():
     Usage:
     $> python filterstring.py 'Hello the World' 4
     ['Hello', 'World']
-    $>"""
+    $>
+    """
 
     DEBUG = 0
 

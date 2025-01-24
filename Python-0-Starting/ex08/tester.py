@@ -1,5 +1,6 @@
 # Subject
-"""Your tester.py: (you compare your version with the original)
+"""
+Your tester.py: (you compare your version with the original)
 from time import sleep
 from tqdm import tqdm
 from Loading import ft_tqdm
@@ -16,7 +17,8 @@ $> python tester.py
 100%|[===============================================================>]
 | 333/333
 100%|                                                                  |
-333/333 [00:01<00:00, 191.61it/s]"""
+333/333 [00:01<00:00, 191.61it/s]
+"""
 
 
 from time import sleep
@@ -26,6 +28,7 @@ from Loading import ft_tqdm
 
 def main() -> None:
     """Tests the ft_tqdm function"""
+
     DELAY = 0.005
 
     def ft_tqdm_VS_original_tqdm(r: range) -> None:

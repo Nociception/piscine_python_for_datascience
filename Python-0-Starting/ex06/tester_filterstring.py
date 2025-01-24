@@ -3,8 +3,11 @@ import os
 
 
 def tests_dict() -> dict:
-    """Return only the tests_dict
-    First element of each list is the expected result."""
+    """
+    Returns only the tests_dict
+    First element of each list is the expected result.
+    """
+
     tests = {
         "basic": ["['Hello', 'World']", '"Hello the World" 4'],
         "none_long_enough": ['[]', '"Hello the World" 99'],

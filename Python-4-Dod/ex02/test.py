@@ -1,14 +1,28 @@
 def my_decorator(func):
+    """DOCSTRING"""
+
     def wrapper():
-        print("Avant la fonction")
+        """DOCSTRING"""
+
+        print("Before the function")
         func()
-        print("Après la fonction")
+        print("After the function")
+
     return wrapper
 
 
 @my_decorator
 def hello():
+    """DOCSTRING"""
+
     print("Hello, world!")
 
 
-hello()
+def main():
+    """DOCSTRING"""
+
+    hello()
+
+
+if __name__ == "__main__":
+    main()

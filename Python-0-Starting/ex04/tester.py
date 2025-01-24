@@ -3,8 +3,11 @@ import os
 
 
 def tests_dict() -> dict:
-    """Return only the tests_dict
-    First element of each list is the expected result"""
+    """
+    Return only the tests_dict
+    First element of each list is the expected result
+    """
+
     tests = {
         "even": ["I'm Even.", "42", "0", "-0", "000000", "00000042",
                  "-0000042", "22", "1000002", "48", "50", "1004", "906"],

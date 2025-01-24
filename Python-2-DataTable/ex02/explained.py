@@ -21,6 +21,7 @@ from load_csv import load
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
+from typing import Any
 
 
 def main() -> None:
@@ -167,7 +168,10 @@ def main() -> None:
             print(f"An unexpected error occurred: {error}")
             return -1
 
-    def human_readable_formatter(x, _):
+    def human_readable_formatter(
+        x: int,
+        _: Any
+    ) -> str:
         """
         Converts a large number into a human-readable
         string format (e.g., "5k", "3M", "2B").
@@ -202,10 +206,11 @@ def main() -> None:
         else:
             return str(int(x))
 
-    
     if not all([DEBUG, PRINT_NOTES]):
-        print("For this part NOTES part, "
-                "it is advised to enable DEBUG, and PRINT_NOTES.\n")
+        print(
+            "For this part NOTES part, "
+            "it is advised to enable DEBUG, and PRINT_NOTES.\n"
+        )
 
     try:
         assert len(COLORS) >= len(COUNTRIES), ("More countries than colors.")

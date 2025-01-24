@@ -3,10 +3,12 @@ from NULL_not_found import NULL_not_found
 
 
 def main(more_test: bool = False) -> None:
-    """Tests the NULL_not_found function.
+    """
+    Tests the NULL_not_found function.
     Receives an arg (more_test).
     Use the -more option for more tests:"
-    "python3 tester.py -more"""
+    "python3 tester.py -more
+    """
 
     Nothing = None
     Garlic = float("NaN")

@@ -33,7 +33,8 @@ import sys
 
 
 def main() -> None:
-    """Receives exactly one arg(text, a string) from the CLI.
+    """
+    Receives exactly one arg(text, a string) from the CLI.
     text string has to contains only alphanumeric characters and spaces.
     Prints the text encoded into Morse Code.
 
@@ -46,7 +47,8 @@ def main() -> None:
 
     Usage:
     $> python sos.py "sos" | cat -e
-    ... --- ...$"""
+    ... --- ...$
+    """
 
     DEBUG = 0
 

@@ -85,7 +85,7 @@ def main() -> None:
             or if the specified country is not in the dataset index.
         """
 
-        assert not data is None, "Data is None."
+        assert data is not None, "Data is None."
 
         assert 'country' in data.columns, (
             "'country' is not a column of the dataframe."

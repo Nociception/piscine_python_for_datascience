@@ -1,5 +1,6 @@
 # Subject
-"""Exercice 08: Loading ...
+"""
+Exercice 08: Loading ...
 Turn-in directory : ex08/
 Files to turn in : Loading.py
 Allowed functions : None
@@ -9,11 +10,13 @@ The function must copy the function tqdm with the yield operator.
 
 Here's how it should be prototyped:
 def ft_tqdm(lst: range) -> None:
-#your code here"""
+#your code here
+"""
 
 
-def ft_tqdm(lst: range) -> None:
-    """A mini tqdm, inspired from the original tqdm.
+def ft_tqdm(lst: range):
+    """
+    A mini tqdm, inspired from the original tqdm.
     Prints a progressing load bar, according to the parameter lst.
 
     For more details :
@@ -22,7 +25,8 @@ def ft_tqdm(lst: range) -> None:
 
     Usage:
     for elem in ft_tqdm(range(333)):
-        sleep(0.005)"""
+        sleep(0.005)
+    """
 
     WIDTH = 61
     total = len(lst)

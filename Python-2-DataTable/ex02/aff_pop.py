@@ -196,7 +196,8 @@ def main() -> None:
         data = load(DATASET_PATH)
 
         if DEBUG:
-            print("\n### DEBUG ###\n"
+            print(
+                "\n### DEBUG ###\n"
                 "function: main from aff_pop.py\n"
                 "data:\n"
                 f"{data}"
@@ -204,7 +205,8 @@ def main() -> None:
                 f"\nCOUNTRIES:\n{COUNTRIES};  len(COUNTRIES): {len(COUNTRIES)}"
                 f"\nCOLORS:\n{COLORS}; len(COLORS): {len(COLORS)}"
                 "Reminder : len(COLORS) must be >= len(COUNTRIES)."
-                "\n### DEBUG END###\n")
+                "\n### DEBUG END###\n"
+            )
 
         data = parsing_reindex_df(data)
 

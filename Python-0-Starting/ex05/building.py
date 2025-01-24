@@ -61,11 +61,13 @@ def main() -> None:
     DEBUG = 0
 
     def get_input() -> str:
-        """Gets the input in case of no argument is provided in the CLI.
+        """
+        Gets the input in case of no argument is provided in the CLI.
         Each carriage return is turned into a space.
         End of capture occurs with an EOF signal (lauched with Ctrl+D).
         Returns a string which contains each line, space (not \\n) separated.
         """
+
         print("What is the text to count?")
         text = list()
         while True:
@@ -90,6 +92,7 @@ def main() -> None:
         - space(s)
         - digit(s)
         """
+
         punctuation = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
         criteria = {"upper letters": lambda c: c.isupper(),
                     "lower letters": lambda c: c.islower(),

@@ -45,7 +45,8 @@ $>
 
 
 def all_thing_is_obj(object: any) -> int:
-    """Receives an arg (object) of any type.
+    """
+    Receives an arg (object) of any type.
     If object's type is one of the following:
         list, tuple, set, dict, str
     Prints the object's type, "Type not found" otherwise.
@@ -54,7 +55,8 @@ def all_thing_is_obj(object: any) -> int:
     Usage:
     >>> all_thing_is_obj(["elt1", "elt2"])
     List : <class 'list'>
-    42"""
+    42
+    """
 
     types = {list: "List",
              tuple: "Tuple",

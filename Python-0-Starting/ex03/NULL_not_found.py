@@ -45,7 +45,8 @@ $>
 
 
 def NULL_not_found(object: any) -> int:
-    """Receives an arg (object) of any type.
+    """
+    Receives an arg (object) of any type.
     If object is one of the following:
     None, nan(float), 0(int), ""(empty string), False
     Prints a specific text for each, and its type ;

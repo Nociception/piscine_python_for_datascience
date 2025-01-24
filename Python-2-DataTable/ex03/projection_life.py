@@ -1097,7 +1097,10 @@ if __name__ == "__main__":
 #                 " attempted which needs the DataFrame to be cleaned"
 #                 " before."
 #         ):
-#             """DOCSTRING"""
+#             """
+#             Initializes an instance of a DataFrameNotCleanedException
+#             class object, with the `msg` received as parameter.
+#             """
 
 #             super().__init__(msg)
 
@@ -1944,7 +1947,14 @@ if __name__ == "__main__":
 #                 ].data_frame[self.common_column].unique()
 
 #             def match_country_name(country):
-#                 """DOCSTRING"""
+#                 """
+#                 Returns the first score >= 80 found during the
+#                 fuzzywuzzy process.extractOne.
+
+#                 This function calculates a match score between
+#                 an entity name (from the extra_data_x df)
+#                 and every entity names in data_y.
+#                 """
 
 #                 match, score = process.extractOne(country, data_y_countries)
 #                 return match if score >= 80 else None
@@ -2665,7 +2675,10 @@ if __name__ == "__main__":
 #         self,
 #         update_callback_function: Callable
 #     ) -> None:
-#         """DOCSTRING"""
+#         """
+#         Builds the slider with many fixed numbers and values.
+#         Buttons slider linked are also created here.
+#         """
 
 #         ax_slider = self.fig.add_axes([0.05, 0.01, 0.5, 0.03])
 #         self.slider = Slider(

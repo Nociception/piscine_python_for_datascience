@@ -30,7 +30,6 @@ is not restrictive.
 
 import matplotlib.pyplot as plt
 from load_csv import load
-import numpy as np
 
 
 def main() -> None:
@@ -117,8 +116,10 @@ def main() -> None:
 
             print(f"data.columns.values: {data.columns.values}")
             # Provides the same list as above.
-            print("'country' in data.columns.values:\n"
-                    f"{'country' in data.columns.values}")  # True
+            print(
+                "'country' in data.columns.values:\n"
+                f"{'country' in data.columns.values}"
+            )  # True
         """
         So let's check that now:
         """
@@ -202,6 +203,7 @@ def main() -> None:
         print(f"An unexpected error occurred: {error}")
     finally:
         return None
+
 
 if __name__ == "__main__":
     main()
