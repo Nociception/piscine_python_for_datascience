@@ -1,6 +1,6 @@
 # Introduction
 This post common core [42](https://42.fr)'s piscine is an intensive program which allows to learn basical and advanced python skills in a data manipulation and analysis context.
-Designed with complexity ascending modules, each of them introduces a new concept, one by one. They must be validated in the order they are proposed.
+Designed with complexity ascending modules, each of them introduces a new concept, more or less one by one. They must be validated in the order they are proposed.
 
 ---
 
