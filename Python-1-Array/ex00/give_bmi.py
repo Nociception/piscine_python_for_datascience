@@ -142,15 +142,18 @@ def apply_limit(bmi: list[int | float], limit: int) -> list[bool]:
         bmi_arr = parsing(bmi, limit)
         return (bmi_arr > limit).tolist()
 
-    except AssertionError as error:
-        print(f"{type(error).__name__}: {error}")
-        return []
+    except AssertionError as e:
+        print(f"{type(e).__name__}: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
+    return []
 
 
 """
 (1): Back to this check:
     assert all(isinstance(x, (int, float)) for x in height + weight), (
-            "Elements in both of the lists must be integers or floats."
+        "Elements in both of the lists must be integers or floats."
     )
     This check allows the lists to contain a mix of int and float.
     Because of numpy arrays can contain only one type of data, if the list

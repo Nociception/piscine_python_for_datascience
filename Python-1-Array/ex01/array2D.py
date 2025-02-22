@@ -128,5 +128,7 @@ def slice_me(family: list, start: int, end: int) -> list:
 
         return sliced_family.tolist()
 
-    except AssertionError as error:
-        print(f"{type(error).__name__}: {error}")
+    except AssertionError as e:
+        print(f"{type(e).__name__}: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")

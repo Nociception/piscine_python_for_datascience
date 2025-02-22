@@ -150,8 +150,8 @@ def zoom(img_path: str,
 
     except AssertionError as error:
         print(f"{type(error).__name__}: {error}")
-    except Exception as error:
-        print(f"An unexpected error occurred: {error}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 
 if __name__ == "__main__":

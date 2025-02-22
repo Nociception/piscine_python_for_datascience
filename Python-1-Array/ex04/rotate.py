@@ -156,10 +156,10 @@ def rotate(img_path: str,
         plt.title("Transposed Image")
         plt.show()
 
-    except AssertionError as error:
-        print(f"{type(error).__name__}: {error}")
-    except Exception as error:
-        print(f"An unexpected error occurred: {error}")
+    except AssertionError as e:
+        print(f"{type(e).__name__}: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 
 if __name__ == "__main__":

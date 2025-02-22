@@ -99,8 +99,8 @@ def ft_load(path: str) -> np.ndarray:
 
             return pixels
 
-    except AssertionError as error:
-        print(f"{type(error).__name__}: {error}")
+    except AssertionError as e:
+        print(f"{type(e).__name__}: {e}")
         return np.array([])
-    except Exception as error:
-        print(f"An unexpected error occurred: {error}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
